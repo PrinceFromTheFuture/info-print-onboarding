@@ -1,0 +1,70 @@
+{
+  "createdAt": "2025-10-22T16:32:08.019Z",
+  "updatedAt": "2025-10-22T16:32:08.019Z",
+  "name": "template rtaio",
+  "description": "hi ny name is amiur",
+  "sections": [
+    {
+      "createdAt": "2025-10-22T16:31:57.174Z",
+      "updatedAt": "2025-10-22T16:31:57.174Z",
+      "title": "section first",
+      "description": "fsdfds",
+      "order": 1,
+      "groups": [
+        {
+          "createdAt": "2025-10-22T16:31:24.543Z",
+          "updatedAt": "2025-10-22T16:31:24.544Z",
+          "title": "קבוצה אנונימית",
+          "showIf": {
+            "question": {
+              "createdAt": "2025-10-22T16:30:54.411Z",
+              "updatedAt": "2025-10-22T16:30:54.411Z",
+              "title": "מה שלומך",
+              "label": "איך אפשר לעזור",
+              "required": true,
+              "field": {
+                "createdAt": "2025-10-22T16:30:26.302Z",
+                "updatedAt": "2025-10-22T16:30:37.745Z",
+                "selectOptions": [
+                  {
+                    "value": "",
+                    "id": "68f9068b2ee2725e9b49603c"
+                  }
+                ],
+                "type": "text",
+                "id": "68f906a28ef6276e7de91a7b"
+              },
+              "id": "68f906be8ef6276e7de91aa0"
+            },
+            "equalTo": "שלוםם"
+          },
+          "questions": [
+            {
+              "createdAt": "2025-10-22T16:30:54.411Z",
+              "updatedAt": "2025-10-22T16:30:54.411Z",
+              "title": "מה שלומך",
+              "label": "איך אפשר לעזור",
+              "required": true,
+              "field": {
+                "createdAt": "2025-10-22T16:30:26.302Z",
+                "updatedAt": "2025-10-22T16:30:37.745Z",
+                "selectOptions": [
+                  {
+                    "value": "",
+                    "id": "68f9068b2ee2725e9b49603c"
+                  }
+                ],
+                "type": "text",
+                "id": "68f906a28ef6276e7de91a7b"
+              },
+              "id": "68f906be8ef6276e7de91aa0"
+            }
+          ],
+          "id": "68f906dc8ef6276e7de91ac8"
+        }
+      ],
+      "id": "68f906fd8ef6276e7de91ae5"
+    }
+  ],
+  "id": "68f907088ef6276e7de91afa"
+}

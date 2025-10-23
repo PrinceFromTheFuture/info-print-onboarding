@@ -1,0 +1,10 @@
+import AppUsers from "./AppUsers";
+import { Media } from "./Media";
+import Questions from "./Questions";
+import Sections from "./Sections";
+import Submissions from "./Submissions";
+import Templates from "./Templates";
+import Assignments from "./Assignments";
+import Groups from "./Groups";
+import Visits from "./Visits";
+export const collections = [AppUsers, Sections, Questions, Templates, Submissions, Media, Assignments, Groups, Visits];

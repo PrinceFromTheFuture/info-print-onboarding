@@ -1,0 +1,163 @@
+import express from "express";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./auth";
+import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { createContext } from "./trpc/trpc";
+import cors from "cors";
+import { appRouter } from "./trpc";
+import cookieParser from "cookie-parser";
+import { getPayload } from "./db/getPayload";
+import multer from "multer";
+import path from "path";
+
+const app = express();
+
+// IMPORTANT: Apply CORS and cookie parser first
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Replace with your frontend's origin
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  })
+);
+
+app.use(cookieParser());
+
+const port = 3005;
+
+// Configure multer for handling file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+  },
+});
+
+// IMPORTANT: Upload route MUST come before auth and other routes
+// to prevent body parsers from consuming the request
+app.post(
+  "/api/media/upload",
+  (req, res, next) => {
+    console.log("=== BEFORE MULTER ===");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Has body?", !!req.body);
+    next();
+  },
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const payload = await getPayload;
+
+      console.log("=== UPLOAD DEBUG ===");
+      console.log("req.file:", req.file ? "EXISTS" : "NULL");
+      console.log("req.body:", req.body);
+      console.log("Content-Type:", req.headers["content-type"]);
+      console.log("===================");
+
+      // Check if file is present in the request
+      if (!req.file) {
+        return res.status(400).json({
+          error: "No file provided",
+          debug: {
+            contentType: req.headers["content-type"],
+            bodyKeys: Object.keys(req.body || {}),
+            bodyFileType: req.body?.file ? typeof req.body.file : "N/A",
+          },
+        });
+      }
+
+      const { alt, userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ error: "userId is required" });
+      }
+
+      console.log("User ID:", userId);
+      console.log("File info:", {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+      });
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const fileExtension = path.extname(req.file.originalname || "file");
+      const uniqueFileName = `${timestamp}-${Math.random().toString(36).substring(7)}${fileExtension}`;
+
+      // Create a file object that Payload expects
+      // Payload expects a File-like object with specific properties
+      const fileObject = {
+        data: req.file.buffer,
+        mimetype: req.file.mimetype,
+        name: req.file.originalname,
+        size: req.file.size,
+      };
+
+      console.log("Creating media record with:", {
+        alt: alt || "",
+        uploadedBy: userId,
+        extention: fileExtension,
+        fileObject: {
+          name: fileObject.name,
+          mimetype: fileObject.mimetype,
+          size: fileObject.size,
+        },
+      });
+
+      // Create media record in Payload with the user's ID
+      const mediaRecord = await payload.create({
+        collection: "media",
+        data: {
+          alt: alt || "",
+          uploadedBy: userId,
+          extention: fileExtension,
+        },
+        file: fileObject,
+      });
+
+      console.log("Media record created:", mediaRecord.id);
+
+      // Get the actual filename that Payload saved
+      const savedFilename = mediaRecord.filename || uniqueFileName;
+
+      // Return the file URL using the filename from Payload
+      const fileUrl = `${req.protocol}://${req.get("host")}/api/media/file/${savedFilename}`;
+
+      res.json({
+        success: true,
+        fileUrl,
+        mediaId: mediaRecord.id,
+        filename: savedFilename,
+      });
+    } catch (error) {
+      console.error("Error uploading media:", error);
+      console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+      res.status(500).json({
+        error: "Failed to upload media file",
+        details: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
+  }
+);
+
+// Add auth and static routes after upload
+app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api/media/file", express.static("media"));
+
+// Add JSON and URL-encoded body parsers AFTER the upload route
+// to prevent them from interfering with multipart form data
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+app.use(
+  "/trpc",
+  createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  })
+);
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
+});

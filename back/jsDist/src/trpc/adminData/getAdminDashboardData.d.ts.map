@@ -1,0 +1,1 @@
+{"version":3,"file":"getAdminDashboardData.d.ts","sourceRoot":"","sources":["../../../../src/trpc/adminData/getAdminDashboardData.ts"],"names":[],"mappings":"AAKA,QAAA,MAAM,qBAAqB;;;;;;;;;;;;;0BA8DkC,MAAM;0BAAgB,MAAM;wBAAc,MAAM;;;kBAyBjE,MAAM;mBAAS,MAAM;uBAAa,MAAM;yBAAe,MAAM;;;;EAkBvG,CAAC;AAEH,eAAe,qBAAqB,CAAC"}
