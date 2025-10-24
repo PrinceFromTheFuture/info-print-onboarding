@@ -1,9 +1,9 @@
-import { router } from "../trpc";
-import assignTempalteToUser from "./assignTempalteToUser";
-import { getFilledTemplateById } from "./getFilledTemplateById";
-import getTemplates from "./getTemapltes";
-import { getTemplateById } from "./getTemplateById";
-import getTemplatesStats from "./getTemplatesStats";
+import { router } from "../trpc.js";
+import assignTempalteToUser from "./assignTempalteToUser.js";
+import { getFilledTemplateById } from "./getFilledTemplateById.js";
+import getTemplates from "./getTemapltes.js";
+import { getTemplateById } from "./getTemplateById.js";
+import getTemplatesStats from "./getTemplatesStats.js";
 
 export const templatesRouter = router({
   getTemplateById,

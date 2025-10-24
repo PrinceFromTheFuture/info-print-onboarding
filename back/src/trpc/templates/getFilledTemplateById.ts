@@ -1,7 +1,7 @@
-import { getPayload } from "src/db/getPayload";
-import { privateProcedure } from "../trpc";
+import { getPayload } from "../../db/getPayload.js";
+import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
-import type { Template, Section, Group, Question, Submission } from "../../../payload-types";
+import type { Template, Section, Group, Question, Submission } from "../../payload-types.js";
 
 export const getFilledTemplateById = privateProcedure
   .input(

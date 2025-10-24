@@ -4,6 +4,7 @@ import React, { useEffect, use, useState } from "react";
 import FormSidebar from "./_components/FormSidebar";
 import FormSection from "./_components/FormSection";
 import { Button } from "@/components/ui/button";
+
 import { ChevronLeft, ChevronRight, Menu, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import type { Section } from "./_components/types";
@@ -20,10 +21,18 @@ import {
   markSectionComplete,
   toggleSidebar,
 } from "@/lib/redux/formSlice/formSlice";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTRPC } from "@/trpc/trpc";
 
 export default function FormPage({ params }: { params: Promise<{ formId: string }> }) {
   const unwrappedParams = use(params);
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const trpc = useTRPC();
+  const {mutateAsync:submitAssignment} = useMutation(trpc.submittionsRouter.submitAssignment.mutationOptions());
 
   // Get state from Redux
   const {
@@ -112,7 +121,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit =async () => {
     // Validate all sections before submission
     const incompleteSections = sections.filter((section) => !isSectionComplete(section, formData));
 
@@ -133,8 +142,10 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
       return;
     }
 
-    console.log("Form submitted:", formData);
+    await submitAssignment({ templateId: unwrappedParams.formId });
+    await queryClient.invalidateQueries();
     toast.success("Form submitted successfully!");
+    router.push("/customer");
     // TODO: Implement actual submit functionality
   };
 
@@ -207,7 +218,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
           <Button variant="outline" className="mb-4 mx-8 mt-6">
             <Link href="/customer" className="inline-flex items-center gap-2 transition-colors">
               <ArrowLeft className="h-4 w-4" />
-              Back to Customers
+              Go back
             </Link>
           </Button>
 

@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../auth";
-import type { AppUser } from "payload-types";
+import { auth } from "../auth.js";
+import type { AppUser } from "../payload-types.js";
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
@@ -17,7 +17,7 @@ export const createContext = async (opts: CreateExpressContextOptions) => {
   return {
     req: opts.req,
     res: opts.res,
-    user: session?.user as unknown as  AppUser | null,
+    user: session?.user as unknown as AppUser | null,
   };
 };
 

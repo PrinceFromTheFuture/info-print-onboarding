@@ -1,11 +1,11 @@
-import AppUsers from "./AppUsers";
-import { Media } from "./Media";
-import Questions from "./Questions";
-import Sections from "./Sections";
-import Submissions from "./Submissions";
-import Templates from "./Templates";
-import Assignments from "./Assignments";
-import Groups from "./Groups";
-import Visits from "./Visits";
+import AppUsers from "./AppUsers.js";
+import { Media } from "./Media.js";
+import Questions from "./Questions.js";
+import Sections from "./Sections.js";
+import Submissions from "./Submissions.js";
+import Templates from "./Templates.js";
+import Assignments from "./Assignments.js";
+import Groups from "./Groups.js";
+import Visits from "./Visits.js";
 
 export const collections = [AppUsers, Sections, Questions, Templates, Submissions, Media, Assignments, Groups, Visits];

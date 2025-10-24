@@ -1,0 +1,31 @@
+services:
+  front:
+    build: ./front
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3005/trpc
+      - NEXT_PUBLIC_STATIC_URL=http://localhost:3005/api/media/file
+    depends_on:
+      - back
+  back:
+    build: ./back
+    ports:
+      - "3005:3005"
+    environment:
+      - DATABASE_URI=mongodb://mongo:27017
+      - PAYLOAD_SECRET=fsdjfuishdg7u
+    depends_on:
+      - mongo
+    post_start:
+      - command: npm run seed
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+
+volumes:
+  mongo_data:

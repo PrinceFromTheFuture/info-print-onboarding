@@ -21,6 +21,9 @@ import { getIncompleteQuestions, isSectionComplete } from "@/app/(private)/form/
 import { Button } from "@/components/ui/button";
 import FormSidebar from "@/app/(private)/form/[formId]/_components/FormSidebar";
 import FormSection from "@/app/(private)/form/[formId]/_components/FormSection";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useTRPC } from "@/trpc/trpc";
 
 export default function FormPage({ params }: { params: Promise<{ formId: string; userId: string }> }) {
   const unwrappedParams = use(params);
@@ -113,32 +116,6 @@ export default function FormPage({ params }: { params: Promise<{ formId: string;
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = () => {
-    // Validate all sections before submission
-    const incompleteSections = sections.filter((section) => !isSectionComplete(section, formData));
-
-    if (incompleteSections.length > 0) {
-      const sectionTitles = incompleteSections.map((s) => s.title).join(", ");
-
-      // Highlight all incomplete questions in current section
-      if (currentSection) {
-        const incompleteQuestions = getIncompleteQuestions(currentSection, formData);
-        const invalidIds = new Set(incompleteQuestions.map((q) => q.id));
-        setInvalidQuestions(invalidIds);
-      }
-
-      toast.error("Cannot Submit", {
-        description: `Please complete all required fields in: ${sectionTitles}`,
-        duration: 4000,
-      });
-      return;
-    }
-
-    console.log("Form submitted:", formData);
-    toast.success("Form submitted successfully!");
-    // TODO: Implement actual submit functionality
-  };
-
   // Loading state
   if (isLoading) {
     return (
@@ -160,7 +137,9 @@ export default function FormPage({ params }: { params: Promise<{ formId: string;
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Failed to Load Form</h2>
             <p className="text-muted-foreground mb-4">{error}</p>
-            <Button onClick={() => dispatch(getFilledTemplateByIdAsyncThunk({ formId: unwrappedParams.formId, userId: unwrappedParams.userId }))}>Try Again</Button>
+            <Button onClick={() => dispatch(getFilledTemplateByIdAsyncThunk({ formId: unwrappedParams.formId, userId: unwrappedParams.userId }))}>
+              Try Again
+            </Button>
           </div>
         </Card>
       </div>
@@ -206,9 +185,9 @@ export default function FormPage({ params }: { params: Promise<{ formId: string;
 
           {/* Back Link - Above Sticky Header */}
           <Button variant="outline" className="mb-4 mx-8 mt-6">
-            <Link href="/customer" className="inline-flex items-center gap-2 transition-colors">
+            <Link href="/admin" className="inline-flex items-center gap-2 transition-colors">
               <ArrowLeft className="h-4 w-4" />
-              Back to Customers
+              Back to Dashboard
             </Link>
           </Button>
 
@@ -298,10 +277,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string;
             </div>
 
             {isLastSection ? (
-              <Button onClick={handleSubmit} className="gap-2 w-full sm:w-auto order-3">
-                Submit Form
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              <></>
             ) : (
               <Button onClick={handleNext} disabled={!currentSectionComplete} className="gap-2 w-full sm:w-auto order-3">
                 Next

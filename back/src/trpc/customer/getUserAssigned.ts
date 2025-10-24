@@ -1,5 +1,5 @@
-import { privateProcedure } from "../trpc";
-import { getPayload } from "src/db/getPayload";
+import { privateProcedure } from "../trpc.js";
+import { getPayload } from "../../db/getPayload.js";
 
 const getUserAssignedTemplates = privateProcedure.query(async ({ ctx }) => {
   const payload = await getPayload;
@@ -18,6 +18,7 @@ const getUserAssignedTemplates = privateProcedure.query(async ({ ctx }) => {
       },
     },
     depth: 2, // Get template data populated
+    pagination: false,
   });
 
   // Build the response with progress for each assignment
@@ -72,6 +73,7 @@ const getUserAssignedTemplates = privateProcedure.query(async ({ ctx }) => {
           ],
         },
         limit: 0, // We only need the count
+        pagination: false,
       });
 
       const completedQuestions = submissions.totalDocs;

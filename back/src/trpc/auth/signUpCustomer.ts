@@ -1,7 +1,7 @@
-import { auth } from "src/auth";
-import { privateProcedure, publicProcedure } from "../trpc";
+import { auth } from "../../auth.js";
+import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
-import { getPayload } from "src/db/getPayload";
+import { getPayload } from "../../db/getPayload.js";
 import { TRPCError } from "@trpc/server";
 
 export const signUpCustomer = privateProcedure
@@ -12,8 +12,9 @@ export const signUpCustomer = privateProcedure
       name: z.string(),
     })
   )
-  .mutation(async ({ ctx, input }) => {
+  .mutation(async ({ input }) => {
     const payload = await getPayload;
+
     const { docs: users } = await payload.find({
       collection: "appUsers",
       where: {

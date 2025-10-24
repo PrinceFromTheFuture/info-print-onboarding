@@ -1,5 +1,5 @@
-import { privateProcedure } from "../trpc";
-import { getPayload } from "../../db/getPayload";
+import { privateProcedure } from "../trpc.js";
+import { getPayload } from "../../db/getPayload.js";
 
 export const getUserMedia = privateProcedure.query(async ({ ctx }) => {
   const payload = await getPayload;

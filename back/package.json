@@ -14,7 +14,9 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "generate": "npx payload generate:types",
-    "seed": "bun seed.ts",
+    "start": "node dist/src/index.js",
+    "build": "tsc",
+    "seed": "node  dist/src/seed.js",
     "seed:verify": "bun verify-seed.ts",
     "seed:cleanup": "bun cleanup-seed.ts",
     "seed:test": "bun test-seed-cycle.ts",
@@ -28,6 +30,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "payload": "^3.60.0"

@@ -1,7 +1,7 @@
-import { getPayload } from "src/db/getPayload";
-import { privateProcedure } from "../trpc";
+import { getPayload } from "../../db/getPayload.js";
+import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
-import type { AppUser } from "../../../payload-types";
+import type { AppUser } from "../../payload-types.js";
 
 export const getCustomersData = privateProcedure
   .input(
@@ -21,19 +21,13 @@ export const getCustomersData = privateProcedure
       },
     };
 
-    // Add search filter if provided
-    if (input?.search) {
-      whereClause.or = [{ name: { contains: input.search } }, { email: { contains: input.search } }];
-    }
-
     // Fetch all customers without pagination or sorting
     const customers = await payload.find({
       collection: "appUsers",
-      where: whereClause,
       depth: 1,
       pagination: false,
     });
-
+    console.log(customers.docs.length);
     // Get assignments for each customer to calculate progress
     const customerIds = customers.docs.map((customer) => customer.id);
 

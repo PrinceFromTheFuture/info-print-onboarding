@@ -1,8 +1,8 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { getPayload } from "./db/getPayload";
 import { createAuthMiddleware } from "better-auth/api";
 import { BasePayload } from "payload";
+import { getPayload } from "./db/getPayload.js";
 
 const signUpUser = async (payload: BasePayload, email: string, name?: string) => {
   await payload.create({
@@ -19,6 +19,7 @@ const getUser = async (payload: BasePayload, email: string) => {
   const { docs: users } = await payload.find({
     collection: "appUsers",
     where: { email: { equals: email } },
+    pagination: false,
   });
   return users[0];
 };
@@ -37,11 +38,11 @@ export const auth = betterAuth({
     },
   },
   emailAndPassword: { enabled: true },
-  trustedOrigins: ["http://localhost:3000", "http://localhost:3005"],
+  trustedOrigins: ["http://localhost:3000", "http://100.125.142.120:3000"],
+
   hooks: {
-  
+    //@ts-ignore
     after: createAuthMiddleware(async (ctx) => {
-      console.log("test");
       //@ts-ignore
       const user = ctx.context?.returned?.user!;
 
@@ -50,7 +51,6 @@ export const auth = betterAuth({
         //@ts-ignore
         ctx.context.session.user = payloadUser;
       }
-    
     }),
   },
   database: mongodbAdapter(db, { client }),

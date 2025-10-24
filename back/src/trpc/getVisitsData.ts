@@ -1,11 +1,11 @@
-import { getPayload } from "src/db/getPayload";
-import { privateProcedure } from "./trpc";
+import { getPayload } from "../db/getPayload.js";
+import { privateProcedure } from "./trpc.js";
 
 const getVisitsData = privateProcedure.query(async ({ ctx }) => {
   const payload = await getPayload;
   const { docs: visits } = await payload.find({
     collection: "visits",
-   
+
     pagination: false,
     sort: "createdAt",
   });

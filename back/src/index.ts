@@ -1,21 +1,23 @@
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "./auth";
+import { auth } from "./auth.js";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { createContext } from "./trpc/trpc";
+import { createContext } from "./trpc/trpc.js";
 import cors from "cors";
-import { appRouter } from "./trpc";
+import { appRouter } from "./trpc/index.js";
 import cookieParser from "cookie-parser";
-import { getPayload } from "./db/getPayload";
+import { getPayload } from "./db/getPayload.js";
 import multer from "multer";
-import path from "path";
 
+import path from "path";
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend's origin
+    origin: ["http://localhost:3000", "http://100.125.142.120:3000"], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
@@ -158,6 +160,8 @@ app.use(
   })
 );
 
-app.listen(port, () => {
+app.listen(port,'0.0.0.0', () => {
+  const procedureList = Object.keys(appRouter._def.procedures);
+  console.log(procedureList);
   console.log(`Example app listening on port ${port}`);
 });

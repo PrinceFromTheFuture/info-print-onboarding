@@ -1,6 +1,6 @@
-import { getPayload } from "src/db/getPayload";
-import { privateProcedure } from "../trpc";
-import type { AppUser, Assignment, Submission, Template, Section, Group, Question } from "../../../payload-types";
+import { getPayload } from "../../db/getPayload.js";
+import { privateProcedure } from "../trpc.js";
+import type { AppUser, Assignment, Submission, Template, Section, Group, Question } from "../../payload-types.js";
 import dayjs from "dayjs";
 
 const getAdminSubmissions = privateProcedure.query(async ({ ctx }) => {

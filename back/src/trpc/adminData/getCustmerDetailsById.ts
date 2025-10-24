@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { privateProcedure } from "../trpc";
-import { getPayload } from "src/db/getPayload";
-import type { AppUser, Assignment, Template as PayloadTemplate, Section, Group, Question, Media as PayloadMedia } from "../../../payload-types";
+import { privateProcedure } from "../trpc.js";
+import { getPayload } from "../../db/getPayload.js";
+import type { AppUser, Assignment, Template as PayloadTemplate, Section, Group, Question, Media as PayloadMedia } from "../../payload-types.js";
 
 type Template = {
   id: string;

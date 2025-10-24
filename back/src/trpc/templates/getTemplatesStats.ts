@@ -1,5 +1,5 @@
-import { getPayload } from "src/db/getPayload";
-import { privateProcedure } from "../trpc";
+import { getPayload } from "../../db/getPayload.js";
+import { privateProcedure } from "../trpc.js";
 
 export const getTemplatesStats = privateProcedure.query(async ({ ctx }) => {
   const payload = await getPayload;
