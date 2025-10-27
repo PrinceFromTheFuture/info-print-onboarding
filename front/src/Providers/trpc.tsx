@@ -11,6 +11,11 @@ function makeQueryClient() {
         // above 0 to avoid refetching immediately on the client
         staleTime: 60 * 1000,
       },
+      // Add this dehydrate config
+      dehydrate: {
+        shouldRedactErrors: (error: unknown) => false,
+        shouldDehydrateMutation: () => false,  // Skip ALL mutations—simple hammer
+      },
     },
   });
 }

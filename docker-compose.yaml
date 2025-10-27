@@ -1,26 +1,36 @@
 services:
   front:
-    build: ./front
     image: princefromthefuture/infofloprint-onboarding-front:latest
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_URL: https://infoprint-onboarding.amirwais.store/api
+        NEXT_PUBLIC_STATIC_URL: https://infoprint-onboarding.amirwais.store/api/api/media/file
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3005
-      - NEXT_PUBLIC_STATIC_URL=http://localhost:3005/api/media/file
+      NEXT_PUBLIC_BACKEND_URL: https://infoprint-onboarding.amirwais.store/api
+      NEXT_PUBLIC_STATIC_URL: https://infoprint-onboarding.amirwais.store/api/api/media/file
     depends_on:
       - back
+
   back:
     image: princefromthefuture/infofloprint-onboarding-back:latest
-    build: ./back
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URI: mongodb://mongo:27017
+        PAYLOAD_SECRET: fsdjfuishdg7u
     ports:
       - "3005:3005"
     environment:
-      - DATABASE_URI=mongodb://mongo:27017
-      - PAYLOAD_SECRET=fsdjfuishdg7u
+      DATABASE_URI: mongodb://mongo:27017
+      PAYLOAD_SECRET: fsdjfuishdg7u
     depends_on:
       - mongo
-    post_start:
-      - command: npm run seed
+
   mongo:
     image: mongo:latest
     ports:

@@ -9,6 +9,8 @@ import { CheckCircle2, Circle, Clock, PlayCircle, ArrowRight, Loader2 } from "lu
 import Link from "next/link";
 import { useTRPC } from "@/trpc/trpc";
 
+export const dynamic = "force-dynamic";
+
 export default function WorkflowPage() {
   const trpc = useTRPC();
   const { data: assignedTemplates, isLoading } = useQuery(trpc.customerRouter.getUserAssignedTemplates.queryOptions());

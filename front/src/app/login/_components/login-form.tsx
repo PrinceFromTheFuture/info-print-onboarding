@@ -14,7 +14,7 @@ import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const schema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+  email: z.string("Please enter a valid email address."),
   password: z.string().min(1, "Password is required."),
 });
 

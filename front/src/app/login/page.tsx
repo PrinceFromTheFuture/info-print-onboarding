@@ -5,6 +5,7 @@ import Image from "next/image";
 import { LoginForm } from "./_components/login-form";
 import { SignupForm } from "./_components/signup-form";
 
+export const dynamic = "force-dynamic";
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
 
