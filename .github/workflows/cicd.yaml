@@ -21,6 +21,7 @@ jobs:
             docker compose build --no-cache
             docker compose push
   deploy-app:
+    needs: build-app
     runs-on: ubuntu-latest
     steps:
       - name: log in to ssh
