@@ -27,7 +27,7 @@ jobs:
       - name: log in to ssh
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ vars.SSH_HOST }}
+          host: ${{ secrets.SSH_HOST }}
           username: root
           key: ${{ secrets.SSH_KEY }}
           script: |
