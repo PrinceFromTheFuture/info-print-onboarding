@@ -2,10 +2,18 @@ import 'dotenv/config'; // if using ES modules
 import fs from "fs";
 import path from "path";
 import { getPayload } from "./db/getPayload.js";
+import { auth } from './auth.js';
 const payload = await getPayload;
-// @ts-ignore
-// Enhanced type mapping from JotForm to Payload question types
-const mapJotFormTypeToPayloadType = (jotformField) => {
+
+const seedAdminUser = async () => {
+    const user = await payload.create({
+        collection: "appUsers",
+        data: { email: "amir@gmail.com", name: "Admin", role: "admin" },
+    });
+    await auth.api.signUpEmail({ body: { email: "amir@gmail.com", password: "123123123", name: "Admin" } });
+};
+
+const mapJotFormTypeToPayloadType = (jotformField: any) => {
     const fieldType = jotformField.type;
     switch (fieldType) {
         case "control_textbox":
@@ -287,6 +295,7 @@ const seedAllForms = async () => {
 // Run the batch seeder
 try {
     const results = await seedAllForms();
+    await seedAdminUser();
     console.log("🎉 All forms have been successfully seeded!");
     process.exit(0);
 }

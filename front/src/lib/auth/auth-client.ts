@@ -5,7 +5,7 @@ import { createAuthClient } from "better-auth/react";
 import type { Auth } from "../../../../back/jsDist/src/auth.d";
 export const authClient = createAuthClient({
   plugins: [inferAdditionalFields<Auth>()],
-  baseURL: "http://localhost:3005",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL ,
   fetchOptions: {
     redirect: "manual",
   },

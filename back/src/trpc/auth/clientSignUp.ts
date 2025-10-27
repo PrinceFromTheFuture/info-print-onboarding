@@ -22,7 +22,7 @@ const clientSignUp = publicProcedure
     for (const template of templates.docs) {
       await payload.create({
         collection: "assignments",
-        data: { appUser: user.id, template: template.id, status: "pending" },
+        data: { appUser: user.id, template: template.id,  },
       });
     }
     return { success: true };

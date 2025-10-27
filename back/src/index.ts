@@ -17,7 +17,7 @@ const app = express();
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://100.125.142.120:3000"], // Replace with your frontend's origin
+    origin: ["http://localhost:3000", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })

@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/auth-client";
 import { redirect, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const schema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -25,7 +26,6 @@ interface LoginFormProps extends React.ComponentProps<"div"> {
 
 export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const form = useForm<FormData>({
@@ -38,7 +38,6 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    setError(null);
     try {
       const res = await authClient.signIn.email(
         {
@@ -48,11 +47,18 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
         { redirect: "manual" }
       );
       if (res.data) {
-        router.push("/customer");
+        toast.success("Login successful! Welcome back.");
+        router.push(res.data.user.role === "admin" ? "/admin" : "/customer");
+      }
+      if(res.error){
+        console.error(res.error);
+        const errorMessage = res.error?.message || "Invalid email or password. Please try again.";
+        toast.error("Login Failed", {
+          description: errorMessage,
+        });
       }
     } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "Invalid email or password. Please try again.");
+    
     } finally {
       setIsSubmitting(false);
     }
@@ -68,18 +74,21 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input id="email" type="email" placeholder="m@example.com" {...form.register("email")} />
-                {form.formState.errors.email && <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>}
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>
+                )}
               </Field>
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
                 <Input id="password" type="password" {...form.register("password")} />
-                {form.formState.errors.password && <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>}
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
+                )}
               </Field>
               <Field>
                 <Button type="submit" disabled={isSubmitting} className="w-full">
@@ -90,7 +99,11 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
           </form>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
-            <button type="button" onClick={onSwitchToSignup} className="text-primary underline underline-offset-4 hover:text-primary/80">
+            <button
+              type="button"
+              onClick={onSwitchToSignup}
+              className="text-primary underline underline-offset-4 hover:text-primary/80"
+            >
               Sign up
             </button>
           </div>

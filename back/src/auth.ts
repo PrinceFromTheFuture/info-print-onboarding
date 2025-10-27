@@ -38,7 +38,7 @@ export const auth = betterAuth({
     },
   },
   emailAndPassword: { enabled: true },
-  trustedOrigins: ["http://localhost:3000", "http://100.125.142.120:3000"],
+  trustedOrigins: ["http://localhost:3000", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"],
 
   hooks: {
     //@ts-ignore

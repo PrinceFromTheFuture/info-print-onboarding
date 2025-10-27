@@ -26,7 +26,7 @@ export const signUpCustomer = privateProcedure
       throw new TRPCError({ code: "BAD_REQUEST", message: "User already exists" });
     }
 
-    await payload.create({
+    const user = await payload.create({
       collection: "appUsers",
       data: {
         email: input.email,
@@ -41,5 +41,15 @@ export const signUpCustomer = privateProcedure
         name: input.name,
       },
     });
+    const templates = await payload.find({
+      collection: "templates",
+      pagination: false,
+    });
+    for (const template of templates.docs) {
+      await payload.create({
+        collection: "assignments",
+        data: { appUser: user.id, template: template.id,  },
+      });
+    }
     return { success: true };
   });

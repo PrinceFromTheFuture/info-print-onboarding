@@ -34,6 +34,7 @@ export default function CustomersPage() {
   const { data: adminCustomersData, isLoading: adminDataLoading } = useQuery(trpc.adminDataRouter.getAdminCustomersData.queryOptions());
 
   // Get customers data from TRPC response
+  // @ts-ignore
   const customersData = customersDataResponse?.customers || [];
 
   // Filter customers based on search (client-side filtering for now)

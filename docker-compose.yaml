@@ -1,14 +1,16 @@
 services:
   front:
     build: ./front
+    image: princefromthefuture/infofloprint-onboarding-front:latest
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3005/trpc
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3005
       - NEXT_PUBLIC_STATIC_URL=http://localhost:3005/api/media/file
     depends_on:
       - back
   back:
+    image: princefromthefuture/infofloprint-onboarding-back:latest
     build: ./back
     ports:
       - "3005:3005"
@@ -25,7 +27,6 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-
 
 volumes:
   mongo_data:

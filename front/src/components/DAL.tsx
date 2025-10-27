@@ -3,7 +3,13 @@ import { useSession } from "@/lib/auth/auth-client";
 import { redirect, useRouter } from "next/navigation";
 import type { Auth } from "../../../back/src/auth";
 
-export default function DAL({ children }: { children: React.ReactNode }) {
+export default function DAL({
+  children,
+  redirect,
+}: {
+  children: React.ReactNode;
+  redirect?: { role: "admin" | "customer"; href: string };
+}) {
   const { data, isPending } = useSession();
   const router = useRouter();
   if (isPending) {
@@ -16,10 +22,15 @@ export default function DAL({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+
   if (!data || !data.session) {
     router.push("/login");
     return;
   }
 
+  if (redirect && redirect.role === data.user?.role) {
+    router.push(redirect.href);
+    return;
+  }
   return <>{children}</>;
 }

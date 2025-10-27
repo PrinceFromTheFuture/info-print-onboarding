@@ -60,7 +60,7 @@ export const uploadImageAsyncThunk = createAsyncThunk<
     }
     console.log("======================");
 
-    const response = await fetch("http://localhost:3005/api/media/upload", {
+    const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/media/upload", {
       method: "POST",
       credentials: "include",
       body: formData,

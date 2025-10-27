@@ -13,6 +13,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { useTRPC } from "@/trpc/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const schema = z
   .object({
@@ -34,7 +35,6 @@ interface SignupFormProps extends React.ComponentProps<"div"> {
 
 export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const trpc = useTRPC();
   const { mutateAsync: dbSignUp } = useMutation(trpc.authRouter.clientSignUp.mutationOptions());
   const router = useRouter();
@@ -51,7 +51,6 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    setError(null);
     try {
       const res = await authClient.signUp.email(
         {
@@ -64,12 +63,21 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
       await dbSignUp({ email: data.email, name: data.name });
 
       if (res.data) {
+        toast.success("Account created successfully!", {
+          description: "Welcome! You have been automatically logged in.",
+        });
         // Auto login after signup
         router.push("/customer");
       }
+      if(res.error){
+        console.error(res.error);
+        const errorMessage = res.error?.message || "Failed to create account. Please try again.";
+        toast.error("Signup Failed", {
+          description: errorMessage,
+        });
+      }
     } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "Failed to create account. Please try again.");
+   
     } finally {
       setIsSubmitting(false);
     }
@@ -85,27 +93,34 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">{error}</div>}
               <Field>
                 <FieldLabel htmlFor="name">Full Name</FieldLabel>
                 <Input id="name" type="text" placeholder="John Doe" {...form.register("name")} />
-                {form.formState.errors.name && <p className="text-sm text-destructive mt-1">{form.formState.errors.name.message}</p>}
+                {form.formState.errors.name && (
+                  <p className="text-sm text-destructive mt-1">{form.formState.errors.name.message}</p>
+                )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input id="email" type="email" placeholder="m@example.com" {...form.register("email")} />
-                {form.formState.errors.email && <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>}
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>
+                )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Input id="password" type="password" {...form.register("password")} />
-                {form.formState.errors.password && <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>}
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
+                )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
                 <Input id="confirmPassword" type="password" {...form.register("confirmPassword")} />
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-destructive mt-1">{form.formState.errors.confirmPassword.message}</p>
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.confirmPassword.message}
+                  </p>
                 )}
               </Field>
               <Field>
@@ -117,7 +132,11 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
           </form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <button type="button" onClick={onSwitchToLogin} className="text-primary underline underline-offset-4 hover:text-primary/80">
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="text-primary underline underline-offset-4 hover:text-primary/80"
+            >
               Login
             </button>
           </div>

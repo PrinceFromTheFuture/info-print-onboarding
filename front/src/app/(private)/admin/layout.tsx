@@ -9,7 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <DAL>
+    <DAL redirect={{ role: "customer", href: "/customer" }}>
       <SidebarProvider
         style={
           {

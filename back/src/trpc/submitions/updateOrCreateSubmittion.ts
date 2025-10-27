@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { getPayload } from "../../db/getPayload.js";
 import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
@@ -11,8 +12,6 @@ export const updateOrCreateSubmission = privateProcedure
   )
   .mutation(async ({ ctx, input }) => {
     const payload = await getPayload;
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Check if there's already a submission for this question by this user
     const existingSubmissions = await payload.find({
@@ -45,6 +44,15 @@ export const updateOrCreateSubmission = privateProcedure
         },
       });
       return { submission: updatedSubmission, action: "updated" };
+    } else {
+      const question = await payload.findByID({
+        collection: "questions",
+        id: input.questionId,
+        depth: 10,
+      });
+      if (!question) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Question not found" });
+      }
     }
 
     // If no submission exists, create a new one

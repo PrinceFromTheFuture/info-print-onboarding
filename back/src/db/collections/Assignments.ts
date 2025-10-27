@@ -8,6 +8,7 @@ const Assignments: CollectionConfig = {
     {
       name: "status",
       type: "select",
+      defaultValue: "inProgress",
       options: [
         { label: "inProgress", value: "inProgress" },
         { label: "submitted", value: "submitted" },
