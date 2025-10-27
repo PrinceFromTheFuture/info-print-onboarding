@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Upload, Workflow, LogOut } from "lucide-react";
+import { Menu, Upload, Workflow, LogOut, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,11 @@ const navItems = [
     title: "Uploads",
     href: "/customer/uploads",
     icon: Upload,
+  },
+  {
+    title: "Help",
+    href: "/customer/help",
+    icon: HelpCircle,
   },
 ];
 

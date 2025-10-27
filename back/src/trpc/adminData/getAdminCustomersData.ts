@@ -11,17 +11,19 @@ const getAdminCustomersData = privateProcedure.query(async ({ ctx }) => {
   const endOfToday = dayjs().endOf("day").toISOString();
 
   // Get week boundaries for active users calculation
-  const startOfThisWeek = dayjs().startOf("week").toISOString();
   const endOfThisWeek = dayjs().endOf("week").toISOString();
 
   // Get two weeks ago for assignment completion rate
   const startOfTwoWeeksAgo = dayjs().subtract(2, "week").startOf("week").toISOString();
-  const endOfTwoWeeksAgo = dayjs().subtract(2, "week").endOf("week").toISOString();
+
 
   // 1. Fetch all users created from today and yesterday (existing functionality)
   const recentUsers = await payload.find({
     collection: "appUsers",
     where: {
+      role: {
+        equals: "customer",
+      },
       createdAt: {
         greater_than_equal: startOfYesterday,
         less_than_equal: endOfToday,

@@ -24,6 +24,12 @@ export const getCustomersData = privateProcedure
     // Fetch all customers without pagination or sorting
     const customers = await payload.find({
       collection: "appUsers",
+      where: {
+        role: {
+          equals: "customer",
+        },
+      },
+
       depth: 1,
       pagination: false,
     });

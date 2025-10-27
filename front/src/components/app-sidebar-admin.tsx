@@ -16,6 +16,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconTicket,
   IconUsers,
 } from "@tabler/icons-react";
 
@@ -25,7 +26,7 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useSession } from "@/lib/auth/auth-client";
-import { FileText, Upload, Workflow } from "lucide-react";
+import { FileText, Headset, Upload, Workflow } from "lucide-react";
 import Image from "next/image";
 
 export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -45,7 +46,12 @@ export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sideba
         icon: IconDashboard,
       },
       {
-        title: "customers",
+        title: "Support",
+        url: "/admin/support",
+        icon: Headset,
+      },
+      {
+        title: "Customers",
         url: "/admin/customers",
         icon: IconUsers,
       },

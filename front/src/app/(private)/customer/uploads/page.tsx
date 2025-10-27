@@ -91,7 +91,7 @@ export default function Uploads() {
   const totalSize = media?.reduce((acc, m) => acc + (m.filesize || 0), 0) || 0;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="flex flex-1 flex-col gap-6 p-4 md:p-8 max-w-6xl mx-auto">
       {/* Header Section with Stats */}
       <div className="space-y-4">
         <div>

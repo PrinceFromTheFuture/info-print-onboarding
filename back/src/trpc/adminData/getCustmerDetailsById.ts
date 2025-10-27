@@ -184,6 +184,7 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     id: file.id,
     name: file.filename || "Unknown",
     type: file.mimeType || "Unknown",
+    url: file.url,
     uploadedAt: file.createdAt,
   }));
 

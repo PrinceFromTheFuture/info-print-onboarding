@@ -32,7 +32,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
   const queryClient = useQueryClient();
 
   const trpc = useTRPC();
-  const {mutateAsync:submitAssignment} = useMutation(trpc.submittionsRouter.submitAssignment.mutationOptions());
+  const { mutateAsync: submitAssignment } = useMutation(trpc.submittionsRouter.submitAssignment.mutationOptions());
 
   // Get state from Redux
   const {
@@ -121,7 +121,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit =async () => {
+  const handleSubmit = async () => {
     // Validate all sections before submission
     const incompleteSections = sections.filter((section) => !isSectionComplete(section, formData));
 
@@ -214,16 +214,15 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
             <Menu className="h-5 w-5" />
           </Button>
 
-          {/* Back Link - Above Sticky Header */}
-          <Button variant="outline" className="mb-4 mx-8 mt-6">
-            <Link href="/customer" className="inline-flex items-center gap-2 transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              Go back
-            </Link>
-          </Button>
-
           {/* Sticky Header with Title, Progress, and Sync Indicator */}
           <div className="sticky bg-white shadow-lg rounded-b-2xl lg:rounded-b-none w-full top-0 z-20  ">
+            {/* Back Link - Above Sticky Header */}
+            <Button variant="outline" className="mb-4 mx-8 mt-6">
+              <Link href="/customer" className="inline-flex items-center gap-2 transition-colors">
+                <ArrowLeft className="h-4 w-4" />
+                Go back
+              </Link>
+            </Button>
             {/* Syncing Banner */}
             {isSyncing && (
               <div className="bg-gradient-to-r  from-blue-500/10 via-blue-500/5 to-transparent border-l-4 border-blue-500 px-4 py-2.5 sm:py-3">
@@ -243,7 +242,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
             )}
 
             {/* Header Content */}
-            <div className="lg:py-8 lg:px-20 py-6 px-6">
+            <div className="lg:py-8 lg:px-20 pt-0 py-6 px-6">
               <div className="flex flex-col gap-3">
                 <div>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold line-clamp-1">{template?.name || "Form"}</h1>

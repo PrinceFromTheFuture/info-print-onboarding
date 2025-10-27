@@ -6,12 +6,10 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_BACKEND_URL: https://infoprint-onboarding.amirwais.store/api
-        NEXT_PUBLIC_STATIC_URL: https://infoprint-onboarding.amirwais.store/api/api/media/file
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_BACKEND_URL: https://infoprint-onboarding.amirwais.store/api
-      NEXT_PUBLIC_STATIC_URL: https://infoprint-onboarding.amirwais.store/api/api/media/file
     depends_on:
       - back
 

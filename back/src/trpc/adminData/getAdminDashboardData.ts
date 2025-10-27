@@ -31,6 +31,9 @@ const getAdminDashboardData = privateProcedure.query(async ({ ctx }) => {
   const recentUsers = await payload.find({
     collection: "appUsers",
     where: {
+      role: {
+        equals: "customer",
+      },
       createdAt: {
         greater_than_equal: startOfYesterday,
         less_than_equal: endOfToday,
@@ -75,6 +78,11 @@ const getAdminDashboardData = privateProcedure.query(async ({ ctx }) => {
   // 2. Fetch all users created from today and yesterday
   const last5UsersCreated = await payload.find({
     collection: "appUsers",
+    where: {
+      role: {
+        equals: "customer",
+      },
+    },
     sort: "-createdAt",
     limit: 5,
     depth: 1,

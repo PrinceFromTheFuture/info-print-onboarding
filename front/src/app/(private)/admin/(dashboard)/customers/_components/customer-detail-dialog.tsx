@@ -291,20 +291,27 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                   <div className="p-3 space-y-1">
                     {customer.media.length > 0 ? (
                       customer.media.map((file) => (
-                        <Button
+                        <Link
                           key={file.id}
-                          variant="ghost"
-                          className="w-full justify-start h-auto py-2 px-2 hover:bg-background"
-                          title={`${file.name} - Uploaded ${getRelativeTime(file.uploadedAt)}`}
+                          className="cursor-pointer"
+                          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${file.url}`}
+                          target="_blank"
+                          key={file.id}
                         >
-                          <div className="flex items-center gap-2 w-full min-w-0">
-                            <div className="shrink-0">{getFileIcon(file.type)}</div>
-                            <div className="flex-1 min-w-0 text-left">
-                              <p className="text-xs font-medium truncate">{file.name}</p>
-                              <p className="text-xs text-muted-foreground">{getRelativeTime(file.uploadedAt)}</p>
+                          <Button
+                            variant="ghost"
+                            className="w-full cursor-pointer justify-start h-auto py-2 px-2 hover:bg-background"
+                            title={`${file.name} - Uploaded ${getRelativeTime(file.uploadedAt)}`}
+                          >
+                            <div className="flex items-center gap-2 w-full min-w-0">
+                              <div className="shrink-0">{getFileIcon(file.type)}</div>
+                              <div className="flex-1 min-w-0 text-left">
+                                <p className="text-xs font-medium truncate">{file.name}</p>
+                                <p className="text-xs text-muted-foreground">{getRelativeTime(file.uploadedAt)}</p>
+                              </div>
                             </div>
-                          </div>
-                        </Button>
+                          </Button>
+                        </Link>
                       ))
                     ) : (
                       <div className="text-center py-12 text-muted-foreground">
