@@ -33,10 +33,10 @@ const navItems = [
 
 export function CustomerNavbar() {
   const pathname = usePathname();
-  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const { data: session } = useSession();
   const router = useRouter();
+  const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   const onLogout = async () => {
     await authClient.signOut({ fetchOptions: { redirect: "manual" } });
@@ -110,7 +110,6 @@ export function CustomerNavbar() {
           })}
         </nav>
 
-        {/* Right Side Actions */}
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-sm text-muted-foreground ">{session?.user?.email}</span>
           <Button variant="ghost" size="icon" className=" cursor-pointer bg-red-600/5" onClick={onLogout}>
