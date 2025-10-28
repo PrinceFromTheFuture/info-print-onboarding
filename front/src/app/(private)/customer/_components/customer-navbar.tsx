@@ -22,11 +22,13 @@ const navItems = [
     href: "/customer/uploads",
     icon: Upload,
   },
+  /*support is not implemented yet 
   {
     title: "Help",
     href: "/customer/help",
     icon: HelpCircle,
   },
+  */
 ];
 
 export function CustomerNavbar() {

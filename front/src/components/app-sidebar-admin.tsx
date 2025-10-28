@@ -45,11 +45,14 @@ export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sideba
         url: "/admin",
         icon: IconDashboard,
       },
+      /*
+      support is not implemented yet
       {
         title: "Support",
         url: "/admin/support",
         icon: Headset,
       },
+      */
       {
         title: "Customers",
         url: "/admin/customers",

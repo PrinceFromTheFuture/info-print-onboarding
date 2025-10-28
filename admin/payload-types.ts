@@ -76,6 +76,8 @@ export interface Config {
     assignments: Assignment;
     groups: Group;
     visits: Visit;
+    messages: Message;
+    conversations: Conversation;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +94,8 @@ export interface Config {
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     groups: GroupsSelect<false> | GroupsSelect<true>;
     visits: VisitsSelect<false> | VisitsSelect<true>;
+    messages: MessagesSelect<false> | MessagesSelect<true>;
+    conversations: ConversationsSelect<false> | ConversationsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -264,6 +268,34 @@ export interface Visit {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages".
+ */
+export interface Message {
+  id: string;
+  content?: string | null;
+  sentBy?: (string | null) | AppUser;
+  attachments?: (string | Media)[] | null;
+  read?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conversations".
+ */
+export interface Conversation {
+  id: string;
+  title?: string | null;
+  createBy?: (string | null) | AppUser;
+  isArchived?: boolean | null;
+  description?: string | null;
+  status?: ('resolved' | 'open') | null;
+  messages?: (string | Message)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -328,6 +360,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'visits';
         value: string | Visit;
+      } | null)
+    | ({
+        relationTo: 'messages';
+        value: string | Message;
+      } | null)
+    | ({
+        relationTo: 'conversations';
+        value: string | Conversation;
       } | null)
     | ({
         relationTo: 'users';
@@ -495,6 +535,32 @@ export interface GroupsSelect<T extends boolean = true> {
 export interface VisitsSelect<T extends boolean = true> {
   appUser?: T;
   type?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages_select".
+ */
+export interface MessagesSelect<T extends boolean = true> {
+  content?: T;
+  sentBy?: T;
+  attachments?: T;
+  read?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "conversations_select".
+ */
+export interface ConversationsSelect<T extends boolean = true> {
+  title?: T;
+  createBy?: T;
+  isArchived?: T;
+  description?: T;
+  status?: T;
+  messages?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -11,12 +11,12 @@ const assignTempalteToUser = privateProcedure
   .mutation(async ({ ctx, input }) => {
     const { userId, templateId } = input;
     const payload = await getPayload;
-    const newAssignments = await payload.create({
+await payload.create({
       collection: "assignments",
       data: {
         template: templateId,
         appUser: userId,
-        status: "pending",
+        status: "inProgress",
       },
     });
     return { success: true, message: "Template assigned to user successfully" };

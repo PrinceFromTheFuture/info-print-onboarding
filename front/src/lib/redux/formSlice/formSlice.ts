@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { AppRouter } from "../../../../../back/jsDist/src/trpc/index";
+import type { AppRouter } from "../../../../../back/dist/src/trpc/index";
 import { trpcClient } from "../../trpc-client";
 import type { inferProcedureOutput } from "@trpc/server";
 
@@ -23,6 +23,7 @@ const debounceTimers: Record<string, NodeJS.Timeout> = {};
 export const updateOrCreateSubmissionAsyncThunk = createAsyncThunk<any, { questionId: string; value: string }, { rejectValue: string }>(
   "form/updateOrCreateSubmission",
   async ({ questionId, value }, { rejectWithValue }) => {
+    console.log("value", value);
     try {
       const response = await trpcClient.submittionsRouter.updateOrCreateSubmission.mutate({
         questionId,
@@ -74,8 +75,8 @@ export const uploadImageAsyncThunk = createAsyncThunk<
     }
 
     const data = await response.json();
-    console.log("Upload successful:", data);
-    return { fileUrl: data.fileUrl, mediaId: data.mediaId, questionId };
+    const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}${data.serverFileUrl}`;
+    return { fileUrl, mediaId: data.mediaId, questionId };
   } catch (error) {
     console.error("Upload error:", error);
     return rejectWithValue(error instanceof Error ? error.message : "Failed to upload image");

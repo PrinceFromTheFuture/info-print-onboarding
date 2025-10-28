@@ -123,11 +123,12 @@ app.post(
       const savedFilename = mediaRecord.filename || uniqueFileName;
 
       // Return the file URL using the filename from Payload
-      const fileUrl = `${req.protocol}://${req.get("host")}/api/media/file/${savedFilename}`;
+      console.log("req.protocol", mediaRecord.url);
+      const serverFileUrl = `${req.protocol}://${req.get("host")}/api/media/file/${savedFilename}`;
 
       res.json({
         success: true,
-        fileUrl,
+        serverFileUrl:mediaRecord.url,
         mediaId: mediaRecord.id,
         filename: savedFilename,
       });

@@ -1,8 +1,9 @@
 name: CICD
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
-      - main
+      - production
 jobs:
   build-app:
     runs-on: ubuntu-latest
@@ -18,8 +19,8 @@ jobs:
 
       - name: Build Docker image and push them
         run: |
-            docker compose build --no-cache
-            docker compose push
+          docker compose build --no-cache
+          docker compose push
   deploy-app:
     needs: build-app
     runs-on: ubuntu-latest

@@ -1,6 +1,8 @@
 {
   "responseCode": 200,
   "message": "success",
+  "title": "SMTP Setup",
+  "description": "Configure SMTP email settings for Gmail, Yahoo, or Outlook to enable automated email notifications and communications from your InfoFlo Print system.",
   "content": {
     "20": {
       "defaultValue": "smtp.mail.yahoo.com",
@@ -122,7 +124,7 @@
       "builderLabel": "Loom Video Embed",
       "cfname": "Loom Video Embed",
       "customCSS": "",
-      "fieldParameters": "[{\"order\":\"0\",\"parentID\":\"75631422eaf50358f58ac874\",\"name\":\"sharedVideoUrl\",\"readable\":\"Loom Video URL\",\"paramStatus\":\"enabled\",\"type\":\"text\",\"default\":\"https:\\/\\/www.loom.com\\/share\\/4812911e7aa145db9c78c7dca1fef9df\",\"tip\":\"<p><a href=\"%5C\">How to Embed a Loom Video on Your Form<\\/a><\\/p>\"}]</a></p>",
+      "fieldParameters": "[]",
       "finalSrc": "https://app-widgets.jotform.io/loomVideoEmbed/",
       "frameHeight": "310",
       "frameSrc": "https://app-widgets.jotform.io/loomVideoEmbed/",
@@ -206,7 +208,7 @@
       "cfname": "Loom Video Embed",
       "customCSS": "",
       "description": "",
-      "fieldParameters": "[{\"order\":\"0\",\"parentID\":\"75631422eaf50358f58ac874\",\"name\":\"sharedVideoUrl\",\"readable\":\"Loom Video URL\",\"paramStatus\":\"enabled\",\"type\":\"text\",\"default\":\"https:\\/\\/www.loom.com\\/share\\/4812911e7aa145db9c78c7dca1fef9df\",\"tip\":\"<p><a href=\"%5C\">How to Embed a Loom Video on Your Form<\\/a><\\/p>\"}]</a></p>",
+      "fieldParameters": "[]",
       "finalSrc": "https://app-widgets.jotform.io/loomVideoEmbed/",
       "frameHeight": "310",
       "frameSrc": "https://app-widgets.jotform.io/loomVideoEmbed/",
@@ -239,7 +241,7 @@
       "customCSS": "",
       "description": "",
       "email": "input_47",
-      "fieldParameters": "[{\"order\":\"0\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"url\",\"readable\":\"Calendly Event Url\",\"paramStatus\":\"enabled\",\"type\":\"text\",\"default\":\"\",\"tip\":\"<p><a href=\"%5C\"> How to get your scheduling link<\\/a> <\\/p>\"},{\"default\":\"\\/form-widgets\\/calendly\\/formFields\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"name\",\"order\":\"1\",\"apiEndpoint\":\"\\/form\\/{formID}\\/questions\",\"readable\":\"Name\",\"emptyOptionsMessage\":\"\",\"type\":\"remoteoptions\",\"tip\":\"</a></p><p><a href=\"%5C\">Select a form field to prefill the name field on Calendly.<\\/p>\",\"paramStatus\":\"enabled\"},{\"default\":\"\\/form-widgets\\/calendly\\/formFields\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"email\",\"order\":\"2\",\"apiEndpoint\":\"\\/form\\/{formID}\\/questions\",\"readable\":\"Email\",\"emptyOptionsMessage\":\"\",\"type\":\"remoteoptions\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">Select a form field to prefill email on Calendly.<\\/p>\",\"paramStatus\":\"enabled\"},{\"order\":\"3\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"backgroundColor\",\"readable\":\"Background Color\",\"paramStatus\":\"enabled\",\"type\":\"color\",\"default\":\"#ffffff\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">Customize your Calendly widget\’s background color.<\\/p>\"},{\"order\":\"4\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"primaryColor\",\"readable\":\"Primary Color\",\"paramStatus\":\"enabled\",\"type\":\"color\",\"default\":\"#00a2ff\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">Customize your Calendly widget's primary color.<\\/p>\"},{\"order\":\"5\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"textColor\",\"readable\":\"Text Color\",\"paramStatus\":\"enabled\",\"type\":\"color\",\"default\":\"#4d5055\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">Customize your Calendly widget\’s text color.<\\/p>\"},{\"default\":\"\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"hideEventTypeDetails\",\"order\":\"6\",\"readable\":\"Hide Event Type\",\"type\":\"dropdown\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">The event type will be displayed on the calendar.<\\/p>\",\"options\":\"1::Yes,0::No\",\"paramStatus\":\"enabled\"},{\"default\":\"\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"hideLandingPageDetails\",\"order\":\"7\",\"readable\":\"Hide Landing Page\",\"placeholder\":\"\",\"type\":\"dropdown\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">The landing pages set for the calendar will be hidden.<\\/p>\",\"options\":\"1::Yes,0::No\",\"paramStatus\":\"enabled\"},{\"default\":\"Yes\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"hideGdprBanner\",\"order\":\"8\",\"readable\":\"Hide GDPR Banner\",\"type\":\"dropdown\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">The \“Cookie settings\” button will be displayed on the calendar.<\\/p>\",\"options\":\"1::Yes,0::No\",\"paramStatus\":\"enabled\"},{\"order\":\"9\",\"parentID\":\"b83739743814bf0ed1503bde\",\"name\":\"height\",\"readable\":\"Field Height\",\"paramStatus\":\"enabled\",\"type\":\"text\",\"default\":\"600px\",\"tip\":\"</a></p><a href=\"%5C\"></a><p><a href=\"%5C\">Adjust your calendar height to fit your form.<\\/p>\"}]</a></p><a href=\"%5C\"></a></p>",
+      "fieldParameters": "[]",
       "finalSrc": "/form-widgets/calendly",
       "frameHeight": "600",
       "frameSrc": "/form-widgets/calendly",
