@@ -34,6 +34,8 @@ export const auth = betterAuth({
     additionalFields: {
       name: { type: "string", input: false },
       role: { type: "string", input: false },
+      isApproved: { type: "boolean", input: false },
+      appUserConfig:{type:'string',input:false},
       assignedTemplates: { type: "string", input: false },
     },
   },

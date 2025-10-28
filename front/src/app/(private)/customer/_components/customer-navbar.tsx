@@ -10,6 +10,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
+import Logout from "@/components/Logout";
 
 const navItems = [
   {
@@ -34,15 +35,8 @@ const navItems = [
 export function CustomerNavbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const router = useRouter();
-  const { data: session } = useSession();
-  const queryClient = useQueryClient();
 
-  const onLogout = async () => {
-    await authClient.signOut({ fetchOptions: { redirect: "manual" } });
-    router.push("/login");
-    await queryClient.invalidateQueries();
-  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container flex h-14 items-center px-4">
@@ -110,13 +104,7 @@ export function CustomerNavbar() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <span className="text-sm text-muted-foreground ">{session?.user?.email}</span>
-          <Button variant="ghost" size="icon" className=" cursor-pointer bg-red-600/5" onClick={onLogout}>
-            <LogOut className="h-4 w-4 text-red-600" />
-            <span className="sr-only">Logout</span>
-          </Button>
-        </div>
+       <Logout />
       </div>
 
       {/* Mobile Bottom Navigation - Alternative approach */}
