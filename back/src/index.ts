@@ -17,11 +17,7 @@ const app = express();
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://100.125.142.120:3000",
-      "https://infoprint-onboarding.amirwais.store",
-    ], // Replace with your frontend's origin
+    origin: ["http://localhost:3000", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
@@ -43,12 +39,7 @@ const upload = multer({
 // to prevent body parsers from consuming the request
 app.post(
   "/api/media/upload",
-  (req, res, next) => {
-    console.log("=== BEFORE MULTER ===");
-    console.log("Content-Type:", req.headers["content-type"]);
-    console.log("Has body?", !!req.body);
-    next();
-  },
+
   upload.single("file"),
   async (req, res) => {
     try {
@@ -58,12 +49,6 @@ app.post(
         headers: fromNodeHeaders(req.headers),
       });
       const userId = authRes?.user?.id;
-      console.log("User ID:", userId);
-      console.log("=== UPLOAD DEBUG ===");
-      console.log("req.file:", req.file ? "EXISTS" : "NULL");
-      console.log("req.body:", req.body);
-      console.log("Content-Type:", req.headers["content-type"]);
-      console.log("===================");
 
       // Check if file is present in the request
       if (!req.file) {
@@ -79,11 +64,6 @@ app.post(
 
       const { alt } = req.body;
 
-      if (!userId) {
-        return res.status(400).json({ error: "userId is required" });
-      }
-
-      console.log("User ID:", userId);
       console.log("File info:", {
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
@@ -106,7 +86,7 @@ app.post(
 
       console.log("Creating media record with:", {
         alt: alt || "",
-        uploadedBy: userId,
+        uploadedBy: userId || undefined,
         extention: fileExtension,
         fileObject: {
           name: fileObject.name,

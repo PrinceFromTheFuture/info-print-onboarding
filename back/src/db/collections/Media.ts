@@ -7,7 +7,7 @@ export const Media: CollectionConfig = {
     adminThumbnail: "thumbnail",
   },
   fields: [
-    { name: "uploadedBy", type: "relationship", relationTo: "appUsers" },
+    { name: "uploadedBy", type: "relationship", relationTo: "appUsers", defaultValue: undefined },
     {
       name: "alt",
       type: "text",

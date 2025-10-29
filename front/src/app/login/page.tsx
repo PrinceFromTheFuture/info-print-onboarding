@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { LoginForm } from "./_components/login-form";
-import { SignupForm } from "./_components/signup-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import AccountSetUp from "./_components/account-set-up";
@@ -13,7 +12,7 @@ import Logout from "@/components/Logout";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<"accountSetUp" | "auth" | "pendingVerification">("auth");
+  const [mode, setMode] = useState<"auth" | "pendingVerification">("auth");
   const [isLogin, setIsLogin] = useState(true);
   const { data, isPending } = useSession();
   const router = useRouter();
@@ -21,8 +20,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (!data?.user) return setMode("auth");
     if (data?.user?.role === "admin") return router.push("/admin");
-    if (!data?.user?.appUserConfig) return setMode("accountSetUp");
-    if (data?.user?.appUserConfig && data.user.isApproved === false) return setMode("pendingVerification");
+    if (data?.user?.isApproved) return router.push("/customer");
+    return setMode("pendingVerification");
 
     return router.push("/customer");
   }, [data]);
@@ -31,14 +30,12 @@ export default function LoginPage() {
     return <LoadingSpinner title="Loading user data..." />;
   }
 
-  const setModeHandler = (mode: "accountSetUp" | "auth" | "pendingVerification") => {
+  const setModeHandler = (mode: "auth" | "pendingVerification") => {
     setMode(mode);
   };
+
   return (
     <div className=" overflow-hidden ">
-      <Button className="  absolute top-4 right-4 z-50 hidden " onClick={() => setMode((prev) => (prev === "auth" ? "accountSetUp" : "auth"))}>
-        Auth
-      </Button>
       {mode !== "auth" && (
         <div className=" absolute top-4 right-4 z-50">
           <Logout />
@@ -53,26 +50,7 @@ export default function LoginPage() {
         </div>
       )}
       <AnimatePresence mode="wait">
-        {mode === "accountSetUp" ? (
-          <motion.div
-            key="accountSetUp"
-            initial={{ opacity: 0, y: 10, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.97 }}
-            transition={{ duration: 0.2 }}
-            className="min-h-screen w-full lg:grid lg:grid-cols-7 relative"
-          >
-            {/* Logo/Brand */}
-            <div className="flex items-center justify-center p-8 py-20 sm:p-8 sm:py-24 lg:p-24 lg:py-32 col-span-4 2xl:py-30 bg-background">
-              <div className="w-full h-full">
-                <AccountSetUp setModeHandler={setModeHandler} />
-              </div>
-            </div>
-            <div className="relative hidden col-span-3 lg:block bg-muted overflow-hidden">
-              <Image src="/account-set-up.png" alt="Banner" fill className="object-cover" />
-            </div>
-          </motion.div>
-        ) : mode === "auth" ? (
+        {mode === "auth" ? (
           <motion.div
             key="auth"
             initial={{ opacity: 0, y: 10, scale: 0.97 }}
@@ -104,11 +82,7 @@ export default function LoginPage() {
                   </div>
 
                   {/* Forms */}
-                  {isLogin ? (
-                    <LoginForm setModeHandler={setModeHandler} onSwitchToSignup={() => setIsLogin(false)} />
-                  ) : (
-                    <SignupForm setModeHandler={setModeHandler} onSwitchToLogin={() => setIsLogin(true)} />
-                  )}
+                  {isLogin && <LoginForm setModeHandler={setModeHandler} />}
                 </div>
               </div>
             </div>

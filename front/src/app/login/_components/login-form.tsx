@@ -21,11 +21,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
-  onSwitchToSignup: () => void;
-  setModeHandler: (mode: "accountSetUp" | "auth" | "pendingVerification") => void;
+  setModeHandler: (mode: "auth" | "pendingVerification") => void;
 }
 
-export function LoginForm({ className, onSwitchToSignup, setModeHandler, ...props }: LoginFormProps) {
+export function LoginForm({ className, setModeHandler, ...props }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -53,8 +52,6 @@ export function LoginForm({ className, onSwitchToSignup, setModeHandler, ...prop
         router.push(res.data.user.role === "admin");
 
         if (res.data.user.isApproved) return router.push("/customer");
-
-        if (!res.data.user.appUserConfig) return setModeHandler("accountSetUp");
 
         setModeHandler("pendingVerification");
       }
@@ -100,12 +97,6 @@ export function LoginForm({ className, onSwitchToSignup, setModeHandler, ...prop
               </Field>
             </FieldGroup>
           </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <button type="button" onClick={onSwitchToSignup} className="text-primary underline underline-offset-4 hover:text-primary/80">
-              Sign up
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>

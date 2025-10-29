@@ -1,8 +1,12 @@
 import { getPayload } from "../../db/getPayload.js";
-import { privateProcedure } from "../trpc.js";
+import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { auth } from "src/auth.js";
 
+const generateUnsecurePassword = ({ userName }: { userName: string }) => {
+  return `${userName.toLowerCase()}1234567`;
+};
 // Input validation schema matching the frontend form
 const onBoardingInputSchema = z
   .object({
@@ -45,16 +49,44 @@ const onBoardingInputSchema = z
     }
   );
 
-const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async ({ ctx, input }) => {
+const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async ({ ctx, input }) => {
   const payload = await getPayload;
 
-  // Fetch the full user data to check for existing config
-  console.log(ctx.user);
-  const user = await payload.findByID({
+  const userPassword = generateUnsecurePassword({ userName: input.administratorEmail.split("@")[0] });
+  const user = await payload.create({
     collection: "appUsers",
-    id: ctx.user!.id,
+    data: {
+      email: input.administratorEmail,
+      name: input.administratorFullName,
+      role: "customer",
+      isApproved: false,
+    },
   });
 
+  await auth.api.signUpEmail({
+    body: {
+      email: input.administratorEmail,
+      password: userPassword,
+      name: input.administratorFullName,
+    },
+  });
+
+  const onBoardingDataMedia = [
+    input.logo,
+    input.contactAndCompanyList,
+    input.inventoryList,
+    input.machineInformation,
+    input.additionalProductPricingInformation,
+  ];
+  for (const media of onBoardingDataMedia) {
+    await payload.update({
+      collection: "media",
+      id: media,
+      data: {
+        uploadedBy: user.id,
+      },
+    });
+  }
   /*
   //TO-DO remove
   await payload.update({
@@ -67,12 +99,6 @@ const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async 
   */
   // Check if user already has a config
   /**/
-  if (user.appUserConfig) {
-    throw new TRPCError({
-      code: "BAD_REQUEST",
-      message: "User already has a configuration. Please contact support to update your configuration.",
-    });
-  }
 
   try {
     // Create the user config
@@ -106,7 +132,7 @@ const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async 
     // Update the user with the config relationship
     await payload.update({
       collection: "appUsers",
-      id: ctx.user!.id,
+      id: user.id,
       data: {
         appUserConfig: userConfig.id,
       }, // Type assertion needed due to Payload's complex type system
@@ -114,6 +140,10 @@ const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async 
 
     return {
       success: true,
+      userLoginData: {
+        email: input.administratorEmail,
+        password: userPassword,
+      },
       message: "Onboarding completed successfully!",
     };
   } catch (error) {
