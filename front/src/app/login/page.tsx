@@ -10,16 +10,21 @@ import AccountSetUp from "./_components/account-set-up";
 import { useSession } from "@/lib/auth/auth-client";
 import LoadingSpinner from "@/components/loading-spinner";
 import Logout from "@/components/Logout";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"accountSetUp" | "auth" | "pendingVerification">("auth");
   const [isLogin, setIsLogin] = useState(true);
   const { data, isPending } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     if (!data?.user) return setMode("auth");
+    if (data?.user?.role === "admin") return router.push("/admin");
+    if (!data?.user?.appUserConfig) return setMode("accountSetUp");
     if (data?.user?.appUserConfig && data.user.isApproved === false) return setMode("pendingVerification");
-    setMode("accountSetUp");
+
+    return router.push("/customer");
   }, [data]);
 
   if (isPending) {
@@ -31,10 +36,7 @@ export default function LoginPage() {
   };
   return (
     <div className=" overflow-hidden ">
-      <Button
-        className="  absolute top-4 right-4 z-50 hidden "
-        onClick={() => setMode((prev) => (prev === "auth" ? "accountSetUp" : "auth"))}
-      >
+      <Button className="  absolute top-4 right-4 z-50 hidden " onClick={() => setMode((prev) => (prev === "auth" ? "accountSetUp" : "auth"))}>
         Auth
       </Button>
       {mode !== "auth" && (
@@ -86,9 +88,7 @@ export default function LoginPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
                   <h1 className="text-4xl font-bold mb-4">Welcome to InfoFloPrint</h1>
-                  <p className="text-lg opacity-90">
-                    Streamline your workflow with our comprehensive form management system
-                  </p>
+                  <p className="text-lg opacity-90">Streamline your workflow with our comprehensive form management system</p>
                 </div>
               </div>
 
@@ -97,11 +97,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-md">
                   {/* Logo/Brand */}
                   <div className="mb-8 text-center">
-                    <a
-                      href="https://infofloprint.com"
-                      target="_blank"
-                      className="inline-flex flex-col items-center gap-2"
-                    >
+                    <a href="https://infofloprint.com" target="_blank" className="inline-flex flex-col items-center gap-2">
                       <Image src="/logo.png" alt="Logo" width={62} height={62} />
                       <span className="text-2xl font-bold">InfoFloPrint OnBoarding</span>
                     </a>
@@ -109,7 +105,7 @@ export default function LoginPage() {
 
                   {/* Forms */}
                   {isLogin ? (
-                    <LoginForm onSwitchToSignup={() => setIsLogin(false)} />
+                    <LoginForm setModeHandler={setModeHandler} onSwitchToSignup={() => setIsLogin(false)} />
                   ) : (
                     <SignupForm setModeHandler={setModeHandler} onSwitchToLogin={() => setIsLogin(true)} />
                   )}
@@ -142,11 +138,7 @@ export default function LoginPage() {
                         stroke="currentColor"
                         className="w-10 h-10 text-amber-600 dark:text-amber-500"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-500 dark:bg-amber-600 flex items-center justify-center">
@@ -159,8 +151,7 @@ export default function LoginPage() {
                 <div className="space-y-4 text-center">
                   <h1 className="text-2xl font-bold tracking-tight">Account Pending Verification</h1>
                   <p className="text-muted-foreground">
-                    Your account has been created successfully and is currently awaiting approval from an
-                    administrator.
+                    Your account has been created successfully and is currently awaiting approval from an administrator.
                   </p>
                   <div className="bg-muted rounded-lg p-4 space-y-2 text-sm">
                     <p className="font-medium">What happens next?</p>
@@ -169,10 +160,7 @@ export default function LoginPage() {
                         <span className="text-amber-600 mt-0.5">•</span>
                         <span>An administrator will review your account</span>
                       </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-amber-600 mt-0.5">•</span>
-                        <span>You'll receive an email notification once approved</span>
-                      </li>
+
                       <li className="flex items-start gap-2">
                         <span className="text-amber-600 mt-0.5">•</span>
                         <span>This process typically takes 1-2 business days</span>

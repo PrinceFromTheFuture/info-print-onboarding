@@ -1,11 +1,17 @@
 import { getPayload } from "src/db/getPayload.js";
 
-const payload = await getPayload
+const payload = await getPayload;
+//@ts-ignore
+const temp = await payload.update({
+  collection: "appUsers",
+  where: {
+    id: {
+      email: "amirwais.projects4@gmail.com",
+    },
+  },
+  data: {
+    isApproved: true,
+  },
+});
 
-const temp = await payload.findByID({
-    collection: "templates",
-    id: "6901020bbe9efd1ebc69fc28",
-    depth: 90,
-})
-
-console.log(JSON.stringify(temp, null, 2))
+console.log(JSON.stringify(temp.docs.find((doc) => doc.email === "amirwais.projects4@gmail.com"), null, 2));

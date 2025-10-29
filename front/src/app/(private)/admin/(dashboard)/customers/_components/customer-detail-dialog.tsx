@@ -16,7 +16,26 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, FileText, X, CheckCircle2, Image as ImageIcon, Calendar, Mail, FileIcon, File, Loader2, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  FileText,
+  X,
+  CheckCircle2,
+  Image as ImageIcon,
+  Calendar,
+  Mail,
+  FileIcon,
+  File,
+  Loader2,
+  AlertCircle,
+  Shield,
+  ShieldCheck,
+  Building2,
+  Phone,
+  Globe,
+  Settings,
+  CheckCircle,
+} from "lucide-react";
 import { useTRPC } from "@/trpc/trpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +46,59 @@ import Link from "next/link";
 type Template = {
   id: string;
   name: string;
+};
+
+type MediaFile = {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  uploadedAt: string;
+};
+
+type AppUserConfig = {
+  id: string;
+  companyName: string;
+  administratorFullName: string;
+  administratorEmail: string;
+  administratorPhone: string;
+  companyWebsiteUrl: string;
+  printingShopSpecializations: Array<{ specialization: string }>;
+  currentSalesTax: number;
+  quickBooksSyncing: boolean;
+  quickBooksSyncingOptions?: string;
+  requestedDomain: string;
+  logo: MediaFile | null;
+  contactAndCompanyList: MediaFile | null;
+  inventoryList: MediaFile | null;
+  machineInformation: MediaFile | null;
+  additionalProductPricingInformation: MediaFile | null;
+  currentMISWorkflow: string;
+  otherFeatures: Array<{ feature: string }>;
+};
+
+type Submission = {
+  id: string;
+  template: string;
+  templateId: string;
+  progress: number;
+  completedAt: string | null;
+  totalQuestions: number;
+  answeredQuestions: number;
+};
+
+type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  assignedTemplates: Template[];
+  onboardingProgress: number;
+  submissions: Submission[];
+  media: MediaFile[];
+  appUserConfig: AppUserConfig | null;
+  isApproved: boolean;
 };
 
 interface CustomerDetailDialogProps {
@@ -42,7 +114,33 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const { data: customer, isLoading, error } = useQuery(trpc.adminDataRouter.getCustomerDetailsById.queryOptions(customerId));
+  const {
+    data: customer,
+    isLoading,
+    error,
+  } = useQuery(trpc.adminDataRouter.getCustomerDetailsById.queryOptions(customerId)) as {
+    data: Customer | undefined;
+    isLoading: boolean;
+    error: Error | null;
+  };
+
+  // Future approval functionality (placeholder for now)
+  const { mutateAsync: approveUser, isPending: isApproving } = useMutation(trpc.customerRouter.approveUser.mutationOptions()) as unknown as {
+    mutateAsync: (input: string) => Promise<{ success: boolean }>;
+    isPending: boolean;
+  };
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      await approveUser(userId);
+      toast.success("User approved successfully");
+      await invalidateCustomerData();
+    } catch (error: any) {
+      toast.error("Failed to approve user", {
+        description: error.message,
+      });
+    }
+  };
 
   // Function to invalidate all related queries
   const invalidateCustomerData = async () => {
@@ -141,7 +239,7 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
           // Success State
           <>
             <DialogHeader className="p-6 pb-4">
-              <div className="flex items-start justify-between">
+              <div className="flex items-end justify-between">
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
@@ -163,11 +261,35 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                         Joined {formatDate(customer.createdAt)}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="w-fit capitalize mt-1">
-                      {customer.role}
-                    </Badge>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="w-fit capitalize">
+                        {customer.role}
+                      </Badge>
+                      <Badge variant={customer.isApproved ? "default" : "destructive"} className="w-fit gap-1">
+                        {customer.isApproved ? (
+                          <>
+                            <ShieldCheck className="h-3 w-3" />
+                            Approved
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="h-3 w-3" />
+                            Pending Approval
+                          </>
+                        )}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
+                {!customer.isApproved && (
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={() => handleApproveUser(customer.id)} disabled={isApproving} className="gap-2">
+                      {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                      {isApproving ? "Approving..." : "Approve User"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">Approve this user to grant full access</p>
+                  </div>
+                )}
               </div>
             </DialogHeader>
 
@@ -192,6 +314,228 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                   </div>
 
                   <Separator />
+
+                  {/* User Configuration */}
+                  {customer.appUserConfig ? (
+                    <>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Settings className="h-5 w-5 text-primary" />
+                          <h3 className="text-lg font-semibold">Company Configuration</h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Company Name</label>
+                              <p className="text-sm font-medium">{customer.appUserConfig.companyName}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Administrator</label>
+                              <p className="text-sm font-medium">{customer.appUserConfig.administratorFullName}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Email</label>
+                              <p className="text-sm font-medium flex items-center gap-1">
+                                <Mail className="h-3 w-3" />
+                                {customer.appUserConfig.administratorEmail}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                              <p className="text-sm font-medium flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                {customer.appUserConfig.administratorPhone}
+                              </p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Website</label>
+                              <p className="text-sm font-medium flex items-center gap-1">
+                                <Globe className="h-3 w-3" />
+                                <a
+                                  href={customer.appUserConfig.companyWebsiteUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  {customer.appUserConfig.companyWebsiteUrl}
+                                </a>
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Requested Domain</label>
+                              <p className="text-sm font-medium">{customer.appUserConfig.requestedDomain}</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Sales Tax Rate</label>
+                              <p className="text-sm font-medium">{customer.appUserConfig.currentSalesTax}%</p>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">QuickBooks Integration</label>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={customer.appUserConfig.quickBooksSyncing ? "default" : "secondary"}>
+                                  {customer.appUserConfig.quickBooksSyncing ? "Enabled" : "Disabled"}
+                                </Badge>
+                                {customer.appUserConfig.quickBooksSyncingOptions && (
+                                  <span className="text-xs text-muted-foreground">({customer.appUserConfig.quickBooksSyncingOptions})</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium text-muted-foreground">Specializations</label>
+                              <div className="flex flex-wrap gap-1">
+                                {customer.appUserConfig.printingShopSpecializations.map((spec, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
+                                    {spec.specialization}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {customer.appUserConfig.otherFeatures && customer.appUserConfig.otherFeatures.length > 0 && (
+                          <div>
+                            <label className="text-sm font-medium text-muted-foreground">Additional Features</label>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {customer.appUserConfig.otherFeatures.map((feature, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {feature.feature}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Company Documents & Media */}
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-muted-foreground">Company Documents & Media</label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* Logo */}
+                            {customer.appUserConfig.logo && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground">Company Logo</label>
+                                <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                                  <Link
+                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${customer.appUserConfig.logo.url}`}
+                                    target="_blank"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <div className="shrink-0">{getFileIcon(customer.appUserConfig.logo.type)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium truncate">{customer.appUserConfig.logo.name}</p>
+                                      <p className="text-xs text-muted-foreground">Logo</p>
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Contact and Company List */}
+                            {customer.appUserConfig.contactAndCompanyList && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground">Contact & Company List</label>
+                                <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                                  <Link
+                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${customer.appUserConfig.contactAndCompanyList.url}`}
+                                    target="_blank"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <div className="shrink-0">{getFileIcon(customer.appUserConfig.contactAndCompanyList.type)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium truncate">{customer.appUserConfig.contactAndCompanyList.name}</p>
+                                      <p className="text-xs text-muted-foreground">Contact List</p>
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Inventory List */}
+                            {customer.appUserConfig.inventoryList && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground">Inventory List</label>
+                                <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                                  <Link
+                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${customer.appUserConfig.inventoryList.url}`}
+                                    target="_blank"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <div className="shrink-0">{getFileIcon(customer.appUserConfig.inventoryList.type)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium truncate">{customer.appUserConfig.inventoryList.name}</p>
+                                      <p className="text-xs text-muted-foreground">Inventory</p>
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Machine Information */}
+                            {customer.appUserConfig.machineInformation && (
+                              <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground">Machine Information</label>
+                                <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                                  <Link
+                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${customer.appUserConfig.machineInformation.url}`}
+                                    target="_blank"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <div className="shrink-0">{getFileIcon(customer.appUserConfig.machineInformation.type)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium truncate">{customer.appUserConfig.machineInformation.name}</p>
+                                      <p className="text-xs text-muted-foreground">Machines</p>
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Additional Product Pricing Information */}
+                            {customer.appUserConfig.additionalProductPricingInformation && (
+                              <div className="space-y-2 md:col-span-2">
+                                <label className="text-xs font-medium text-muted-foreground">Additional Product Pricing Information</label>
+                                <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                                  <Link
+                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${customer.appUserConfig.additionalProductPricingInformation.url}`}
+                                    target="_blank"
+                                    className="flex items-center gap-2"
+                                  >
+                                    <div className="shrink-0">{getFileIcon(customer.appUserConfig.additionalProductPricingInformation.type)}</div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium truncate">
+                                        {customer.appUserConfig.additionalProductPricingInformation.name}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">Pricing Information</p>
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <Separator />
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <h3 className="text-lg font-semibold">Company Configuration</h3>
+                        </div>
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>No Configuration Available</AlertTitle>
+                          <AlertDescription>
+                            This user has not yet completed their company configuration setup. The configuration data will appear here once they
+                            submit their onboarding information.
+                          </AlertDescription>
+                        </Alert>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
 
                   {/* Assigned Templates Management */}
                   <div className="space-y-3">
@@ -249,9 +593,9 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                   {/* Submissions Progress */}
                   <div className="space-y-3">
                     <h3 className="text-base font-semibold">Form Submissions ({customer.submissions.length})</h3>
-                    <div className="space-y-2">
+                    <div className=" flex flex-col gap-3">
                       {customer.submissions.map((submission) => (
-                        <Link className=" mb-2" target="_blank" key={submission.id} href={`/viewForm/${submission.templateId}/${customerId}`}>
+                        <Link className="" target="_blank" key={submission.id} href={`/viewForm/${submission.templateId}/${customerId}`}>
                           <div className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center justify-between gap-4">
                               <div className="flex-1 min-w-0">
@@ -291,13 +635,7 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                   <div className="p-3 space-y-1">
                     {customer.media.length > 0 ? (
                       customer.media.map((file) => (
-                        <Link
-                          key={file.id}
-                          className="cursor-pointer"
-                          href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${file.url}`}
-                          target="_blank"
-                          key={file.id}
-                        >
+                        <Link key={file.id} className="cursor-pointer" href={`${process.env.NEXT_PUBLIC_BACKEND_URL}${file.url}`} target="_blank">
                           <Button
                             variant="ghost"
                             className="w-full cursor-pointer justify-start h-auto py-2 px-2 hover:bg-background"

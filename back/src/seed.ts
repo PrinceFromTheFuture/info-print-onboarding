@@ -19,7 +19,8 @@ const seedAdminUser = async () => {
   }
   await payload.create({
     collection: "appUsers",
-    data: { email: "admin@gmail.com", name: "Admin", role: "admin" },
+    //@ts-ignore
+    data: { email: "admin@gmail.com", name: "Admin", role: "admin", isApproved: true },
   });
 
   await auth.api.signUpEmail({ body: { email: "admin@gmail.com", password: "123123123", name: "Admin" } });

@@ -41,6 +41,7 @@ interface Customer {
   onboardingProgress: number;
   assignedTemplates: number;
   completedTemplates: number;
+  isApproved?: boolean;
 }
 
 interface CustomersDataTableProps {
@@ -154,6 +155,22 @@ export function CustomersDataTable({
             <Calendar className="h-3.5 w-3.5" />
             {getRelativeTime(customer.createdAt)}
           </div>
+        );
+      },
+    },
+    {
+      accessorKey: "isApproved",
+      header: "Approved",
+      cell: ({ row }) => {
+        const customer = row.original;
+        const isApproved = customer.isApproved ?? false;
+        return (
+          <Badge
+            variant={isApproved ? "default" : "destructive"}
+            className={`font-normal ${!isApproved ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""}`}
+          >
+            {isApproved ? "Approved" : "Pending"}
+          </Badge>
         );
       },
     },

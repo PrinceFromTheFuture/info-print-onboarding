@@ -9,16 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/trpc/trpc";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  UserCircle,
-  Settings,
-  CreditCard,
-  FileText,
-  Sparkles,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Building2, UserCircle, Settings, CreditCard, FileText, Sparkles } from "lucide-react";
 
 // Import stage components
 import { CompanyInformationStage } from "./stages/company-information-stage";
@@ -41,10 +32,7 @@ const companyInformationSchema = z.object({
 
 const administratorDetailsSchema = z.object({
   administratorFullName: z.string().min(1, "Administrator full name is required"),
-  administratorEmail: z
-    .string()
-    .email("Please enter a valid email")
-    .min(1, "Administrator email is required"),
+  administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
   administratorPhone: z.string().min(1, "Administrator phone is required"),
 });
 
@@ -66,7 +54,7 @@ const quickBooksIntegrationSchema = z
   .refine(
     (data) => {
       if (data.quickBooksSyncing) {
-        return !!data.quickBooksSyncingOptions;
+        return !!data.quickBooksSyncingOptions && data.quickBooksSyncingOptions.trim() !== "";
       }
       return true;
     },
@@ -115,23 +103,24 @@ const accountSetupSchema = z.object({
 export type AccountSetupFormData = z.infer<typeof accountSetupSchema>;
 export type AccountSetupForm = UseFormReturn<AccountSetupFormData>;
 
-function AccountSetUp({
-  setModeHandler,
-}: {
-  setModeHandler: (mode: "accountSetUp" | "auth" | "pendingVerification") => void;
-}) {
+function AccountSetUp({ setModeHandler }: { setModeHandler: (mode: "accountSetUp" | "auth" | "pendingVerification") => void }) {
   const [stage, setStage] = useState(0);
   const stagesCount = 6;
   const { data: session } = useSession();
 
-  const client = useTRPCClient();
-  const onBoardingMutation = useMutation({
-    mutationFn: (data: Parameters<typeof client.customerRouter.onBoarding.mutate>[0]) =>
-      client.customerRouter.onBoarding.mutate(data),
-    onSuccess: () => {
-      setModeHandler("pendingVerification");
-    },
-  });
+  const trpc = useTRPC();
+  const onBoardingMutation = useMutation(
+    trpc.customerRouter.onBoarding.mutationOptions({
+      onSuccess: () => {
+        toast.success("Account setup completed successfully!");
+        setModeHandler("pendingVerification");
+      },
+      onError: (error: any) => {
+        toast.error("Failed to complete account setup. Please try again.");
+        console.error("Account setup error:", error);
+      },
+    })
+  );
 
   // React Hook Form
   const form = useForm<AccountSetupFormData>({
@@ -172,20 +161,37 @@ function AccountSetUp({
     ["companyName", "companyWebsiteUrl", "requestedDomain"],
     ["administratorFullName", "administratorEmail", "administratorPhone"],
     ["printingShopSpecializations", "currentSalesTax"],
-    ["quickBooksSyncing", "quickBooksSyncingOptions"],
-    [
-      "logo",
-      "contactAndCompanyList",
-      "inventoryList",
-      "machineInformation",
-      "additionalProductPricingInformation",
-    ],
+    ["quickBooksSyncing"], // Only validate quickBooksSyncing, quickBooksSyncingOptions will be validated by the schema
+    ["logo", "contactAndCompanyList", "inventoryList", "machineInformation", "additionalProductPricingInformation"],
     ["currentMISWorkflow", "otherFeatures"],
   ];
 
   // Validate current stage
   const validateStage = async () => {
     const fieldsToValidate = stageValidationFields[stage] as (keyof AccountSetupFormData)[];
+
+    // Special handling for QuickBooks stage - validate the entire schema for this stage
+    if (stage === 3) {
+      const quickBooksData = {
+        quickBooksSyncing: form.getValues("quickBooksSyncing"),
+        quickBooksSyncingOptions: form.getValues("quickBooksSyncingOptions"),
+      };
+      const quickBooksResult = quickBooksIntegrationSchema.safeParse(quickBooksData);
+
+      if (!quickBooksResult.success) {
+        // Set the form error for the specific field
+        const error = quickBooksResult.error.issues[0];
+        if (error.path[0] === "quickBooksSyncingOptions") {
+          form.setError("quickBooksSyncingOptions", {
+            type: "manual",
+            message: error.message,
+          });
+        }
+      }
+
+      return quickBooksResult.success;
+    }
+
     const result = await form.trigger(fieldsToValidate);
     return result;
   };
@@ -193,7 +199,17 @@ function AccountSetUp({
   const nextStage = async () => {
     const isValid = await validateStage();
     if (!isValid) {
-      toast.error("Please fill in all required fields correctly");
+      // Show specific error message for QuickBooks stage
+      if (stage === 3) {
+        const quickBooksSyncing = form.getValues("quickBooksSyncing");
+        if (quickBooksSyncing) {
+          toast.error("Please select a QuickBooks version to continue");
+        } else {
+          toast.error("Please fill in all required fields correctly");
+        }
+      } else {
+        toast.error("Please fill in all required fields correctly");
+      }
       return;
     }
     if (stage < stagesCount - 1) {
@@ -290,23 +306,13 @@ function AccountSetUp({
         </div>
 
         {stage === stagesCount - 1 ? (
-          <Button
-            type="submit"
-            className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
-            size="lg"
-            disabled={false}
-          >
-            <span className="hidden sm:inline">{false ? "Completing..." : "Complete Setup"}</span>
-            <span className="sm:hidden">{false ? "..." : "Complete"}</span>
+          <Button type="submit" className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm" size="lg" disabled={onBoardingMutation.isPending}>
+            <span className="hidden sm:inline">{onBoardingMutation.isPending ? "Completing..." : "Complete Setup"}</span>
+            <span className="sm:hidden">{onBoardingMutation.isPending ? "..." : "Complete"}</span>
             <Sparkles className="size-3 sm:size-4" />
           </Button>
         ) : (
-          <Button
-            type="button"
-            onClick={nextStage}
-            className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
-            size="lg"
-          >
+          <Button type="button" onClick={nextStage} className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm" size="lg">
             Next
             <ChevronRight className="size-3 sm:size-4" />
           </Button>

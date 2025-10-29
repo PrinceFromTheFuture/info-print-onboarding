@@ -2,6 +2,7 @@ import { z } from "zod";
 import { privateProcedure } from "../trpc.js";
 import { getPayload } from "../../db/getPayload.js";
 import type { AppUser, Assignment, Template as PayloadTemplate, Section, Group, Question, Media as PayloadMedia } from "../../payload-types.js";
+import type { AppUserConfig } from "payload-types.js";
 
 type Template = {
   id: string;
@@ -22,6 +23,7 @@ type MediaFile = {
   id: string;
   name: string;
   type: string;
+  url: string;
   uploadedAt: string;
 };
 
@@ -35,16 +37,18 @@ type Customer = {
   onboardingProgress: number;
   submissions: Submission[];
   media: MediaFile[];
+  appUserConfig: AppUserConfig | null;
+  isApproved: boolean;
 };
 
 const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({ ctx, input }) => {
   const payload = await getPayload;
 
-  // 1. Fetch the customer by ID
+  // 1. Fetch the customer by ID with deep relationships
   const customer = await payload.findByID({
     collection: "appUsers",
     id: input,
-    depth: 1,
+    depth: 9, // Increased depth to fetch media relationships
   });
 
   if (!customer) {
@@ -184,7 +188,7 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     id: file.id,
     name: file.filename || "Unknown",
     type: file.mimeType || "Unknown",
-    url: file.url,
+    url: file.url || "",
     uploadedAt: file.createdAt,
   }));
 
@@ -192,7 +196,61 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
   // Average progress across all submissions
   const onboardingProgress = submissions.length > 0 ? submissions.reduce((sum, s) => sum + s.progress, 0) / submissions.length : 0;
 
-  // 8. Build the customer response
+  // 8. Process appUserConfig media relationships
+  let processedAppUserConfig = null;
+  if (customer.appUserConfig) {
+    const config = customer.appUserConfig as any;
+    processedAppUserConfig = {
+      ...config,
+      logo: config.logo
+        ? {
+            id: config.logo.id,
+            name: config.logo.filename || "Unknown",
+            type: config.logo.mimeType || "Unknown",
+            url: config.logo.url || "",
+            uploadedAt: config.logo.createdAt,
+          }
+        : null,
+      contactAndCompanyList: config.contactAndCompanyList
+        ? {
+            id: config.contactAndCompanyList.id,
+            name: config.contactAndCompanyList.filename || "Unknown",
+            type: config.contactAndCompanyList.mimeType || "Unknown",
+            url: config.contactAndCompanyList.url || "",
+            uploadedAt: config.contactAndCompanyList.createdAt,
+          }
+        : null,
+      inventoryList: config.inventoryList
+        ? {
+            id: config.inventoryList.id,
+            name: config.inventoryList.filename || "Unknown",
+            type: config.inventoryList.mimeType || "Unknown",
+            url: config.inventoryList.url || "",
+            uploadedAt: config.inventoryList.createdAt,
+          }
+        : null,
+      machineInformation: config.machineInformation
+        ? {
+            id: config.machineInformation.id,
+            name: config.machineInformation.filename || "Unknown",
+            type: config.machineInformation.mimeType || "Unknown",
+            url: config.machineInformation.url || "",
+            uploadedAt: config.machineInformation.createdAt,
+          }
+        : null,
+      additionalProductPricingInformation: config.additionalProductPricingInformation
+        ? {
+            id: config.additionalProductPricingInformation.id,
+            name: config.additionalProductPricingInformation.filename || "Unknown",
+            type: config.additionalProductPricingInformation.mimeType || "Unknown",
+            url: config.additionalProductPricingInformation.url || "",
+            uploadedAt: config.additionalProductPricingInformation.createdAt,
+          }
+        : null,
+    };
+  }
+
+  // 9. Build the customer response
   const customerData: Customer = {
     id: customer.id,
     name: customer.name,
@@ -200,6 +258,8 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     role: customer.role || "customer",
     createdAt: customer.createdAt,
     assignedTemplates,
+    appUserConfig: processedAppUserConfig,
+    isApproved: customer.isApproved,
     onboardingProgress: Math.round(onboardingProgress * 100) / 100,
     submissions,
     media,

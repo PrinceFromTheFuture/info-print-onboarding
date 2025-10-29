@@ -8,6 +8,7 @@ const signUpUser = async (payload: BasePayload, email: string, name?: string) =>
   await payload.create({
     collection: "appUsers",
     data: {
+      isApproved: false,
       email,
       name: name || "New User",
       role: "customer", // Default role for new users
@@ -35,7 +36,7 @@ export const auth = betterAuth({
       name: { type: "string", input: false },
       role: { type: "string", input: false },
       isApproved: { type: "boolean", input: false },
-      appUserConfig:{type:'string',input:false},
+      appUserConfig: { type: "string", input: false },
       assignedTemplates: { type: "string", input: false },
     },
   },
@@ -48,6 +49,7 @@ export const auth = betterAuth({
       //@ts-ignore
       const user = ctx.context?.returned?.user!;
 
+      if (!user) return;
       if (ctx.path.startsWith("/get-session")) {
         const payloadUser = await getUser(payload, user.email);
         //@ts-ignore

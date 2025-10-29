@@ -13,14 +13,16 @@ const UserConfigs: CollectionConfig = {
       name: "printingShopSpecializations",
       type: "array",
       required: true,
-      fields: [{ name: "specialization", type: "text", required: true }],
+      defaultValue: [],
+
+      fields: [{ name: "specialization", type: "text", }],
     },
     { name: "currentSalesTax", type: "number", required: true },
-    { name: "quickBooksSyncing", type: "checkbox", required: true },
+    { name: "quickBooksSyncing", type: "checkbox" , defaultValue: false},
     {
       name: "quickBooksSyncingOptions",
       type: "select",
-      required: true,
+      required: false,
       options: [
         { label: "QuickBooks Online", value: "quickbooksOnline" },
         { label: "QuickBooks Desktop", value: "quickbooksDesktop" },
@@ -35,7 +37,11 @@ const UserConfigs: CollectionConfig = {
     {name:'machineInformation',type:'relationship',relationTo:'media',required: true},
     {name:'additionalProductPricingInformation',type:'relationship',relationTo:'media',required: true},
     {name:'currentMISWorkflow',type:'text',required: true},
-    {name:'otherFeatures',type:'array',required: true, fields:[{name:'feature',type:'text',required: true}]},
+    {name:'otherFeatures',type:'array', fields:[{name:'feature',type:'text',required: true,
+
+      defaultValue: [],
+
+    }]},
   ],
 };
 

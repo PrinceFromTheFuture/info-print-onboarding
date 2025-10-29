@@ -13,10 +13,7 @@ const onBoardingInputSchema = z
       .min(1, "Requested domain is required")
       .regex(/^[a-zA-Z0-9-]+$/, "Domain can only contain letters, numbers, and hyphens"),
     administratorFullName: z.string().min(1, "Administrator full name is required"),
-    administratorEmail: z
-      .string()
-      .email("Please enter a valid email")
-      .min(1, "Administrator email is required"),
+    administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
     administratorPhone: z.string().min(1, "Administrator phone is required"),
     printingShopSpecializations: z.array(z.string()),
     currentSalesTax: z
@@ -31,9 +28,7 @@ const onBoardingInputSchema = z
     contactAndCompanyList: z.string().min(1, "Contact & company list is required"),
     inventoryList: z.string().min(1, "Inventory list is required"),
     machineInformation: z.string().min(1, "Machine information is required"),
-    additionalProductPricingInformation: z
-      .string()
-      .min(1, "Additional product pricing information is required"),
+    additionalProductPricingInformation: z.string().min(1, "Additional product pricing information is required"),
     currentMISWorkflow: z.string().min(10, "Please provide a detailed description (at least 10 characters)"),
     otherFeatures: z.array(z.string()),
   })
@@ -49,12 +44,12 @@ const onBoardingInputSchema = z
       path: ["quickBooksSyncingOptions"],
     }
   );
-  
 
 const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async ({ ctx, input }) => {
   const payload = await getPayload;
 
   // Fetch the full user data to check for existing config
+  console.log(ctx.user);
   const user = await payload.findByID({
     collection: "appUsers",
     id: ctx.user!.id,
@@ -94,10 +89,7 @@ const onBoarding = privateProcedure.input(onBoardingInputSchema).mutation(async 
         })),
         currentSalesTax: parseFloat(input.currentSalesTax),
         quickBooksSyncing: input.quickBooksSyncing,
-        quickBooksSyncingOptions: input.quickBooksSyncingOptions as
-          | "quickbooksOnline"
-          | "quickbooksDesktop"
-          | "quickbooksEnterprise",
+        quickBooksSyncingOptions: (input.quickBooksSyncingOptions as "quickbooksOnline" | "quickbooksDesktop" | "quickbooksEnterprise") || null,
         requestedDomain: input.requestedDomain,
         logo: input.logo,
         contactAndCompanyList: input.contactAndCompanyList,

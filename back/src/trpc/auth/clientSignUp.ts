@@ -13,7 +13,7 @@ const clientSignUp = publicProcedure
     const payload = await getPayload;
     const user = await payload.create({
       collection: "appUsers",
-      data: { email, name, role: "customer" },
+      data: { email, name, role: "customer", isApproved: false },
     });
     const templates = await payload.find({
       collection: "templates",

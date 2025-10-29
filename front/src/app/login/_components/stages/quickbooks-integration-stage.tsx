@@ -6,26 +6,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { AccountSetupForm } from "../account-set-up";
 
 export function QuickBooksIntegrationStage({ form }: { form: AccountSetupForm }) {
-  const [quickBooksSyncing, setQuickBooksSyncing] = useState<boolean>(
-    form.getValues("quickBooksSyncing") || false
-  );
-  const [quickBooksVersion, setQuickBooksVersion] = useState<string>(
-    form.getValues("quickBooksSyncingOptions") || ""
-  );
+  const [quickBooksSyncing, setQuickBooksSyncing] = useState<boolean>(form.getValues("quickBooksSyncing") || false);
+  const [quickBooksVersion, setQuickBooksVersion] = useState<string>(form.getValues("quickBooksSyncingOptions") || "");
+
+  // Reset QuickBooks options when syncing is disabled
+  const handleQuickBooksSyncingChange = (checked: boolean | string) => {
+    const booleanValue = checked === true;
+    form.setValue("quickBooksSyncing", booleanValue, { shouldValidate: true });
+    setQuickBooksSyncing(booleanValue);
+
+    if (!booleanValue) {
+      form.setValue("quickBooksSyncingOptions", "", { shouldValidate: true });
+      setQuickBooksVersion("");
+      // Clear any validation errors for quickBooksSyncingOptions when disabled
+      form.clearErrors("quickBooksSyncingOptions");
+    }
+  };
 
   return (
     <FieldGroup>
       <Field orientation="horizontal">
         <div className="flex items-center gap-3">
-          <Checkbox
-            id="quickBooksSyncing"
-            checked={quickBooksSyncing}
-            onCheckedChange={(checked) => {
-              const booleanValue = checked === true;
-              form.setValue("quickBooksSyncing", booleanValue, { shouldValidate: true });
-              setQuickBooksSyncing(booleanValue);
-            }}
-          />
+          <Checkbox id="quickBooksSyncing" checked={quickBooksSyncing} onCheckedChange={handleQuickBooksSyncingChange} />
           <div className="flex-1">
             <FieldLabel htmlFor="quickBooksSyncing" className="cursor-pointer">
               Enable QuickBooks Syncing
@@ -55,9 +57,7 @@ export function QuickBooksIntegrationStage({ form }: { form: AccountSetupForm })
             </SelectContent>
           </Select>
           {form.formState.errors.quickBooksSyncingOptions && (
-            <p className="text-sm text-red-500 mt-1">
-              {form.formState.errors.quickBooksSyncingOptions.message as string}
-            </p>
+            <p className="text-sm text-red-500 mt-1">{form.formState.errors.quickBooksSyncingOptions.message as string}</p>
           )}
           <FieldDescription>Choose your QuickBooks version for integration</FieldDescription>
         </Field>

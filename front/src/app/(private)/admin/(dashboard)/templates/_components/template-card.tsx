@@ -48,11 +48,7 @@ export function TemplateCard({ template, onAction }: TemplateCardProps) {
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <FileText className="h-6 w-6" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 ">
-                <CardTitle className="text-lg truncate">{template.name}</CardTitle>
-              </div>
-            </div>
+            <CardTitle className="text-lg flex-max-w-full  text-wrap">{template.name}</CardTitle>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

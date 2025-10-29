@@ -54,10 +54,10 @@ app.post(
     try {
       const payload = await getPayload;
 
-      const authSession = await auth.api.getSession({
+      const authRes = await auth.api.getSession({
         headers: fromNodeHeaders(req.headers),
       });
-      const userId = authSession?.session?.userId;
+      const userId = authRes?.user?.id;
       console.log("User ID:", userId);
       console.log("=== UPLOAD DEBUG ===");
       console.log("req.file:", req.file ? "EXISTS" : "NULL");

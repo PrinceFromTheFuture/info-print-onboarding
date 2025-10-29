@@ -162,12 +162,12 @@ export interface AppUserConfig {
   administratorPhone: string;
   companyWebsiteUrl: string;
   printingShopSpecializations: {
-    specialization: string;
+    specialization?: string | null;
     id?: string | null;
   }[];
   currentSalesTax: number;
-  quickBooksSyncing: boolean;
-  quickBooksSyncingOptions: 'quickbooksOnline' | 'quickbooksDesktop' | 'quickbooksEnterprise';
+  quickBooksSyncing?: boolean | null;
+  quickBooksSyncingOptions?: ('quickbooksOnline' | 'quickbooksDesktop' | 'quickbooksEnterprise') | null;
   requestedDomain: string;
   logo: string | Media;
   contactAndCompanyList: string | Media;
@@ -175,10 +175,12 @@ export interface AppUserConfig {
   machineInformation: string | Media;
   additionalProductPricingInformation: string | Media;
   currentMISWorkflow: string;
-  otherFeatures: {
-    feature: string;
-    id?: string | null;
-  }[];
+  otherFeatures?:
+    | {
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
