@@ -2,7 +2,7 @@ import { getPayload } from "../../db/getPayload.js";
 import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { auth } from "src/auth.js";
+import { auth } from "../../auth.js";
 
 const generateUnsecurePassword = ({ userName }: { userName: string }) => {
   return `${userName.toLowerCase()}1234567`;
