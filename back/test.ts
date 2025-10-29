@@ -1,4 +1,4 @@
-import { getPayload } from "src/db/getPayload.js";
+import { getPayload } from "./src/db/getPayload.js";
 
 const payload = await getPayload;
 await payload.delete({
