@@ -1,5 +1,5 @@
 import express from "express";
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth.js";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { createContext } from "./trpc/trpc.js";
@@ -17,7 +17,11 @@ const app = express();
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"], // Replace with your frontend's origin
+    origin: [
+      "http://localhost:3000",
+      "http://100.125.142.120:3000",
+      "https://infoprint-onboarding.amirwais.store",
+    ], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
@@ -50,6 +54,11 @@ app.post(
     try {
       const payload = await getPayload;
 
+      const authRes = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
+      const userId = authRes?.user?.id;
+      console.log("User ID:", userId);
       console.log("=== UPLOAD DEBUG ===");
       console.log("req.file:", req.file ? "EXISTS" : "NULL");
       console.log("req.body:", req.body);
@@ -68,7 +77,7 @@ app.post(
         });
       }
 
-      const { alt, userId } = req.body;
+      const { alt } = req.body;
 
       if (!userId) {
         return res.status(400).json({ error: "userId is required" });
@@ -123,12 +132,10 @@ app.post(
       const savedFilename = mediaRecord.filename || uniqueFileName;
 
       // Return the file URL using the filename from Payload
-      console.log("req.protocol", mediaRecord.url);
-      const serverFileUrl = `${req.protocol}://${req.get("host")}/api/media/file/${savedFilename}`;
 
       res.json({
         success: true,
-        serverFileUrl:mediaRecord.url,
+        serverFileUrl: mediaRecord.url,
         mediaId: mediaRecord.id,
         filename: savedFilename,
       });
@@ -161,7 +168,7 @@ app.use(
   })
 );
 
-app.listen(port,'0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   const procedureList = Object.keys(appRouter._def.procedures);
   console.log(procedureList);
   console.log(`Example app listening on port ${port}`);

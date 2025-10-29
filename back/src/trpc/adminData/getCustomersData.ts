@@ -82,6 +82,7 @@ export const getCustomersData = privateProcedure
         onboardingProgress: progress.progress,
         assignedTemplates: progress.total,
         completedTemplates: progress.completed,
+        isApproved: customer.isApproved ?? false,
       };
     });
 

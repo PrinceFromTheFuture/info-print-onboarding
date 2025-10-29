@@ -78,7 +78,7 @@ export default function WorkflowPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <CardTitle className="text-lg truncate">{assignment.templateName}</CardTitle>
+                          <CardTitle className="text-lg  text-wrap">{assignment.templateName}</CardTitle>
                         </div>
                         <Badge variant="secondary" className={`${statusConfig.className} text-xs`}>
                           {statusConfig.label}

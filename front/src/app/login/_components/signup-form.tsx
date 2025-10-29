@@ -31,12 +31,19 @@ type FormData = z.infer<typeof schema>;
 
 interface SignupFormProps extends React.ComponentProps<"div"> {
   onSwitchToLogin: () => void;
+  setModeHandler: (mode: "accountSetUp" | "auth" | "pendingVerification") => void;
 }
 
-export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormProps) {
+export function SignupForm({ className, onSwitchToLogin, setModeHandler, ...props }: SignupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const trpc = useTRPC();
-  const { mutateAsync: dbSignUp } = useMutation(trpc.authRouter.clientSignUp.mutationOptions());
+  const { mutateAsync: dbSignUp } = useMutation(
+    trpc.authRouter.clientSignUp.mutationOptions({
+      onSuccess: () => {
+        setModeHandler("accountSetUp");
+      },
+    })
+  );
   const router = useRouter();
 
   const form = useForm<FormData>({
@@ -62,14 +69,7 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
       );
       await dbSignUp({ email: data.email, name: data.name });
 
-      if (res.data) {
-        toast.success("Account created successfully!", {
-          description: "Welcome! You have been automatically logged in.",
-        });
-        // Auto login after signup
-        router.push("/customer");
-      }
-      if(res.error){
+      if (res.error) {
         console.error(res.error);
         const errorMessage = res.error?.message || "Failed to create account. Please try again.";
         toast.error("Signup Failed", {
@@ -77,7 +77,6 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
         });
       }
     } catch (err: any) {
-   
     } finally {
       setIsSubmitting(false);
     }

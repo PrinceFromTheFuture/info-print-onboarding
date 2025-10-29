@@ -32,6 +32,7 @@ export const signUpCustomer = privateProcedure
         email: input.email,
         name: input.name,
         role: "customer",
+        isApproved: false,
       },
     });
     await auth.api.signUpEmail({

@@ -78,6 +78,7 @@ export interface Config {
     visits: Visit;
     messages: Message;
     conversations: Conversation;
+    appUserConfigs: AppUserConfig;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,6 +97,7 @@ export interface Config {
     visits: VisitsSelect<false> | VisitsSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
     conversations: ConversationsSelect<false> | ConversationsSelect<true>;
+    appUserConfigs: AppUserConfigsSelect<false> | AppUserConfigsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -139,12 +141,69 @@ export interface UserAuthOperations {
  */
 export interface AppUser {
   id: string;
+  appUserConfig?: (string | null) | AppUserConfig;
+  isApproved: boolean;
   name: string;
   email: string;
   role?: ('admin' | 'customer') | null;
   assignedTemplates?: (string | Template)[] | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "appUserConfigs".
+ */
+export interface AppUserConfig {
+  id: string;
+  companyName: string;
+  administratorFullName: string;
+  administratorEmail: string;
+  administratorPhone: string;
+  companyWebsiteUrl: string;
+  printingShopSpecializations: {
+    specialization?: string | null;
+    id?: string | null;
+  }[];
+  currentSalesTax: number;
+  quickBooksSyncing?: boolean | null;
+  quickBooksSyncingOptions?: ('quickbooksOnline' | 'quickbooksDesktop' | 'quickbooksEnterprise') | null;
+  requestedDomain: string;
+  logo: string | Media;
+  contactAndCompanyList: string | Media;
+  inventoryList: string | Media;
+  machineInformation: string | Media;
+  additionalProductPricingInformation: string | Media;
+  currentMISWorkflow: string;
+  otherFeatures?:
+    | {
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  uploadedBy?: (string | null) | AppUser;
+  alt?: string | null;
+  extention?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -221,27 +280,6 @@ export interface Submission {
   answer?: string | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  uploadedBy?: (string | null) | AppUser;
-  alt?: string | null;
-  extention?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -370,6 +408,10 @@ export interface PayloadLockedDocument {
         value: string | Conversation;
       } | null)
     | ({
+        relationTo: 'appUserConfigs';
+        value: string | AppUserConfig;
+      } | null)
+    | ({
         relationTo: 'users';
         value: string | User;
       } | null);
@@ -420,6 +462,8 @@ export interface PayloadMigration {
  * via the `definition` "appUsers_select".
  */
 export interface AppUsersSelect<T extends boolean = true> {
+  appUserConfig?: T;
+  isApproved?: T;
   name?: T;
   email?: T;
   role?: T;
@@ -561,6 +605,41 @@ export interface ConversationsSelect<T extends boolean = true> {
   description?: T;
   status?: T;
   messages?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "appUserConfigs_select".
+ */
+export interface AppUserConfigsSelect<T extends boolean = true> {
+  companyName?: T;
+  administratorFullName?: T;
+  administratorEmail?: T;
+  administratorPhone?: T;
+  companyWebsiteUrl?: T;
+  printingShopSpecializations?:
+    | T
+    | {
+        specialization?: T;
+        id?: T;
+      };
+  currentSalesTax?: T;
+  quickBooksSyncing?: T;
+  quickBooksSyncingOptions?: T;
+  requestedDomain?: T;
+  logo?: T;
+  contactAndCompanyList?: T;
+  inventoryList?: T;
+  machineInformation?: T;
+  additionalProductPricingInformation?: T;
+  currentMISWorkflow?: T;
+  otherFeatures?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

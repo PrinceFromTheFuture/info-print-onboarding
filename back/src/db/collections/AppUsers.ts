@@ -4,6 +4,8 @@ const AppUsers: CollectionConfig = {
   slug: "appUsers",
 
   fields: [
+    { name: "appUserConfig", type: "relationship", relationTo: "appUserConfigs", required: false },
+    { name: "isApproved", type: "checkbox", required: true, defaultValue: false },
     {
       name: "name",
       type: "text",

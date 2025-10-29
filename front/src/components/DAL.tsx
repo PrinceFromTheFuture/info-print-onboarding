@@ -2,28 +2,20 @@
 import { useSession } from "@/lib/auth/auth-client";
 import { redirect, useRouter } from "next/navigation";
 import type { Auth } from "../../../back/src/auth";
+import LoadingSpinner from "./loading-spinner";
 
-export default function DAL({
-  children,
-  redirect,
-}: {
-  children: React.ReactNode;
-  redirect?: { role: "admin" | "customer"; href: string };
-}) {
-  const { data, isPending } = useSession();
+export default function DAL({ children, redirect }: { children: React.ReactNode; redirect?: { role: "admin" | "customer"; href: string } }) {
   const router = useRouter();
+  const { data, isPending } = useSession();
   if (isPending) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading user data...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner title="Loading user data..." />;
   }
 
   if (!data || !data.session) {
+    router.push("/login");
+    return;
+  }
+  if (!data?.user?.isApproved && data?.user?.role === "customer") {
     router.push("/login");
     return;
   }

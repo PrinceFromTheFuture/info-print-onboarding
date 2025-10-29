@@ -22,9 +22,10 @@ type FormData = z.infer<typeof schema>;
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   onSwitchToSignup: () => void;
+  setModeHandler: (mode: "accountSetUp" | "auth" | "pendingVerification") => void;
 }
 
-export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormProps) {
+export function LoginForm({ className, onSwitchToSignup, setModeHandler, ...props }: LoginFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -48,9 +49,16 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
       );
       if (res.data) {
         toast.success("Login successful! Welcome back.");
-        router.push(res.data.user.role === "admin" ? "/admin" : "/customer");
+
+        router.push(res.data.user.role === "admin");
+
+        if (res.data.user.isApproved) return router.push("/customer");
+
+        if (!res.data.user.appUserConfig) return setModeHandler("accountSetUp");
+
+        setModeHandler("pendingVerification");
       }
-      if(res.error){
+      if (res.error) {
         console.error(res.error);
         const errorMessage = res.error?.message || "Invalid email or password. Please try again.";
         toast.error("Login Failed", {
@@ -58,7 +66,6 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
         });
       }
     } catch (err: any) {
-    
     } finally {
       setIsSubmitting(false);
     }
@@ -77,18 +84,14 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input id="email" type="email" placeholder="m@example.com" {...form.register("email")} />
-                {form.formState.errors.email && (
-                  <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>
-                )}
+                {form.formState.errors.email && <p className="text-sm text-destructive mt-1">{form.formState.errors.email.message}</p>}
               </Field>
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
                 <Input id="password" type="password" {...form.register("password")} />
-                {form.formState.errors.password && (
-                  <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
-                )}
+                {form.formState.errors.password && <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>}
               </Field>
               <Field>
                 <Button type="submit" disabled={isSubmitting} className="w-full">
@@ -99,11 +102,7 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
           </form>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
-            <button
-              type="button"
-              onClick={onSwitchToSignup}
-              className="text-primary underline underline-offset-4 hover:text-primary/80"
-            >
+            <button type="button" onClick={onSwitchToSignup} className="text-primary underline underline-offset-4 hover:text-primary/80">
               Sign up
             </button>
           </div>

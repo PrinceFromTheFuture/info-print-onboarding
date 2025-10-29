@@ -9,5 +9,19 @@ import Groups from "./Groups.js";
 import Visits from "./Visits.js";
 import Messages from "./Messages.js";
 import Conversations from "./Conversations.js";
+import UserConfigs from "./UserConfigs.js";
 
-export const collections = [AppUsers, Sections, Questions, Templates, Submissions, Media, Assignments, Groups, Visits, Messages, Conversations];
+export const collections = [
+  AppUsers,
+  Sections,
+  Questions,
+  Templates,
+  Submissions,
+  Media,
+  Assignments,
+  Groups,
+  Visits,
+  Messages,
+  Conversations,
+  UserConfigs,
+];
