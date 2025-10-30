@@ -5,7 +5,6 @@ import { getPayload } from "./db/getPayload.js";
 import { auth } from "./auth.js";
 const payload = await getPayload;
 
-
 const migrator = async () => {
   const payload = await getPayload;
   await payload.delete({
