@@ -38,6 +38,7 @@ export const getFilledTemplateById = privateProcedure
     userSubmissions.docs.forEach((submission) => {
       const questionId = typeof submission.question === "string" ? submission.question : submission.question?.id;
       if (questionId) {
+        //@ts-ignore
         submissionMap.set(questionId, submission);
       }
     });
