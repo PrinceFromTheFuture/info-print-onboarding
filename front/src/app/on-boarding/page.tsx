@@ -15,7 +15,7 @@ function onBoarding() {
       className="min-h-screen w-full lg:grid lg:grid-cols-7 relative"
     >
       {/* Logo/Brand */}
-      <div className="flex items-center justify-center p-8 py-20 sm:p-8 sm:py-24 lg:p-24 lg:py-32 col-span-4 2xl:py-30 bg-background">
+      <div className="flex items-center justify-center p-8 py-8 sm:p-12 sm:py-4 lg:p-12 lg:py-12 col-span-4 2xl:py-4 bg-background">
         <div className="w-full h-full">
           <AccountSetUp />
         </div>

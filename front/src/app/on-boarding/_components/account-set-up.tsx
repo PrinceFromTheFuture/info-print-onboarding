@@ -9,7 +9,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/trpc/trpc";
-import { ChevronLeft, ChevronRight, Building2, UserCircle, Settings, CreditCard, FileText, Sparkles } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Building2,
+  UserCircle,
+  Settings,
+  CreditCard,
+  FileText,
+  Sparkles,
+} from "lucide-react";
 
 // Import stage components
 import { CompanyInformationStage } from "./stages/company-information-stage";
@@ -34,7 +43,10 @@ const companyInformationSchema = z.object({
 
 const administratorDetailsSchema = z.object({
   administratorFullName: z.string().min(1, "Administrator full name is required"),
-  administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
+  administratorEmail: z
+    .string()
+    .email("Please enter a valid email")
+    .min(1, "Administrator email is required"),
   administratorPhone: z.string().min(1, "Administrator phone is required"),
 });
 
@@ -74,22 +86,16 @@ const fileUploadSchema = z.object({
 });
 
 const documentUploadsSchema = z.object({
-  logo: fileUploadSchema.refine((val) => val.mediaId, { message: "Company logo is required" }),
-  contactAndCompanyList: fileUploadSchema.refine((val) => val.mediaId, {
-    message: "Contact & company list is required",
-  }),
-  inventoryList: fileUploadSchema.refine((val) => val.mediaId, { message: "Inventory list is required" }),
-  machineInformation: fileUploadSchema.refine((val) => val.mediaId, {
-    message: "Machine information is required",
-  }),
-  additionalProductPricingInformation: fileUploadSchema.refine((val) => val.mediaId, {
-    message: "Additional product pricing information is required",
-  }),
+  logo: fileUploadSchema.optional(),
+  contactAndCompanyList: fileUploadSchema.optional(),
+  inventoryList: fileUploadSchema.optional(),
+  machineInformation: fileUploadSchema.optional(),
+  additionalProductPricingInformation: fileUploadSchema.optional(),
 });
 
 const additionalDetailsSchema = z.object({
-  currentMISWorkflow: z.string().min(10, "Please provide a detailed description (at least 10 characters)"),
-  otherFeatures: z.array(z.string()),
+  currentMISWorkflow: z.string().optional(),
+  otherFeatures: z.array(z.string()).optional(),
 });
 
 // Combined schema
@@ -174,7 +180,13 @@ function AccountSetUp() {
     ["administratorFullName", "administratorEmail", "administratorPhone"],
     ["printingShopSpecializations", "currentSalesTax"],
     ["quickBooksSyncing"], // Only validate quickBooksSyncing, quickBooksSyncingOptions will be validated by the schema
-    ["logo", "contactAndCompanyList", "inventoryList", "machineInformation", "additionalProductPricingInformation"],
+    [
+      "logo",
+      "contactAndCompanyList",
+      "inventoryList",
+      "machineInformation",
+      "additionalProductPricingInformation",
+    ],
     ["currentMISWorkflow", "otherFeatures"],
   ];
 
@@ -251,7 +263,6 @@ function AccountSetUp() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl mx-auto">
-      
       {/* Header */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-3">
@@ -280,7 +291,7 @@ function AccountSetUp() {
       </div>
 
       {/* Form Content */}
-      <ScrollArea className="h-[calc(100vh-300px)] sm:h-[calc(100vh-320px)] lg:h-[calc(100vh-380px)] pr-2 sm:pr-4">
+      <ScrollArea className="h-[calc(100vh-200px)] sm:h-[calc(100vh-220px)] lg:h-[calc(100vh-280px)] pr-2 sm:pr-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={stage}
@@ -319,13 +330,25 @@ function AccountSetUp() {
         </div>
 
         {stage === stagesCount - 1 ? (
-          <Button type="submit" className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm" size="lg" disabled={onBoardingMutation.isPending}>
-            <span className="hidden sm:inline">{onBoardingMutation.isPending ? "Completing..." : "Complete Setup"}</span>
+          <Button
+            type="submit"
+            className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
+            size="lg"
+            disabled={onBoardingMutation.isPending}
+          >
+            <span className="hidden sm:inline">
+              {onBoardingMutation.isPending ? "Completing..." : "Complete Setup"}
+            </span>
             <span className="sm:hidden">{onBoardingMutation.isPending ? "..." : "Complete"}</span>
             <Sparkles className="size-3 sm:size-4" />
           </Button>
         ) : (
-          <Button type="button" onClick={nextStage} className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm" size="lg">
+          <Button
+            type="button"
+            onClick={nextStage}
+            className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
+            size="lg"
+          >
             Next
             <ChevronRight className="size-3 sm:size-4" />
           </Button>

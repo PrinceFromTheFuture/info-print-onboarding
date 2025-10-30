@@ -12,13 +12,13 @@ const UserConfigs: CollectionConfig = {
     {
       name: "printingShopSpecializations",
       type: "array",
-      required: true,
+      required: false,
       defaultValue: [],
 
-      fields: [{ name: "specialization", type: "text", }],
+      fields: [{ name: "specialization", type: "text" }],
     },
     { name: "currentSalesTax", type: "number", required: true },
-    { name: "quickBooksSyncing", type: "checkbox" , defaultValue: false},
+    { name: "quickBooksSyncing", type: "checkbox", defaultValue: false },
     {
       name: "quickBooksSyncingOptions",
       type: "select",
@@ -27,21 +27,33 @@ const UserConfigs: CollectionConfig = {
         { label: "QuickBooks Online", value: "quickbooksOnline" },
         { label: "QuickBooks Desktop", value: "quickbooksDesktop" },
         { label: "QuickBooks Enterprise", value: "quickbooksEnterprise" },
-
       ],
     },
-    {name:'requestedDomain',type:'text',required: true},
-    {name:'logo',type:'relationship',relationTo:'media',required: true},
-    {name:'contactAndCompanyList',type:'relationship',relationTo:'media',required: true},
-    {name:'inventoryList',type:'relationship',relationTo:'media',required: true},
-    {name:'machineInformation',type:'relationship',relationTo:'media',required: true},
-    {name:'additionalProductPricingInformation',type:'relationship',relationTo:'media',required: true},
-    {name:'currentMISWorkflow',type:'text',required: true},
-    {name:'otherFeatures',type:'array', fields:[{name:'feature',type:'text',required: true,
+    { name: "requestedDomain", type: "text", required: true },
+    { name: "logo", type: "relationship", relationTo: "media", required: false },
+    { name: "contactAndCompanyList", type: "relationship", relationTo: "media", required: false },
+    { name: "inventoryList", type: "relationship", relationTo: "media", required: false },
+    { name: "machineInformation", type: "relationship", relationTo: "media", required: false },
+    {
+      name: "additionalProductPricingInformation",
+      type: "relationship",
+      relationTo: "media",
+      required: false,
+    },
+    { name: "currentMISWorkflow", type: "text", required: false },
+    {
+      name: "otherFeatures",
+      type: "array",
+      required: false,
+      fields: [
+        {
+          name: "feature",
+          type: "text",
 
-      defaultValue: [],
-
-    }]},
+          defaultValue: [],
+        },
+      ],
+    },
   ],
 };
 
