@@ -7,6 +7,7 @@ import SelectInput from "./SelectInput";
 import DateInput from "./DateInput";
 import CheckboxInput from "./CheckboxInput";
 import ImageInput from "./ImageInput";
+import AttachmentInput from "./AttachmentInput";
 import type { Question } from "./types";
 
 interface QuestionRendererProps {
@@ -30,6 +31,8 @@ export default function QuestionRenderer({ question, value, onChange, isInvalid 
       return <CheckboxInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
     case "image":
       return <ImageInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+    case "attachment":
+      return <AttachmentInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
     default:
       return <TextInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
   }

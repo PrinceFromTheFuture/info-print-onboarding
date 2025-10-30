@@ -16,6 +16,11 @@ export function isSectionComplete(section: Section, formData: Record<string, any
 
   // Check if all required questions have non-empty answers
   for (const question of allQuestions) {
+    // Skip attachment questions as they don't require user input
+    if (question.type === "attachment") {
+      continue;
+    }
+
     if (question.required) {
       const answer = formData[question.id];
 
@@ -40,6 +45,11 @@ export function getIncompleteQuestions(section: Section, formData: Record<string
     const questions = (group.questions || []).filter((q): q is Question => typeof q !== "string");
 
     for (const question of questions) {
+      // Skip attachment questions as they don't require user input
+      if (question.type === "attachment") {
+        continue;
+      }
+
       if (question.required) {
         const answer = formData[question.id];
         if (answer === undefined || answer === null || answer === "" || answer === false) {
@@ -65,6 +75,11 @@ export function getSectionProgress(section: Section, formData: Record<string, an
     const questions = (group.questions || []).filter((q): q is Question => typeof q !== "string");
 
     for (const question of questions) {
+      // Skip attachment questions as they don't require user input
+      if (question.type === "attachment") {
+        continue;
+      }
+
       totalQuestions++;
       const answer = formData[question.id];
 
@@ -76,4 +91,3 @@ export function getSectionProgress(section: Section, formData: Record<string, an
 
   return totalQuestions === 0 ? 100 : Math.round((answeredQuestions / totalQuestions) * 100);
 }
-

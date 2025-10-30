@@ -6,9 +6,10 @@ export interface Question {
   title: string;
   label?: string | null;
   required?: boolean | null;
-  type?: "text" | "number" | "select" | "date" | "image" | "checkbox" | null;
+  type?: "text" | "number" | "select" | "date" | "image" | "checkbox" | "attachment" | null;
   order: number;
   selectOptions?: Array<{ value?: string | null; id?: string }> | null;
+  defaultValue?: string | null; // Default value for the question
   answer?: string | null; // Added by getFilledTemplateById
   createdAt?: string;
   updatedAt?: string;
@@ -58,4 +59,3 @@ export const isGroup = (group: Group | string): group is Group => {
 export const isQuestion = (question: Question | string): question is Question => {
   return typeof question !== "string";
 };
-
