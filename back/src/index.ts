@@ -31,7 +31,7 @@ const port = 3005;
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fileSize: 20 * 1024 * 1024, // 50MB limit
   },
 });
 
@@ -39,7 +39,6 @@ const upload = multer({
 // to prevent body parsers from consuming the request
 app.post(
   "/api/media/upload",
-
   upload.single("file"),
   async (req, res) => {
     try {

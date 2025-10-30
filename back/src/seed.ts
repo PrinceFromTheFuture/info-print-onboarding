@@ -5,6 +5,21 @@ import { getPayload } from "./db/getPayload.js";
 import { auth } from "./auth.js";
 const payload = await getPayload;
 
+
+const migrator = async () => {
+  const payload = await getPayload;
+  await payload.delete({
+    collection: "assignments",
+    where: {},
+  });
+  console.log("Assignments deleted successfully");
+  await payload.delete({
+    collection: "templates",
+    where: {},
+  });
+  console.log("App users deleted successfully");
+};
+
 const seedAdminUser = async () => {
   const { docs: users } = await payload.find({
     collection: "appUsers",
@@ -134,7 +149,7 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         qid,
         title: groupTitle,
         order,
-        required,
+        required: false,
         questions: checkboxQuestions,
       });
 
@@ -149,7 +164,7 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         // @ts-ignore
         label: field.text || "",
         // @ts-ignore
-        required: field.required === "Yes",
+        required: false,
         type: typeMapping.type,
         selectOptions: typeMapping.selectOptions,
         isPartOfGroup: false,
@@ -382,8 +397,9 @@ const seedAllForms = async () => {
 };
 // Run the batch seeder
 try {
-  const results = await seedAllForms();
-  await seedAdminUser();
+  await migrator();
+  await seedAllForms();
+  // await seedAdminUser();
   console.log("🎉 All forms have been successfully seeded!");
   process.exit(0);
 } catch (error) {
