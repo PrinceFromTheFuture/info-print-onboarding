@@ -1,19 +1,21 @@
 "use client";
 import { useState } from "react";
 import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AccountSetupForm } from "../account-set-up";
 
 export function QuickBooksIntegrationStage({ form }: { form: AccountSetupForm }) {
-  const [quickBooksSyncing, setQuickBooksSyncing] = useState<boolean>(form.getValues("quickBooksSyncing") || false);
+  const initialQuickBooksSyncing = Boolean(form.getValues("quickBooksSyncing"));
+  const [quickBooksSyncing, setQuickBooksSyncing] = useState<boolean>(initialQuickBooksSyncing);
+  const [quickBooksSyncingChoice, setQuickBooksSyncingChoice] = useState<string>(initialQuickBooksSyncing ? "yes" : "no");
   const [quickBooksVersion, setQuickBooksVersion] = useState<string>(form.getValues("quickBooksSyncingOptions") || "");
 
   // Reset QuickBooks options when syncing is disabled
-  const handleQuickBooksSyncingChange = (checked: boolean | string) => {
-    const booleanValue = checked === true;
+  const handleQuickBooksSyncingChange = (value: string) => {
+    const booleanValue = value === "yes";
     form.setValue("quickBooksSyncing", booleanValue, { shouldValidate: true });
     setQuickBooksSyncing(booleanValue);
+    setQuickBooksSyncingChoice(value);
 
     if (!booleanValue) {
       form.setValue("quickBooksSyncingOptions", "", { shouldValidate: true });
@@ -26,13 +28,23 @@ export function QuickBooksIntegrationStage({ form }: { form: AccountSetupForm })
   return (
     <FieldGroup>
       <Field orientation="horizontal">
-        <div className="flex items-center gap-3">
-          <Checkbox id="quickBooksSyncing" checked={quickBooksSyncing} onCheckedChange={handleQuickBooksSyncingChange} />
+        <div className="flex items-center gap-3 w-full">
           <div className="flex-1">
             <FieldLabel htmlFor="quickBooksSyncing" className="cursor-pointer">
-              Enable QuickBooks Syncing
+              Do you want QuickBooks?
             </FieldLabel>
-            <FieldDescription>Sync your data with QuickBooks accounting software</FieldDescription>
+            <FieldDescription>Choose whether to enable syncing with QuickBooks</FieldDescription>
+          </div>
+          <div className="min-w-[160px]">
+            <Select value={quickBooksSyncingChoice} onValueChange={handleQuickBooksSyncingChange}>
+              <SelectTrigger id="quickBooksSyncing" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="no">No</SelectItem>
+                <SelectItem value="yes">Yes</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Field>

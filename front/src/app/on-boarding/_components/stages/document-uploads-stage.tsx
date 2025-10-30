@@ -116,7 +116,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
       onDrop,
-      maxSize: 10 * 1024 * 1024, // 10MB
+      maxSize: 20 * 1024 * 1024, // 10MB
       accept: {
         "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
         "application/pdf": [".pdf"],

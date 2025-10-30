@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useSession } from "@/lib/auth/auth-client";
+import { authClient, useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/trpc/trpc";
 import { ChevronLeft, ChevronRight, Building2, UserCircle, Settings, CreditCard, FileText, Sparkles } from "lucide-react";
@@ -106,22 +106,26 @@ export type AccountSetupFormData = z.infer<typeof accountSetupSchema>;
 export type AccountSetupForm = UseFormReturn<AccountSetupFormData>;
 
 function AccountSetUp() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [stage, setStage] = useState(0);
   const stagesCount = 6;
   const { data: session } = useSession();
   const router = useRouter();
-  const [userCredentials, setUserCredentials] = useState<{ email: string; password: string } | null>(null);
 
   const trpc = useTRPC();
   const onBoardingMutation = useMutation(
     trpc.customerRouter.onBoarding.mutationOptions({
-      onSuccess: (data) => {
+      onSuccess: async (data) => {
         toast.success("Account setup completed successfully!");
         if (data.userLoginData) {
-          setUserCredentials(data.userLoginData);
+          await authClient.signIn.email(
+            {
+              email: data.userLoginData.email,
+              password: data.userLoginData.password,
+            },
+            { redirect: "manual" }
+          );
+          router.push("/login");
         }
-        setIsDialogOpen(true);
       },
       onError: (error: any) => {
         toast.error("Failed to complete account setup. Please try again.");
@@ -247,41 +251,7 @@ function AccountSetUp() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl mx-auto">
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Account setup completed successfully!</DialogTitle>
-          </DialogHeader>
-          {userCredentials && (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Your login credentials:</p>
-                <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">Email</p>
-                    <p className="text-sm font-mono break-all">{userCredentials.email}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-muted-foreground">Password</p>
-                    <p className="text-sm font-mono break-all">{userCredentials.password}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground italic">Please save these credentials securely.</p>
-              </div>
-              <Button
-                type="button"
-                className="w-full"
-                onClick={() => {
-                  setIsDialogOpen(false);
-                  router.push("/login");
-                }}
-              >
-                Got it! Take me to login
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      
       {/* Header */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-3">

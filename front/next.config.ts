@@ -13,7 +13,9 @@ const nextConfig: NextConfig = {
   },
   trailingSlash: true,
   experimental: {
-    serverComponentsExternalPackages: ['@trpc/server'],  // If server tRPC
+    serverActions: { bodySizeLimit: "20mb" },
+
+    serverComponentsExternalPackages: ["@trpc/server"], // If server tRPC
   },
 };
 

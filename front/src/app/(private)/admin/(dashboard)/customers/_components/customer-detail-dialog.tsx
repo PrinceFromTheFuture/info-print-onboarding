@@ -187,6 +187,10 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
     return <File className="h-5 w-5 text-gray-600" />;
   };
 
+  const generateUnsecurePassword = ({ userName }: { userName: string }) => {
+    return `${userName.toLowerCase()}1234567`;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-6xl max-h-[90vh] p-0 gap-0">
@@ -311,6 +315,25 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                         ? "All onboarding tasks completed!"
                         : `${customer.assignedTemplates.length - customer.submissions.filter((s) => s.progress === 100).length} templates remaining`}
                     </p>
+                  </div>
+
+                  {/* User Credentials */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold">User Credentials</h3>
+                    </div>
+                    <div className="grid bg-foreground/4 p-4 rounded-sm grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Email</label>
+                        <p className="text-sm font-medium">{customer.email}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Temporary Password</label>
+                        <p className="text-sm font-medium font-mono">{generateUnsecurePassword({ userName: customer.email.split("@")[0] })}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Share these with the customer to sign in.</p>
                   </div>
 
                   <Separator />
