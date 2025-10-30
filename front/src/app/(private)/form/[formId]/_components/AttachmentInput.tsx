@@ -62,7 +62,6 @@ export default function AttachmentInput({ question }: AttachmentInputProps) {
           />
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">Video attachment - No response required</p>
     </div>
   );
 }

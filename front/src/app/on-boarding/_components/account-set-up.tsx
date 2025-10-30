@@ -9,16 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/trpc/trpc";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  UserCircle,
-  Settings,
-  CreditCard,
-  FileText,
-  Sparkles,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Building2, UserCircle, Settings, CreditCard, FileText, Sparkles } from "lucide-react";
 
 // Import stage components
 import { CompanyInformationStage } from "./stages/company-information-stage";
@@ -43,10 +34,7 @@ const companyInformationSchema = z.object({
 
 const administratorDetailsSchema = z.object({
   administratorFullName: z.string().min(1, "Administrator full name is required"),
-  administratorEmail: z
-    .string()
-    .email("Please enter a valid email")
-    .min(1, "Administrator email is required"),
+  administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
   administratorPhone: z.string().min(1, "Administrator phone is required"),
 });
 
@@ -180,13 +168,7 @@ function AccountSetUp() {
     ["administratorFullName", "administratorEmail", "administratorPhone"],
     ["printingShopSpecializations", "currentSalesTax"],
     ["quickBooksSyncing"], // Only validate quickBooksSyncing, quickBooksSyncingOptions will be validated by the schema
-    [
-      "logo",
-      "contactAndCompanyList",
-      "inventoryList",
-      "machineInformation",
-      "additionalProductPricingInformation",
-    ],
+    ["logo", "contactAndCompanyList", "inventoryList", "machineInformation", "additionalProductPricingInformation"],
     ["currentMISWorkflow", "otherFeatures"],
   ];
 
@@ -259,10 +241,26 @@ function AccountSetUp() {
     await onBoardingMutation.mutateAsync(submissionData);
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Only allow submission on the last stage
+    if (stage === stagesCount - 1) {
+      await form.handleSubmit(onSubmit)(e);
+    }
+  };
+
+  const handleCompleteSetup = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Ensure we're on the last stage before submitting
+    if (stage === stagesCount - 1) {
+      await form.handleSubmit(onSubmit)();
+    }
+  };
+
   const CurrentIcon = stageInfo[stage].icon;
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl mx-auto">
+    <form onSubmit={handleFormSubmit} className="w-full max-w-3xl mx-auto">
       {/* Header */}
       <div className="mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 mb-3">
@@ -331,24 +329,18 @@ function AccountSetUp() {
 
         {stage === stagesCount - 1 ? (
           <Button
-            type="submit"
+            type="button"
+            onClick={handleCompleteSetup}
             className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
             size="lg"
             disabled={onBoardingMutation.isPending}
           >
-            <span className="hidden sm:inline">
-              {onBoardingMutation.isPending ? "Completing..." : "Complete Setup"}
-            </span>
+            <span className="hidden sm:inline">{onBoardingMutation.isPending ? "Completing..." : "Complete Setup"}</span>
             <span className="sm:hidden">{onBoardingMutation.isPending ? "..." : "Complete"}</span>
             <Sparkles className="size-3 sm:size-4" />
           </Button>
         ) : (
-          <Button
-            type="button"
-            onClick={nextStage}
-            className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm"
-            size="lg"
-          >
+          <Button type="button" onClick={nextStage} className="gap-1 flex-1 sm:gap-2 text-xs sm:text-sm" size="lg">
             Next
             <ChevronRight className="size-3 sm:size-4" />
           </Button>
