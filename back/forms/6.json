@@ -24,7 +24,7 @@
         "suffix": "Suffix"
       },
       "suffix": "No",
-      "text": "Step 2: Insert Your 4over Public Key & Secret below:",
+      "text": "Insert Your 4over Public Key & Secret below (only if you checked 4over):",
       "type": "control_fullname"
     },
     "61": {
@@ -42,7 +42,7 @@
       "required": "Yes",
       "size": "310",
       "subLabel": "MailChimp API Key",
-      "text": "Step 2: Insert your MailChimp API Key below:",
+      "text": "Insert your MailChimp API Key below (only if you checked MailChimp):",
       "type": "control_textbox",
       "validation": "None"
     },
@@ -61,7 +61,7 @@
       "required": "Yes",
       "size": "310",
       "subLabel": "Paste your Shippo API Token Key above",
-      "text": "Step 2: Insert your Shippo API Token Below:",
+      "text": "Insert your Shippo API Token Below (only if you checked Shippo):",
       "type": "control_textbox",
       "validation": "None"
     },
@@ -89,7 +89,7 @@
       "special": "None",
       "spreadCols": "2",
       "text": "What would you like to integrate with?",
-      "type": "control_radio"
+      "type": "control_checkbox"
     },
     "66": {
       "name": "input66",
@@ -113,7 +113,7 @@
       "required": "Yes",
       "size": "310",
       "subLabel": "Customer ID",
-      "text": "Step 2: Insert Your SanMar Customer ID below:",
+      "text": "Insert Your SanMar Customer ID below (only if you checked SanMar):",
       "type": "control_textbox",
       "validation": "None"
     },
@@ -144,7 +144,7 @@
         "suffix": "Suffix"
       },
       "suffix": "No",
-      "text": "Step 3: Insert Your SanMar Username & Password below:",
+      "text": "Insert Your SanMar Username & Password below (only if you checked SanMar):",
       "type": "control_fullname"
     },
     "71": {
@@ -169,7 +169,7 @@
       "required": "Yes",
       "size": "310",
       "subLabel": "Customer ID",
-      "text": "Step 2: Insert Your S&S Email below:",
+      "text": "Insert Your S&S Email below (only if you checked S&S):",
       "type": "control_textbox",
       "validation": "None"
     },
@@ -193,7 +193,7 @@
         "suffix": "Suffix"
       },
       "suffix": "No",
-      "text": "Step 3: Insert Your S&S Username & Password below:",
+      "text": "Insert Your S&S Username & Password below (only if you checked S&S):",
       "type": "control_fullname"
     },
     "74": {
@@ -202,74 +202,6 @@
       "qid": "74",
       "text": "<p><strong>Step 1: Registering with MailChimp<br /><br /></strong>1. Register a new account: <a href=\"https://login.mailchimp.com/signup/\" target=\"_blank\" rel=\"nofollow\">https://login.mailchimp.com/signup/</a></p>\r\n<p>2. Get your API key from: <a href=\"https://admin.mailchimp.com/account/api/\" target=\"_blank\" rel=\"nofollow\">https://admin.mailchimp.com/account/api/</a></p>\r\n<p> </p>",
       "type": "control_text"
-    },
-    "75": {
-      "compoundHint": ",",
-      "description": "Please enter your first and last name.",
-      "labelAlign": "Auto",
-      "middle": "No",
-      "name": "name",
-      "order": "1",
-      "prefix": "No",
-      "prefixChoices": "",
-      "qid": "75",
-      "readonly": "No",
-      "required": "Yes",
-      "sublabels": {
-        "prefix": "Prefix",
-        "first": "First Name",
-        "middle": "Middle Name",
-        "last": "Last Name",
-        "suffix": "Suffix"
-      },
-      "suffix": "No",
-      "text": "Name",
-      "type": "control_fullname"
-    },
-    "76": {
-      "allowCustomDomains": "No",
-      "allowedDomains": "",
-      "autoFixed": "No",
-      "confirmation": "No",
-      "confirmationHint": "example@example.com",
-      "confirmationSublabel": "Confirm Email",
-      "defaultValue": "",
-      "description": "Please enter your email address",
-      "disallowFree": "No",
-      "domainCheck": "No",
-      "hint": "",
-      "labelAlign": "Auto",
-      "maxsize": "",
-      "name": "email",
-      "order": "3",
-      "qid": "76",
-      "readonly": "No",
-      "required": "Yes",
-      "size": "310",
-      "subLabel": "example@example.com",
-      "text": "Email",
-      "type": "control_email",
-      "validation": "Email",
-      "verificationCode": "No"
-    },
-    "78": {
-      "autoFixed": "No",
-      "defaultValue": "",
-      "description": "ex: Demo Print Shop",
-      "hint": "",
-      "inputTextMask": "",
-      "labelAlign": "Auto",
-      "maxsize": "",
-      "name": "typeA",
-      "order": "2",
-      "qid": "78",
-      "readonly": "No",
-      "required": "Yes",
-      "size": "310",
-      "subLabel": "",
-      "text": " Please Enter your Shop Name ",
-      "type": "control_textbox",
-      "validation": "None"
     }
   },
   "duration": "83.88ms",

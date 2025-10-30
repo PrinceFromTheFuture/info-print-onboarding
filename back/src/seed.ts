@@ -63,11 +63,16 @@ const mapJotFormTypeToPayloadType = (jotformField: any) => {
       // Parse options from field.options (e.g., "Yes|No")
       // @ts-ignore
 
-      const options = jotformField.options ? jotformField.options.split("|").map((opt) => ({ value: opt.trim() })) : [];
+      const options = jotformField.options
+      //@ts-ignore
+        ? jotformField.options.split("|").map((opt) => ({ value: opt.trim() }))
+        : [];
       return { type: "select", selectOptions: options };
     case "control_checkbox":
       // Parse options from field.options (e.g., "Option1|Option2|Option3")
-      const checkboxOptions = jotformField.options ? jotformField.options.split("|").map((opt: string) => opt.trim()) : [];
+      const checkboxOptions = jotformField.options
+        ? jotformField.options.split("|").map((opt: string) => opt.trim())
+        : [];
       return {
         type: "checkbox_group",
         checkboxOptions: checkboxOptions,
@@ -83,7 +88,17 @@ const mapJotFormTypeToPayloadType = (jotformField: any) => {
       // Compound fields - treat as text for simplicity
       return { type: "text" };
     case "control_widget":
-      // Skip widgets (instructional content, embeds, etc.)
+      // Check if this widget is a YouTube video
+      // @ts-ignore
+      if (jotformField.URL || jotformField.url) {
+        // @ts-ignore
+        const youtubeUrl = jotformField.URL || jotformField.url;
+        return {
+          type: "attachment",
+          defaultValue: youtubeUrl,
+        };
+      }
+      // Skip other widgets (instructional content, embeds, etc.)
       return { type: "skip" };
     case "control_button":
       // Skip buttons (submit, clear, etc.)
@@ -142,6 +157,8 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         parentQid: qid, // Reference to original question
         groupTitle: groupTitle,
         isPartOfGroup: true,
+        // @ts-ignore
+        defaultValue: field.defaultValue || "",
       }));
 
       groupData.push({
@@ -167,9 +184,16 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         type: typeMapping.type,
         selectOptions: typeMapping.selectOptions,
         isPartOfGroup: false,
+        // @ts-ignore
+        // Use defaultValue from typeMapping (for youtube URLs) or from field
+        defaultValue: typeMapping.defaultValue || field.defaultValue || "",
       };
       questionsData.push(questionData);
-      console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})`);
+      if (questionData.type === "attachment" && questionData.defaultValue?.includes("youtu")) {
+        console.log(`   ✓ Mapped YouTube video as attachment: "${questionData.title}" (URL: ${questionData.defaultValue})`);
+      } else {
+        console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})`);
+      }
     }
   });
 
@@ -177,13 +201,16 @@ const seedJotFormFile = async (jotformJson, fileName) => {
   questionsData.sort((a, b) => a.order - b.order);
 
   // Calculate total questions including checkbox groups
-  const totalQuestions = questionsData.length + groupData.reduce((sum, group) => sum + group.questions.length, 0);
+  const totalQuestions =
+    questionsData.length + groupData.reduce((sum, group) => sum + group.questions.length, 0);
 
   if (totalQuestions === 0) {
     console.warn(`⚠️  No valid questions found in ${fileName}; skipping seeding.`);
     return { totalQuestions: 0 };
   }
-  console.log(`✓ Processed ${questionsData.length} regular questions and ${groupData.length} checkbox groups (${totalQuestions} total questions)\n`);
+  console.log(
+    `✓ Processed ${questionsData.length} regular questions and ${groupData.length} checkbox groups (${totalQuestions} total questions)\n`
+  );
   try {
     // Step 2: Create Template
     console.log("📦 Step 2: Creating Template...");
@@ -218,7 +245,9 @@ const seedJotFormFile = async (jotformJson, fileName) => {
     console.log(`✓ Section linked to Template\n`);
     // Step 5: Create Questions, Groups, and link them
     console.log("📂 Step 5: Creating Questions with their Groups...");
-    console.log("   (Regular questions get individual groups, checkbox groups get one group with multiple questions)\n");
+    console.log(
+      "   (Regular questions get individual groups, checkbox groups get one group with multiple questions)\n"
+    );
     const groupIds = [];
     const questionMap = new Map(); // Map to store question ID by qid for showIf references
     let successCount = 0;
@@ -258,7 +287,9 @@ const seedJotFormFile = async (jotformJson, fileName) => {
     // Process checkbox groups (one group with multiple questions)
     for (const groupInfo of groupData) {
       try {
-        console.log(`   📋 Creating checkbox group: "${groupInfo.title}" with ${groupInfo.questions.length} options`);
+        console.log(
+          `   📋 Creating checkbox group: "${groupInfo.title}" with ${groupInfo.questions.length} options`
+        );
 
         // Create all questions for this checkbox group
         const questionIds = [];
@@ -309,7 +340,9 @@ const seedJotFormFile = async (jotformJson, fileName) => {
     console.log("📊 Summary:");
     console.log(`   - Template ID: ${template.id}`);
     console.log(`   - Section ID: ${section.id}`);
-    console.log(`   - Groups Created: ${groupIds.length} (${questionsData.length} regular + ${groupData.length} checkbox groups)`);
+    console.log(
+      `   - Groups Created: ${groupIds.length} (${questionsData.length} regular + ${groupData.length} checkbox groups)`
+    );
     console.log(`   - Questions Created: ${successCount}`);
     console.log(`   - Questions Failed: ${failCount}`);
     console.log(`   - Total Questions Processed: ${totalQuestions}`);
@@ -396,9 +429,8 @@ const seedAllForms = async () => {
 };
 // Run the batch seeder
 try {
-  await migrator();
+  await seedAdminUser();
   await seedAllForms();
-  // await seedAdminUser();
   console.log("🎉 All forms have been successfully seeded!");
   process.exit(0);
 } catch (error) {

@@ -161,23 +161,25 @@ export interface AppUserConfig {
   administratorEmail: string;
   administratorPhone: string;
   companyWebsiteUrl: string;
-  printingShopSpecializations: {
-    specialization?: string | null;
-    id?: string | null;
-  }[];
+  printingShopSpecializations?:
+    | {
+        specialization?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   currentSalesTax: number;
   quickBooksSyncing?: boolean | null;
   quickBooksSyncingOptions?: ('quickbooksOnline' | 'quickbooksDesktop' | 'quickbooksEnterprise') | null;
   requestedDomain: string;
-  logo: string | Media;
-  contactAndCompanyList: string | Media;
-  inventoryList: string | Media;
-  machineInformation: string | Media;
-  additionalProductPricingInformation: string | Media;
-  currentMISWorkflow: string;
+  logo?: (string | null) | Media;
+  contactAndCompanyList?: (string | null) | Media;
+  inventoryList?: (string | null) | Media;
+  machineInformation?: (string | null) | Media;
+  additionalProductPricingInformation?: (string | null) | Media;
+  currentMISWorkflow?: string | null;
   otherFeatures?:
     | {
-        feature: string;
+        feature?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -255,6 +257,7 @@ export interface Question {
   title: string;
   order: number;
   label?: string | null;
+  defaultValue?: string | null;
   required?: boolean | null;
   selectOptions?:
     | {
@@ -262,7 +265,7 @@ export interface Question {
         id?: string | null;
       }[]
     | null;
-  type?: ('text' | 'number' | 'select' | 'date' | 'image' | 'checkbox') | null;
+  type?: ('text' | 'number' | 'select' | 'date' | 'image' | 'checkbox' | 'attachment') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -491,6 +494,7 @@ export interface QuestionsSelect<T extends boolean = true> {
   title?: T;
   order?: T;
   label?: T;
+  defaultValue?: T;
   required?: T;
   selectOptions?:
     | T

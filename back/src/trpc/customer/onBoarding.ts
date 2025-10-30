@@ -3,6 +3,7 @@ import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { auth } from "../../auth.js";
+import type { Media } from "payload-types.js";
 
 const generateUnsecurePassword = ({ userName }: { userName: string }) => {
   return `${userName.toLowerCase()}1234567`;
@@ -17,7 +18,10 @@ const onBoardingInputSchema = z
       .min(1, "Requested domain is required")
       .regex(/^[a-zA-Z0-9-]+$/, "Domain can only contain letters, numbers, and hyphens"),
     administratorFullName: z.string().min(1, "Administrator full name is required"),
-    administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
+    administratorEmail: z
+      .string()
+      .email("Please enter a valid email")
+      .min(1, "Administrator email is required"),
     administratorPhone: z.string().min(1, "Administrator phone is required"),
     printingShopSpecializations: z.array(z.string()),
     currentSalesTax: z
@@ -28,13 +32,13 @@ const onBoardingInputSchema = z
       }),
     quickBooksSyncing: z.boolean(),
     quickBooksSyncingOptions: z.string().optional(),
-    logo: z.string().min(1, "Company logo is required"),
-    contactAndCompanyList: z.string().min(1, "Contact & company list is required"),
-    inventoryList: z.string().min(1, "Inventory list is required"),
-    machineInformation: z.string().min(1, "Machine information is required"),
-    additionalProductPricingInformation: z.string().min(1, "Additional product pricing information is required"),
-    currentMISWorkflow: z.string().min(10, "Please provide a detailed description (at least 10 characters)"),
-    otherFeatures: z.array(z.string()),
+    logo: z.string().optional(),
+    contactAndCompanyList: z.string(),
+    inventoryList: z.string().optional(),
+    machineInformation: z.string().optional(),
+    additionalProductPricingInformation: z.string().optional(),
+    currentMISWorkflow: z.string(),
+    otherFeatures: z.array(z.string()).optional(),
   })
   .refine(
     (data) => {
@@ -77,7 +81,10 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
     input.inventoryList,
     input.machineInformation,
     input.additionalProductPricingInformation,
-  ];
+  ]
+    .filter((s) => s !== "")
+    .filter((s) => s !== undefined);
+
   for (const media of onBoardingDataMedia) {
     await payload.update({
       collection: "media",
@@ -110,12 +117,17 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
         administratorEmail: input.administratorEmail,
         administratorPhone: input.administratorPhone,
         companyWebsiteUrl: input.companyWebsiteUrl,
-        printingShopSpecializations: input.printingShopSpecializations.map((spec) => ({
-          specialization: spec,
-        })),
+        printingShopSpecializations:
+          input.printingShopSpecializations.map((spec) => ({
+            specialization: spec,
+          })) || [],
         currentSalesTax: parseFloat(input.currentSalesTax),
         quickBooksSyncing: input.quickBooksSyncing,
-        quickBooksSyncingOptions: (input.quickBooksSyncingOptions as "quickbooksOnline" | "quickbooksDesktop" | "quickbooksEnterprise") || null,
+        quickBooksSyncingOptions:
+          (input.quickBooksSyncingOptions as
+            | "quickbooksOnline"
+            | "quickbooksDesktop"
+            | "quickbooksEnterprise") || null,
         requestedDomain: input.requestedDomain,
         logo: input.logo,
         contactAndCompanyList: input.contactAndCompanyList,
@@ -123,7 +135,7 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
         machineInformation: input.machineInformation,
         additionalProductPricingInformation: input.additionalProductPricingInformation,
         currentMISWorkflow: input.currentMISWorkflow,
-        otherFeatures: input.otherFeatures.map((feature) => ({
+        otherFeatures: input.otherFeatures?.map((feature) => ({
           feature: feature,
         })),
       }, // Type assertion needed due to Payload's complex type system

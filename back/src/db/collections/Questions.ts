@@ -14,6 +14,7 @@ const Questions: CollectionConfig = {
       type: "text",
       required: false,
     },
+    { name: "defaultValue", type: "text", required: false },
     {
       name: "required",
       type: "checkbox",
@@ -38,6 +39,7 @@ const Questions: CollectionConfig = {
         { label: "date", value: "date" },
         { label: "image", value: "image" },
         { label: "checkbox", value: "checkbox" },
+        { label: "attachment", value: "attachment" },
       ],
     },
   ],
