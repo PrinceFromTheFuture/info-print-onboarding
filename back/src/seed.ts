@@ -64,6 +64,7 @@ const mapJotFormTypeToPayloadType = (jotformField: any) => {
       // @ts-ignore
 
       const options = jotformField.options
+      //@ts-ignore
         ? jotformField.options.split("|").map((opt) => ({ value: opt.trim() }))
         : [];
       return { type: "select", selectOptions: options };
