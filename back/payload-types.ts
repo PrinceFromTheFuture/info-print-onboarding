@@ -257,6 +257,7 @@ export interface Question {
   title: string;
   order: number;
   label?: string | null;
+  defaultValue?: string | null;
   required?: boolean | null;
   selectOptions?:
     | {
@@ -264,7 +265,7 @@ export interface Question {
         id?: string | null;
       }[]
     | null;
-  type?: ('text' | 'number' | 'select' | 'date' | 'image' | 'checkbox') | null;
+  type?: ('text' | 'number' | 'select' | 'date' | 'image' | 'checkbox' | 'attachment') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -493,6 +494,7 @@ export interface QuestionsSelect<T extends boolean = true> {
   title?: T;
   order?: T;
   label?: T;
+  defaultValue?: T;
   required?: T;
   selectOptions?:
     | T

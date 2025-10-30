@@ -88,7 +88,17 @@ const mapJotFormTypeToPayloadType = (jotformField: any) => {
       // Compound fields - treat as text for simplicity
       return { type: "text" };
     case "control_widget":
-      // Skip widgets (instructional content, embeds, etc.)
+      // Check if this widget is a YouTube video
+      // @ts-ignore
+      if (jotformField.URL || jotformField.url) {
+        // @ts-ignore
+        const youtubeUrl = jotformField.URL || jotformField.url;
+        return {
+          type: "attachment",
+          defaultValue: youtubeUrl,
+        };
+      }
+      // Skip other widgets (instructional content, embeds, etc.)
       return { type: "skip" };
     case "control_button":
       // Skip buttons (submit, clear, etc.)
@@ -147,6 +157,8 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         parentQid: qid, // Reference to original question
         groupTitle: groupTitle,
         isPartOfGroup: true,
+        // @ts-ignore
+        defaultValue: field.defaultValue || "",
       }));
 
       groupData.push({
@@ -172,9 +184,16 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         type: typeMapping.type,
         selectOptions: typeMapping.selectOptions,
         isPartOfGroup: false,
+        // @ts-ignore
+        // Use defaultValue from typeMapping (for youtube URLs) or from field
+        defaultValue: typeMapping.defaultValue || field.defaultValue || "",
       };
       questionsData.push(questionData);
-      console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})`);
+      if (questionData.type === "attachment" && questionData.defaultValue?.includes("youtu")) {
+        console.log(`   ✓ Mapped YouTube video as attachment: "${questionData.title}" (URL: ${questionData.defaultValue})`);
+      } else {
+        console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})`);
+      }
     }
   });
 
