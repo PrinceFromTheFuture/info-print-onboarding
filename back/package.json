@@ -17,7 +17,7 @@
     "dev": "bun --watch src/index.ts",
     "generate": "npx payload generate:types",
     "start": "node dist/src/index.js",
- "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --format=esm --outdir=dist --external:node:\\*"
+ "build": "tsc"
 ,
     "seed": "node  dist/src/seed.js",
     "seed:verify": "bun verify-seed.ts",
