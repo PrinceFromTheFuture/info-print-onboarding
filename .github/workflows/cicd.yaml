@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Docker image and push them
         run: |
-          docker compose build --no-cache
+          docker compose build 
           docker compose push
   deploy-app:
     needs: build-app
