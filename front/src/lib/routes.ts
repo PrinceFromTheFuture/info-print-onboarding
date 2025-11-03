@@ -29,7 +29,7 @@ export const ROUTES = {
 
   // Form/View Routes
   forms: {
-    viewForm: (templateId: string, customerId: string) => `/viewForm/${templateId}/${customerId}`,
+    viewForm: (templateId: string, customerId: string) => `/adminFormView/${templateId}/${customerId}`,
     formById: (formId: string) => `/form/${formId}`,
   },
 

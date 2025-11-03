@@ -1,7 +1,7 @@
 {
   "responseCode": 200,
   "message": "success",
-  "title": "SMTP Setup2",
+  "title": "SMTP Setup",
   "description": "Configure SMTP email settings for Gmail, Yahoo, or Outlook to enable automated email notifications and communications from your InfoFlo Print system.",
   "content": {
     "20": {
