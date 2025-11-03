@@ -122,6 +122,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+
   const handleSubmit = async () => {
     // Validate all sections before submission
     const incompleteSections = sections.filter((section) => !isSectionComplete(section, formData));

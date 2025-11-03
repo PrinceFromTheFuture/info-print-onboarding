@@ -13,9 +13,17 @@ const Groups: CollectionConfig = {
       name: "showIf",
       type: "group",
       fields: [
-        { name: "question", type: "relationship", relationTo: "questions", hasMany: false },
-        { name: "equalTo", type: "text" },
+        { name: "question", type: "relationship", relationTo: "questions", hasMany: false, },
+        {
+          name: "condition",
+          type: "select",
+          options: ["equals", "not equals"],
+          
+        },
+        { name: "value", type: "text", },
       ],
+      required: false,
+   
     },
     {
       name: "questions",

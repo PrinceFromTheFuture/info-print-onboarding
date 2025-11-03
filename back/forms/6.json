@@ -23,6 +23,8 @@
         "last": "Secret",
         "suffix": "Suffix"
       },
+      "showIf": { "option": "4over", "condition": "equals", "value": "true", "question": "64" },
+
       "suffix": "No",
       "text": "Insert Your 4over Public Key & Secret below (only if you checked 4over):",
       "type": "control_fullname"
@@ -41,6 +43,8 @@
       "readonly": "No",
       "required": "Yes",
       "size": "310",
+      "showIf": { "option": "MailChimp (For Marketing)", "condition": "equals", "value": "true", "question": "64" },
+
       "subLabel": "MailChimp API Key",
       "text": "Insert your MailChimp API Key below (only if you checked MailChimp):",
       "type": "control_textbox",
@@ -63,7 +67,8 @@
       "subLabel": "Paste your Shippo API Token Key above",
       "text": "Insert your Shippo API Token Below (only if you checked Shippo):",
       "type": "control_textbox",
-      "validation": "None"
+      "validation": "None",
+      "showIf": { "option": "Shippo", "condition": "equals", "value": "true", "question": "64" }
     },
     "63": {
       "name": "input63",
@@ -115,6 +120,7 @@
       "subLabel": "Customer ID",
       "text": "Insert Your SanMar Customer ID below (only if you checked SanMar):",
       "type": "control_textbox",
+      "showIf": { "option": "SanMar", "condition": "equals", "value": "true", "question": "64" },
       "validation": "None"
     },
     "69": {
@@ -145,6 +151,7 @@
       },
       "suffix": "No",
       "text": "Insert Your SanMar Username & Password below (only if you checked SanMar):",
+      "showIf": { "option": "SanMar", "condition": "equals", "value": "true", "question": "64" },
       "type": "control_fullname"
     },
     "71": {
@@ -170,6 +177,7 @@
       "size": "310",
       "subLabel": "Customer ID",
       "text": "Insert Your S&S Email below (only if you checked S&S):",
+      "showIf": { "option": "S&S", "condition": "equals", "value": "true", "question": "64" },
       "type": "control_textbox",
       "validation": "None"
     },
@@ -194,6 +202,7 @@
       },
       "suffix": "No",
       "text": "Insert Your S&S Username & Password below (only if you checked S&S):",
+      "showIf": { "option": "S&S", "condition": "equals", "value": "true", "question": "64" },
       "type": "control_fullname"
     },
     "74": {

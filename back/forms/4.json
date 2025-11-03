@@ -4,28 +4,6 @@
   "title": "Separating Paid/Unpaid Invoices",
   "description": "Set up invoice management to automatically separate paid and unpaid invoices for better financial tracking and customer management.",
   "content": {
-    "46": {
-      "compoundHint": "",
-      "countryCode": "No",
-      "description": "Phone number of person who is dealing with setting up payment processing.",
-      "inputMask": "disable",
-      "inputMaskValue": "(###) ###-####",
-      "labelAlign": "Auto",
-      "name": "phoneNumber",
-      "order": "8",
-      "qid": "46",
-      "readonly": "No",
-      "required": "Yes",
-      "sublabels": {
-        "country": "Country Code",
-        "area": "Area Code",
-        "phone": "Phone Number",
-        "full": "Phone Number",
-        "masked": ""
-      },
-      "text": "Phone Number:",
-      "type": "control_phone"
-    },
     "105": {
       "autoFixed": "No",
       "cols": "648",

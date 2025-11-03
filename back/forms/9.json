@@ -1,7 +1,7 @@
 {
   "responseCode": 200,
   "message": "success",
-  "title": "SMTP Setup",
+  "title": "SMTP Setup2",
   "description": "Configure SMTP email settings for Gmail, Yahoo, or Outlook to enable automated email notifications and communications from your InfoFlo Print system.",
   "content": {
     "20": {
@@ -20,7 +20,8 @@
       "subLabel": "",
       "text": "Confirm your Yahoo SMTP Server",
       "type": "control_textbox",
-      "validation": "None"
+      "validation": "None",
+      "showIf": { "option": "Yahoo", "condition": "equals", "value": "Yahoo", "question": "75" }
     },
     "62": {
       "autoFixed": "No",
@@ -146,7 +147,8 @@
       "text": "Please watch the video below on how to generate you Gmail password which is required for the SMT setup:",
       "type": "control_widget",
       "widgetTabs": "[[\"general\",\"settingNames\"],[\"customcss\",\"settingNamesCSS\"]]",
-      "widgetType": "field"
+      "widgetType": "field",
+      "showIf": { "option": "Gmail/Google Workspace", "condition": "equals", "value": "Gmail/Google Workspace", "question": "75" }
     },
     "83": {
       "autoFixed": "No",
@@ -165,7 +167,8 @@
       "subLabel": "",
       "text": "Please enter the generated Gmail Password:",
       "type": "control_textbox",
-      "validation": "None"
+      "validation": "None",
+      "showIf": { "option": "Gmail/Google Workspace", "condition": "equals", "value": "Gmail/Google Workspace", "question": "75" }
     },
     "85": {
       "autoFixed": "No",
@@ -184,7 +187,8 @@
       "subLabel": "",
       "text": "Confirm your Gmail SMTP Server",
       "type": "control_textbox",
-      "validation": "None"
+      "validation": "None",
+      "showIf": { "option": "Gmail/Google Workspace", "condition": "equals", "value": "Gmail/Google Workspace", "question": "75" }
     },
     "90": {
       "calcValues": "",
@@ -230,48 +234,10 @@
       "text": "Please watch the video below on how to generate you Yahoo password which is required for the SMT setup:",
       "type": "control_widget",
       "widgetTabs": "[[\"general\",\"settingNames\"],[\"customcss\",\"settingNamesCSS\"]]",
-      "widgetType": "field"
+      "widgetType": "field",
+      "showIf": { "option": "Yahoo", "condition": "equals", "value": "Yahoo", "question": "75" }
     },
-    "95": {
-      "backgroundColor": "#ffffff",
-      "boxAlign": "Left",
-      "builderDescription": "",
-      "builderLabel": "Calendly",
-      "cfname": "Calendly",
-      "customCSS": "",
-      "description": "",
-      "email": "input_47",
-      "fieldParameters": "[]",
-      "finalSrc": "/form-widgets/calendly",
-      "frameHeight": "600",
-      "frameSrc": "/form-widgets/calendly",
-      "frameWidth": "650",
-      "height": "600px",
-      "hidden": "Yes",
-      "hideEventTypeDetails": "",
-      "hideGdprBanner": "Yes",
-      "hideLandingPageDetails": "",
-      "inlineEditDefaultValue": "Type a question",
-      "label": "Yes",
-      "labelAlign": "Auto",
-      "maxWidth": "587",
-      "name": "pleaseSelect",
-      "order": "17",
-      "paramChunks": "",
-      "primaryColor": "#00a2ff",
-      "qid": "95",
-      "required": "No",
-      "selectedField": "b83739743814bf0ed1503bde",
-      "settingNames": "url,name,email,backgroundColor,primaryColor,textColor,hideEventTypeDetails,hideLandingPageDetails,hideGdprBanner,height,customCSS",
-      "settingNamesCSS": "",
-      "static": "No",
-      "text": "Please select a time on the calendar so we can help you complete your SMTP setup.",
-      "textColor": "#4d5055",
-      "type": "control_widget",
-      "url": "https://calendly.com/d/cwrt-2cg-52n/onboarding-2",
-      "widgetTabs": "[[\"general\",\"settingNames\"],[\"customcss\",\"settingNamesCSS\"]]",
-      "widgetType": "field"
-    },
+
     "96": {
       "name": "input96",
       "order": "15",
@@ -295,7 +261,8 @@
       "subLabel": "",
       "text": "Confirm your Outlook/Microsoft 365 SMTP Server",
       "type": "control_textbox",
-      "validation": "None"
+      "validation": "None",
+      "showIf": { "option": "Outlook/Microsoft 365", "condition": "equals", "value": "Outlook/Microsoft 365", "question": "75" }
     }
   },
   "duration": "87.27ms",

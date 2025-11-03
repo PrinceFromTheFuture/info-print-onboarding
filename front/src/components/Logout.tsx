@@ -18,6 +18,7 @@ function Logout() {
     await queryClient.invalidateQueries();
   };
   const userName = session?.user?.name as string;
+  if (!userName) return <></>;
   const userDisplayName = userName.length > 12 ? userName.slice(0, 12) + "..." : userName;
   return (
     <div className="flex items-center gap-2 ml-auto">

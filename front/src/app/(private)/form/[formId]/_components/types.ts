@@ -1,54 +1,20 @@
-// Types inferred from the backend Payload collections
-// These match the structure returned by getFilledTemplateById
+import type {
+  Question as QuestionType,
+  Group as GroupType,
+  Template as TemplateType,
+  Section as SectionType,
+} from "../../../../../../../back/payload-types";
 
-export interface Question {
-  id: string;
-  title: string;
-  label?: string | null;
-  required?: boolean | null;
-  type?: "text" | "number" | "select" | "date" | "image" | "checkbox" | "attachment" | null;
-  order: number;
-  selectOptions?: Array<{ value?: string | null; id?: string }> | null;
-  defaultValue?: string | null; // Default value for the question
-  answer?: string | null; // Added by getFilledTemplateById
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type Question = QuestionType & { answer?: string | null };
 
-export interface Group {
-  id: string;
-  title?: string | null;
-  order?: number | null;
-  showIf?: {
-    question?: Question | string | null;
-    equalTo?: string | null;
-  } | null;
-  questions?: Array<Question | string> | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type Group = GroupType;
 
-export interface Section {
-  id: string;
-  title: string;
-  description: string;
-  order?: number | null;
-  groups?: Array<Group | string> | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type Section = SectionType;
 
-export interface Template {
-  id: string;
-  name: string;
-  description?: string | null;
-  sections?: Array<Section | string> | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type Template = TemplateType;
 
 // Helper type guards
-export const isSection = (section: Section | string): section is Section => {
+export const isSection = (section: Section): section is Section => {
   return typeof section !== "string";
 };
 
