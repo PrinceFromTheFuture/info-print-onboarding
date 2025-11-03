@@ -64,15 +64,13 @@ const mapJotFormTypeToPayloadType = (jotformField: any) => {
       // @ts-ignore
 
       const options = jotformField.options
-      //@ts-ignore
-        ? jotformField.options.split("|").map((opt) => ({ value: opt.trim() }))
+        ? //@ts-ignore
+          jotformField.options.split("|").map((opt) => ({ value: opt.trim() }))
         : [];
       return { type: "select", selectOptions: options };
     case "control_checkbox":
       // Parse options from field.options (e.g., "Option1|Option2|Option3")
-      const checkboxOptions = jotformField.options
-        ? jotformField.options.split("|").map((opt: string) => opt.trim())
-        : [];
+      const checkboxOptions = jotformField.options ? jotformField.options.split("|").map((opt: string) => opt.trim()) : [];
       return {
         type: "checkbox_group",
         checkboxOptions: checkboxOptions,
@@ -127,6 +125,7 @@ const seedJotFormFile = async (jotformJson, fileName) => {
   console.log("📝 Step 1: Processing JotForm fields...");
   const questionsData: any[] = [];
   const groupData: any[] = [];
+  const questionTypeMap = new Map(); // Map to track question type by qid: 'checkbox_group' or 'select' or other
 
   Object.entries(content).forEach(([qid, field]) => {
     const typeMapping = mapJotFormTypeToPayloadType(field);
@@ -161,17 +160,49 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         defaultValue: field.defaultValue || "",
       }));
 
+      // @ts-ignore
+      const showIf = field.showIf
+        ? {
+            // @ts-ignore
+            questionQid: field.showIf.question, // Store qid temporarily
+            // @ts-ignore
+            condition: field.showIf.condition,
+            // @ts-ignore
+            value: field.showIf.value,
+            // @ts-ignore
+            option: field.showIf.option, // Store option if targeting specific checkbox option
+          }
+        : undefined;
+
       groupData.push({
         qid,
         title: groupTitle,
         order,
         required: false,
         questions: checkboxQuestions,
+        showIf, // Store showIf for later resolution
       });
+
+      // Track that this qid is a checkbox_group
+      questionTypeMap.set(qid, "checkbox_group");
 
       console.log(`   ✓ Mapped checkbox group: "${groupTitle}" with ${checkboxQuestions.length} options`);
     } else {
       // Regular single question
+      // @ts-ignore
+      const showIf = field.showIf
+        ? {
+            // @ts-ignore
+            questionQid: field.showIf.question, // Store qid temporarily
+            // @ts-ignore
+            condition: field.showIf.condition,
+            // @ts-ignore
+            value: field.showIf.value,
+            // @ts-ignore
+            option: field.showIf.option, // Store option if targeting specific checkbox option
+          }
+        : undefined;
+
       const questionData = {
         qid, // Keep original JotForm question ID for reference
         // @ts-ignore
@@ -187,12 +218,21 @@ const seedJotFormFile = async (jotformJson, fileName) => {
         // @ts-ignore
         // Use defaultValue from typeMapping (for youtube URLs) or from field
         defaultValue: typeMapping.defaultValue || field.defaultValue || "",
+        showIf, // Store showIf for later resolution
       };
       questionsData.push(questionData);
+
+      // Track question type for showIf resolution (select for radio/dropdown, checkbox_group for checkboxes)
+      if (typeMapping.type === "select") {
+        questionTypeMap.set(qid, "select");
+      } else {
+        questionTypeMap.set(qid, typeMapping.type);
+      }
       if (questionData.type === "attachment" && questionData.defaultValue?.includes("youtu")) {
         console.log(`   ✓ Mapped YouTube video as attachment: "${questionData.title}" (URL: ${questionData.defaultValue})`);
       } else {
-        console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})`);
+        const showIfNote = showIf ? ` with showIf condition` : "";
+        console.log(`   ✓ Mapped field: "${questionData.title}" (type: ${questionData.type}, order: ${order})${showIfNote}`);
       }
     }
   });
@@ -201,16 +241,13 @@ const seedJotFormFile = async (jotformJson, fileName) => {
   questionsData.sort((a, b) => a.order - b.order);
 
   // Calculate total questions including checkbox groups
-  const totalQuestions =
-    questionsData.length + groupData.reduce((sum, group) => sum + group.questions.length, 0);
+  const totalQuestions = questionsData.length + groupData.reduce((sum, group) => sum + group.questions.length, 0);
 
   if (totalQuestions === 0) {
     console.warn(`⚠️  No valid questions found in ${fileName}; skipping seeding.`);
     return { totalQuestions: 0 };
   }
-  console.log(
-    `✓ Processed ${questionsData.length} regular questions and ${groupData.length} checkbox groups (${totalQuestions} total questions)\n`
-  );
+  console.log(`✓ Processed ${questionsData.length} regular questions and ${groupData.length} checkbox groups (${totalQuestions} total questions)\n`);
   try {
     // Step 2: Create Template
     console.log("📦 Step 2: Creating Template...");
@@ -245,56 +282,41 @@ const seedJotFormFile = async (jotformJson, fileName) => {
     console.log(`✓ Section linked to Template\n`);
     // Step 5: Create Questions, Groups, and link them
     console.log("📂 Step 5: Creating Questions with their Groups...");
-    console.log(
-      "   (Regular questions get individual groups, checkbox groups get one group with multiple questions)\n"
-    );
+    console.log("   (Regular questions get individual groups, checkbox groups get one group with multiple questions)\n");
     const groupIds = [];
     const questionMap = new Map(); // Map to store question ID by qid for showIf references
+    const checkboxQuestionMap = new Map(); // Map to store checkbox question ID by parentQid + option text
     let successCount = 0;
     let failCount = 0;
 
-    // Process regular questions (one group per question)
+    // Step 5a: Create all regular questions first (to populate questionMap)
+    console.log("   Step 5a: Creating all regular questions...");
     for (const qData of questionsData) {
       try {
-        // Create the question first
-        const { qid, ...questionDataWithoutQid } = qData;
+        const { qid, showIf: questionShowIf, ...questionDataWithoutQid } = qData;
         const question = await payload.create({
           collection: "questions",
           // @ts-ignore
           data: questionDataWithoutQid,
         });
-        // Store question ID for potential showIf references
         questionMap.set(qid, question.id);
         console.log(`   ✓ Created question ${successCount + 1}: "${qData.title}"`);
-        // Create a group for this specific question
-        const group = await payload.create({
-          collection: "groups",
-          data: {
-            title: `${qData.title}`,
-            order: qData.order,
-            questions: [question.id], // Each group has exactly one question
-          },
-        });
-        groupIds.push(group.id);
         successCount++;
-        console.log(`   ✓ Created group for question: "${qData.title}"`);
       } catch (err) {
         failCount++;
-        console.error(`   ✗ Failed to create question/group: "${qData.title}"`, err);
+        console.error(`   ✗ Failed to create question: "${qData.title}"`, err);
       }
     }
 
-    // Process checkbox groups (one group with multiple questions)
+    // Step 5b: Create all checkbox group questions
+    console.log("\n   Step 5b: Creating all checkbox group questions...");
+    const checkboxGroupsData: Array<{ groupInfo: any; questionIds: string[] }> = [];
     for (const groupInfo of groupData) {
       try {
-        console.log(
-          `   📋 Creating checkbox group: "${groupInfo.title}" with ${groupInfo.questions.length} options`
-        );
-
-        // Create all questions for this checkbox group
+        console.log(`   📋 Processing checkbox group: "${groupInfo.title}" with ${groupInfo.questions.length} options`);
         const questionIds = [];
         for (const qData of groupInfo.questions) {
-          const { qid, ...questionDataWithoutQid } = qData;
+          const { qid, parentQid, ...questionDataWithoutQid } = qData;
           const question = await payload.create({
             collection: "questions",
             // @ts-ignore
@@ -302,22 +324,204 @@ const seedJotFormFile = async (jotformJson, fileName) => {
           });
           questionIds.push(question.id);
           questionMap.set(qid, question.id);
+
+          // Map checkbox question by parentQid + option text for showIf resolution
+          if (parentQid && qData.title) {
+            const checkboxKey = `${parentQid}::${qData.title}`;
+            checkboxQuestionMap.set(checkboxKey, question.id);
+          }
+
           successCount++;
+        }
+        checkboxGroupsData.push({ groupInfo, questionIds });
+        console.log(`   ✓ Created ${questionIds.length} questions for checkbox group: "${groupInfo.title}"`);
+      } catch (err) {
+        failCount += groupInfo.questions.length;
+        console.error(`   ✗ Failed to create checkbox group questions: "${groupInfo.title}"`, err);
+      }
+    }
+
+    // Step 5c: Create groups for regular questions (now we can resolve showIf)
+    console.log("\n   Step 5c: Creating groups for regular questions...");
+    for (const qData of questionsData) {
+      try {
+        const questionId = questionMap.get(qData.qid);
+        if (!questionId) {
+          console.warn(`   ⚠️  Question ID not found for qid ${qData.qid}, skipping group creation`);
+          continue;
+        }
+
+        // Resolve showIf if present
+        let resolvedShowIf = undefined;
+        if (qData.showIf) {
+          let referencedQuestionId = undefined;
+          const referencedQid = qData.showIf.questionQid;
+          const referencedQuestionType = questionTypeMap.get(referencedQid);
+
+          // Check if showIf targets a specific checkbox option
+          if (qData.showIf.option && referencedQuestionType === "checkbox_group") {
+            // This is a checkbox group - look up the specific checkbox option question
+            const checkboxKey = `${referencedQid}::${qData.showIf.option.trim()}`;
+            referencedQuestionId = checkboxQuestionMap.get(checkboxKey);
+            if (referencedQuestionId) {
+              console.log(`   ✓ Found checkbox option question: ${referencedQid} -> "${qData.showIf.option}" -> ${referencedQuestionId}`);
+            } else {
+              console.warn(
+                `   ⚠️  Could not resolve showIf checkbox option "${qData.showIf.option}" for question ${referencedQid} in "${qData.title}"`
+              );
+            }
+          } else if (qData.showIf.option && referencedQuestionType === "select") {
+            // This is a radio/select question - use the question ID directly and the option as the value
+            referencedQuestionId = questionMap.get(referencedQid);
+            if (referencedQuestionId) {
+              console.log(`   ✓ Found select/radio question: ${referencedQid} -> "${qData.showIf.option}" -> ${referencedQuestionId}`);
+            } else {
+              console.warn(`   ⚠️  Could not resolve showIf select question ${referencedQid} for "${qData.title}"`);
+            }
+          } else {
+            // Regular question reference (no option specified, or unknown type)
+            referencedQuestionId = questionMap.get(referencedQid);
+          }
+
+          const validConditions = ["equals", "not equals"];
+          const condition = qData.showIf.condition?.trim();
+          // For select/radio with option, use the option value; otherwise use the showIf.value
+          const value = qData.showIf.option && referencedQuestionType === "select" ? qData.showIf.option.trim() : qData.showIf.value?.trim();
+
+          if (referencedQuestionId && condition && value && validConditions.includes(condition)) {
+            resolvedShowIf = {
+              question: referencedQuestionId,
+              condition: condition,
+              value: value,
+            };
+            const optionNote = qData.showIf.option
+              ? referencedQuestionType === "checkbox_group"
+                ? ` (checkbox option: "${qData.showIf.option}")`
+                : ` (select option: "${qData.showIf.option}")`
+              : "";
+            console.log(`   ✓ Resolved showIf condition: question ${referencedQid}${optionNote} -> ${referencedQuestionId}`);
+          } else {
+            if (!referencedQuestionId) {
+              const optionNote = qData.showIf.option ? ` with option "${qData.showIf.option}"` : "";
+              console.warn(`   ⚠️  Could not resolve showIf question ${referencedQid}${optionNote} for "${qData.title}"`);
+            }
+            if (!condition || !validConditions.includes(condition)) {
+              console.warn(`   ⚠️  Invalid showIf condition "${condition}" for "${qData.title}". Must be one of: ${validConditions.join(", ")}`);
+            }
+            if (!value) {
+              console.warn(`   ⚠️  Missing showIf value for "${qData.title}"`);
+            }
+          }
+        }
+
+        // Create a group for this specific question
+        const groupDataPayload: any = {
+          title: `${qData.title}`,
+          order: qData.order,
+          questions: [questionId], // Each group has exactly one question
+        };
+
+        if (resolvedShowIf) {
+          groupDataPayload.showIf = resolvedShowIf;
+        }
+
+        const group = await payload.create({
+          collection: "groups",
+          data: groupDataPayload,
+        });
+        groupIds.push(group.id);
+        console.log(`   ✓ Created group for question: "${qData.title}"`);
+      } catch (err) {
+        console.error(`   ✗ Failed to create group: "${qData.title}"`, err);
+      }
+    }
+
+    // Step 5d: Create groups for checkbox groups (now we can resolve showIf)
+    console.log("\n   Step 5d: Creating groups for checkbox groups...");
+    for (const { groupInfo, questionIds } of checkboxGroupsData) {
+      try {
+        // Resolve showIf if present
+        let resolvedShowIf = undefined;
+        if (groupInfo.showIf) {
+          let referencedQuestionId = undefined;
+          const referencedQid = groupInfo.showIf.questionQid;
+          const referencedQuestionType = questionTypeMap.get(referencedQid);
+
+          // Check if showIf targets a specific checkbox option
+          if (groupInfo.showIf.option && referencedQuestionType === "checkbox_group") {
+            // This is a checkbox group - look up the specific checkbox option question
+            const checkboxKey = `${referencedQid}::${groupInfo.showIf.option.trim()}`;
+            referencedQuestionId = checkboxQuestionMap.get(checkboxKey);
+            if (referencedQuestionId) {
+              console.log(`   ✓ Found checkbox option question: ${referencedQid} -> "${groupInfo.showIf.option}" -> ${referencedQuestionId}`);
+            } else {
+              console.warn(
+                `   ⚠️  Could not resolve showIf checkbox option "${groupInfo.showIf.option}" for question ${referencedQid} in "${groupInfo.title}"`
+              );
+            }
+          } else if (groupInfo.showIf.option && referencedQuestionType === "select") {
+            // This is a radio/select question - use the question ID directly and the option as the value
+            referencedQuestionId = questionMap.get(referencedQid);
+            if (referencedQuestionId) {
+              console.log(`   ✓ Found select/radio question: ${referencedQid} -> "${groupInfo.showIf.option}" -> ${referencedQuestionId}`);
+            } else {
+              console.warn(`   ⚠️  Could not resolve showIf select question ${referencedQid} for "${groupInfo.title}"`);
+            }
+          } else {
+            // Regular question reference (no option specified, or unknown type)
+            referencedQuestionId = questionMap.get(referencedQid);
+          }
+
+          const validConditions = ["equals", "not equals"];
+          const condition = groupInfo.showIf.condition?.trim();
+          // For select/radio with option, use the option value; otherwise use the showIf.value
+          const value =
+            groupInfo.showIf.option && referencedQuestionType === "select" ? groupInfo.showIf.option.trim() : groupInfo.showIf.value?.trim();
+
+          if (referencedQuestionId && condition && value && validConditions.includes(condition)) {
+            resolvedShowIf = {
+              question: referencedQuestionId,
+              condition: condition,
+              value: value,
+            };
+            const optionNote = groupInfo.showIf.option
+              ? referencedQuestionType === "checkbox_group"
+                ? ` (checkbox option: "${groupInfo.showIf.option}")`
+                : ` (select option: "${groupInfo.showIf.option}")`
+              : "";
+            console.log(`   ✓ Resolved showIf condition: question ${referencedQid}${optionNote} -> ${referencedQuestionId}`);
+          } else {
+            if (!referencedQuestionId) {
+              const optionNote = groupInfo.showIf.option ? ` with option "${groupInfo.showIf.option}"` : "";
+              console.warn(`   ⚠️  Could not resolve showIf question ${referencedQid}${optionNote} for "${groupInfo.title}"`);
+            }
+            if (!condition || !validConditions.includes(condition)) {
+              console.warn(`   ⚠️  Invalid showIf condition "${condition}" for "${groupInfo.title}". Must be one of: ${validConditions.join(", ")}`);
+            }
+            if (!value) {
+              console.warn(`   ⚠️  Missing showIf value for "${groupInfo.title}"`);
+            }
+          }
         }
 
         // Create one group for all checkbox questions
+        const groupDataPayload: any = {
+          title: groupInfo.title,
+          order: groupInfo.order,
+          questions: questionIds, // All checkbox questions in one group
+        };
+
+        if (resolvedShowIf) {
+          groupDataPayload.showIf = resolvedShowIf;
+        }
+
         const group = await payload.create({
           collection: "groups",
-          data: {
-            title: groupInfo.title,
-            order: groupInfo.order,
-            questions: questionIds, // All checkbox questions in one group
-          },
+          data: groupDataPayload,
         });
         groupIds.push(group.id);
         console.log(`   ✓ Created checkbox group with ${questionIds.length} questions: "${groupInfo.title}"`);
       } catch (err) {
-        failCount += groupInfo.questions.length;
         console.error(`   ✗ Failed to create checkbox group: "${groupInfo.title}"`, err);
       }
     }
@@ -340,9 +544,7 @@ const seedJotFormFile = async (jotformJson, fileName) => {
     console.log("📊 Summary:");
     console.log(`   - Template ID: ${template.id}`);
     console.log(`   - Section ID: ${section.id}`);
-    console.log(
-      `   - Groups Created: ${groupIds.length} (${questionsData.length} regular + ${groupData.length} checkbox groups)`
-    );
+    console.log(`   - Groups Created: ${groupIds.length} (${questionsData.length} regular + ${groupData.length} checkbox groups)`);
     console.log(`   - Questions Created: ${successCount}`);
     console.log(`   - Questions Failed: ${failCount}`);
     console.log(`   - Total Questions Processed: ${totalQuestions}`);

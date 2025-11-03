@@ -242,7 +242,8 @@ export interface Group {
   order?: number | null;
   showIf?: {
     question?: (string | null) | Question;
-    equalTo?: string | null;
+    condition?: ('equals' | 'not equals') | null;
+    value?: string | null;
   };
   questions?: (string | Question)[] | null;
   updatedAt: string;
@@ -570,7 +571,8 @@ export interface GroupsSelect<T extends boolean = true> {
     | T
     | {
         question?: T;
-        equalTo?: T;
+        condition?: T;
+        value?: T;
       };
   questions?: T;
   updatedAt?: T;

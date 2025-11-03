@@ -7,6 +7,11 @@ import { ROUTES } from "@/lib/routes";
 // The return type from getFilledTemplateById (with answer fields added to questions)
 type FilledForm = inferProcedureOutput<AppRouter["templatesRouter"]["getFilledTemplateById"]>;
 
+// Form data value types: answers from backend are strings, but checkbox stores boolean temporarily
+// All backend answers are string | null, checkbox converts boolean to/from string
+export type FormDataValue = string | boolean | null | undefined;
+export type FormStateData = Record<string, FormDataValue>;
+
 // Async thunk to fetch the filled template with user's answers
 export const getFilledTemplateByIdAsyncThunk = createAsyncThunk<any, { formId: string; userId?: string }>(
   "form/getFilledTemplateById",
@@ -73,7 +78,7 @@ interface FormState {
   isLoading: boolean;
   error: string | null;
   currentSectionIndex: number;
-  formData: Record<string, any>;
+  formData: FormStateData;
   completedSections: string[];
   sidebarOpen: boolean;
   // Track loading state per question
@@ -116,7 +121,7 @@ const formSlice = createSlice({
         state.currentSectionIndex -= 1;
       }
     },
-    setFieldValue: (state, action: PayloadAction<{ questionId: string; value: any }>) => {
+    setFieldValue: (state, action: PayloadAction<{ questionId: string; value: FormDataValue }>) => {
       state.formData[action.payload.questionId] = action.payload.value;
     },
     setQuestionLoading: (state, action: PayloadAction<{ questionId: string; isLoading: boolean }>) => {
@@ -146,7 +151,7 @@ const formSlice = createSlice({
 
         // Automatically populate form data from answers in the template
         if (action.payload?.sections) {
-          const newFormData: Record<string, any> = {};
+          const newFormData: FormStateData = {};
 
           action.payload.sections.forEach((section: any) => {
             if (typeof section === "string") return;
@@ -158,8 +163,13 @@ const formSlice = createSlice({
                 if (typeof question === "string") return;
 
                 // If the question has an answer, populate it
+                // Checkbox answers from backend are "true"/"false" strings, convert to boolean for checkbox type
                 if (question.answer !== null && question.answer !== undefined) {
-                  newFormData[question.id] = question.answer;
+                  if (question.type === "checkbox" && (question.answer === "true" || question.answer === "false")) {
+                    newFormData[question.id] = question.answer === "true";
+                  } else {
+                    newFormData[question.id] = question.answer;
+                  }
                 }
               });
             });
@@ -191,7 +201,7 @@ const formSlice = createSlice({
       })
       .addCase(uploadImageAsyncThunk.fulfilled, (state, action) => {
         state.questionLoadingStates[action.payload.questionId] = false;
-        // Store the file URL in formData
+        // Store the file URL in formData (fileUrl is a string)
         state.formData[action.payload.questionId] = action.payload.fileUrl;
       })
       .addCase(uploadImageAsyncThunk.rejected, (state, action) => {
@@ -218,9 +228,10 @@ export const formActions = formSlice.actions;
 
 // Helper function to create a debounced field update action
 // This returns a thunk that can be dispatched
+// Note: For checkbox, convert boolean to string before saving
 export const debouncedFieldUpdate = (questionId: string, value: string, debounceMs: number = 1000) => {
   return (dispatch: any) => {
-    // Optimistically update the field value immediately
+    // Optimistically update the field value immediately (keep as string for formData)
     dispatch(setFieldValue({ questionId, value }));
 
     // Clear existing timer for this question

@@ -18,22 +18,21 @@ interface QuestionRendererProps {
 }
 
 export default function QuestionRenderer({ question, value, onChange, isInvalid = false }: QuestionRendererProps) {
+  const props = { question, value, onChange, isInvalid };
   switch (question.type) {
     case "text":
-      return <TextInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <TextInput {...props} />;
     case "number":
-      return <NumberInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <NumberInput {...props} />;
     case "select":
-      return <SelectInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <SelectInput {...props} />;
     case "date":
-      return <DateInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <DateInput {...props} />;
     case "checkbox":
-      return <CheckboxInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <CheckboxInput {...props} />;
     case "image":
-      return <ImageInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <ImageInput {...props} />;
     case "attachment":
-      return <AttachmentInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
-    default:
-      return <TextInput question={question} value={value} onChange={onChange} isInvalid={isInvalid} />;
+      return <AttachmentInput {...props} />;
   }
 }

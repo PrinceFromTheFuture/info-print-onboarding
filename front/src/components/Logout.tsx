@@ -17,9 +17,12 @@ function Logout() {
     router.push(ROUTES.auth.login);
     await queryClient.invalidateQueries();
   };
+  const userName = session?.user?.name as string;
+  if (!userName) return <></>;
+  const userDisplayName = userName.length > 12 ? userName.slice(0, 12) + "..." : userName;
   return (
     <div className="flex items-center gap-2 ml-auto">
-      <span className="text-sm text-muted-foreground ">{session?.user?.email}</span>
+      <span className="text-sm text-muted-foreground ">{userDisplayName}</span>
       <Button variant="ghost" size="icon" className=" cursor-pointer bg-red-600/5" onClick={onLogout}>
         <IconLogOut className="h-4 w-4 text-red-600" />
         <span className="sr-only">Logout</span>

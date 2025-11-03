@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import QuestionRenderer from "./QuestionRenderer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -9,15 +9,37 @@ import type { Section, Group, Question, isGroup, isQuestion } from "./types";
 
 interface FormSectionProps {
   section: Section;
-  formData: Record<string, any>;
+  formData: Record<string, string | boolean | null | undefined>;
   onFieldChange: (questionId: string, value: any) => void;
   invalidQuestions?: Set<string>;
 }
+
+const ConditionalRendererGroupsFilter = (groups: Group[], formData: Record<string, string | boolean | null | undefined>) => {
+  const filteredGroups = groups.filter((group) => {
+    if (Object.keys(group.showIf || {}).length === 0) return true;
+
+    const questionId = (group.showIf?.question as Question).id;
+    const questionValue = formData[questionId];
+    const condition = group.showIf?.condition;
+    const value = group.showIf?.value;
+    if (condition == "equals") {
+      if (String(questionValue) == String(value)) return true;
+    } else if (condition == "not equals") {
+      if (String(questionValue) != String(value)) return true;
+    }
+    return false;
+  });
+  return filteredGroups;
+};
 
 export default function FormSection({ section, formData, onFieldChange, invalidQuestions = new Set() }: FormSectionProps) {
   // Filter and sort groups
   const groups = (section.groups || []).filter((g): g is Group => typeof g !== "string").sort((a, b) => (a.order || 0) - (b.order || 0));
 
+  const filteredGroups = ConditionalRendererGroupsFilter(groups, formData);
+
+  console.log(formData);
+  console.log(groups);
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
@@ -26,7 +48,7 @@ export default function FormSection({ section, formData, onFieldChange, invalidQ
       </div>
       <Separator />
 
-      {groups.map((group) => {
+      {filteredGroups.map((group) => {
         // Filter and sort questions
         const questions = (group.questions || []).filter((q): q is Question => typeof q !== "string").sort((a, b) => (a.order || 0) - (b.order || 0));
 
