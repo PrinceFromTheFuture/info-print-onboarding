@@ -11,31 +11,23 @@ import Image from "next/image";
 import { authClient, useSession } from "@/lib/auth/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import Logout from "@/components/Logout";
+import { NAV_ITEMS } from "@/lib/routes";
 
-const navItems = [
-  {
-    title: "Workflow",
-    href: "/customer/workflow",
-    icon: Workflow,
-  },
-  {
-    title: "Uploads",
-    href: "/customer/uploads",
-    icon: Upload,
-  },
-  /*support is not implemented yet 
-  {
-    title: "Help",
-    href: "/customer/help",
-    icon: HelpCircle,
-  },
-  */
-];
+const iconMap: Record<string, typeof Workflow> = {
+  workflow: Workflow,
+  uploads: Upload,
+  help: HelpCircle,
+};
+
+const navItems = NAV_ITEMS.customer.map((item) => ({
+  title: item.title,
+  href: item.url,
+  icon: iconMap[item.key],
+}));
 
 export function CustomerNavbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -78,7 +70,7 @@ export function CustomerNavbar() {
         {/* Logo/Brand */}
         <div className="flex items-center gap-2 mr-4">
           <Image src="/logo.png" alt="Logo" width={24} height={24} />
-          <Link href="/customer" className="flex items-center gap-2">
+          <Link href={NAV_ITEMS.customer[0]?.url || "/customer"} className="flex items-center gap-2">
             <span className="font-bold text-lg">On boarding</span>
           </Link>
         </div>
@@ -104,7 +96,7 @@ export function CustomerNavbar() {
           })}
         </nav>
 
-       <Logout />
+        <Logout />
       </div>
 
       {/* Mobile Bottom Navigation - Alternative approach */}

@@ -3,6 +3,8 @@ import React from "react";
 import useRole from "@/hooks/useRole";
 import { useSession } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
+
 function page() {
   const { data, isPending } = useSession();
   const router = useRouter();
@@ -17,15 +19,15 @@ function page() {
     );
   }
   if (!data || !data.session) {
-    router.push("/login");
+    router.push(ROUTES.auth.login);
     return;
   }
   if (data.user.role === "admin") {
-    router.push("/admin");
+    router.push(ROUTES.admin.dashboard);
     return;
   }
   if (data.user.role === "customer") {
-    router.push("/customer");
+    router.push(ROUTES.customer.root);
     return;
   }
 }

@@ -26,12 +26,21 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useSession } from "@/lib/auth/auth-client";
-import { FileText, Headset, Upload, Workflow } from "lucide-react";
+import { FileText, Headset, Workflow } from "lucide-react";
 import Image from "next/image";
+import { NAV_ITEMS, ROUTES } from "@/lib/routes";
 
 export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const user = session?.user!;
+
+  const iconMap: Record<string, any> = {
+    dashboard: IconDashboard,
+    customers: IconUsers,
+    templates: Workflow,
+    submissions: FileText,
+    support: Headset,
+  };
 
   const data = {
     user: {
@@ -39,36 +48,11 @@ export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sideba
       email: user.email,
       avatar: "/avatars/shadcn.jpg",
     },
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "/admin",
-        icon: IconDashboard,
-      },
-      /*
-      support is not implemented yet
-      {
-        title: "Support",
-        url: "/admin/support",
-        icon: Headset,
-      },
-      */
-      {
-        title: "Customers",
-        url: "/admin/customers",
-        icon: IconUsers,
-      },
-      {
-        title: "Templates",
-        url: "/admin/templates",
-        icon: Workflow,
-      },
-      {
-        title: "Submissions",
-        url: "/admin/submissions",
-        icon: FileText,
-      },
-    ],
+    navMain: NAV_ITEMS.admin.map((item) => ({
+      title: item.title,
+      url: item.url,
+      icon: iconMap[item.key],
+    })),
     navClouds: [],
     navSecondary: [],
     documents: [],
@@ -88,7 +72,7 @@ export function AppSidebarAdmin({ ...props }: React.ComponentProps<typeof Sideba
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} quickCreate={{ title: "New Customer", url: "", onClick: () => {} }} />
+        <NavMain items={data.navMain} quickCreate={{ title: "New Customer", url: ROUTES.admin.customers, onClick: () => {} }} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

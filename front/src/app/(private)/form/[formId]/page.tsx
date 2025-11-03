@@ -24,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/trpc";
+import { ROUTES } from "@/lib/routes";
 
 export default function FormPage({ params }: { params: Promise<{ formId: string }> }) {
   const unwrappedParams = use(params);
@@ -145,7 +146,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
     await submitAssignment({ templateId: unwrappedParams.formId });
     await queryClient.invalidateQueries();
     toast.success("Form submitted successfully!");
-    router.push("/customer");
+    router.push(ROUTES.customer.root);
     // TODO: Implement actual submit functionality
   };
 

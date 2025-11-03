@@ -27,10 +27,17 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { useSession } from "@/lib/auth/auth-client";
 import { Upload, Workflow } from "lucide-react";
 import Image from "next/image";
+import { NAV_ITEMS } from "@/lib/routes";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const user = session?.user!;
+
+  const iconMap: Record<string, typeof Workflow> = {
+    workflow: Workflow,
+    uploads: Upload,
+    help: Upload,
+  };
 
   const data = {
     user: {
@@ -38,18 +45,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       email: user.email,
       avatar: "/avatars/shadcn.jpg",
     },
-    navMain: [
-      {
-        title: "Workflow",
-        url: "/customer/forms",
-        icon: Workflow,
-      },
-      {
-        title: "Uploads",
-        url: "/customer/uploads",
-        icon: Upload,
-      },
-    ],
+    navMain: NAV_ITEMS.customer.map((item) => ({
+      title: item.title,
+      url: item.url,
+      icon: iconMap[item.key],
+    })),
     navClouds: [],
     navSecondary: [],
     documents: [],
@@ -69,7 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain}  />
+        <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

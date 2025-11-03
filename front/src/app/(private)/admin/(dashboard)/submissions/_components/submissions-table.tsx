@@ -28,6 +28,7 @@ import { ChevronLeft, ChevronRight, Columns3 } from "lucide-react";
 import { columns } from "./columns";
 import { Submission } from "./data";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
 
 interface SubmissionsTableProps {
   data: Submission[];
@@ -70,7 +71,7 @@ export function SubmissionsTable({ data }: SubmissionsTableProps) {
   });
 
   const handleRowClick = (submission: Submission) => {
-    router.push(`/viewForm/${submission.templateId}/${submission.customerId}`);
+    router.push(ROUTES.forms.viewForm(submission.templateId, submission.customerId));
   };
 
   return (

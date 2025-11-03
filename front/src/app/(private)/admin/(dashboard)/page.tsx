@@ -18,6 +18,7 @@ import { useTRPC } from "@/trpc/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { CreateCustomerDialog } from "@/components/create-customer-dialog";
 import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 export default function Page() {
   const trpc = useTRPC();
@@ -215,7 +216,7 @@ export default function Page() {
           </CardContent>
           <CardFooter>
             <Button size="sm">
-              <Link href="/admin/customers">View All Customers</Link>
+              <Link href={ROUTES.admin.customers}>View All Customers</Link>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </CardFooter>

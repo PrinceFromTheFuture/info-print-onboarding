@@ -10,6 +10,7 @@ import { useSession } from "@/lib/auth/auth-client";
 import LoadingSpinner from "@/components/loading-spinner";
 import Logout from "@/components/Logout";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"auth" | "pendingVerification">("auth");
@@ -19,11 +20,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!data?.user) return setMode("auth");
-    if (data?.user?.role === "admin") return router.push("/admin");
-    if (data?.user?.isApproved) return router.push("/customer");
+    if (data?.user?.role === "admin") return router.push(ROUTES.admin.dashboard);
+    if (data?.user?.isApproved) return router.push(ROUTES.customer.root);
     return setMode("pendingVerification");
-
-    return router.push("/customer");
   }, [data]);
 
   if (isPending) {

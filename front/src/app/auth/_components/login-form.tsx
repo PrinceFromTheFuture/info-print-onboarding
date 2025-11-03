@@ -12,6 +12,7 @@ import { useState } from "react";
 import { authClient } from "@/lib/auth/auth-client";
 import { redirect, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ROUTES } from "@/lib/routes";
 
 const schema = z.object({
   email: z.string("Please enter a valid email address."),
@@ -49,9 +50,15 @@ export function LoginForm({ className, setModeHandler, ...props }: LoginFormProp
       if (res.data) {
         toast.success("Login successful! Welcome back.");
 
-        router.push(res.data.user.role === "admin");
+        if (res.data.user.role === "admin") {
+          router.push(ROUTES.admin.dashboard);
+          return;
+        }
 
-        if (res.data.user.isApproved) return router.push("/customer");
+        if (res.data.user.isApproved) {
+          router.push(ROUTES.customer.root);
+          return;
+        }
 
         setModeHandler("pendingVerification");
       }

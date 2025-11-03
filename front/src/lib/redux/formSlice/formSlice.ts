@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { AppRouter } from "../../../../../back/dist/src/trpc/index";
 import { trpcClient } from "../../trpc-client";
 import type { inferProcedureOutput } from "@trpc/server";
+import { ROUTES } from "@/lib/routes";
 
 // The return type from getFilledTemplateById (with answer fields added to questions)
 type FilledForm = inferProcedureOutput<AppRouter["templatesRouter"]["getFilledTemplateById"]>;
@@ -11,8 +12,8 @@ export const getFilledTemplateByIdAsyncThunk = createAsyncThunk<any, { formId: s
   "form/getFilledTemplateById",
   async ({ formId, userId }: { formId: string; userId?: string }) => {
     // Use the trpcClient singleton - works outside React components!
-    const response = await trpcClient.templatesRouter.getFilledTemplateById.query({ id: formId, userId });
-    return response;
+    const filledTemplate = await trpcClient.templatesRouter.getFilledTemplateById.query({ id: formId, userId });
+    return filledTemplate;
   }
 );
 
@@ -23,7 +24,6 @@ const debounceTimers: Record<string, NodeJS.Timeout> = {};
 export const updateOrCreateSubmissionAsyncThunk = createAsyncThunk<any, { questionId: string; value: string }, { rejectValue: string }>(
   "form/updateOrCreateSubmission",
   async ({ questionId, value }, { rejectWithValue }) => {
-    console.log("value", value);
     try {
       const response = await trpcClient.submittionsRouter.updateOrCreateSubmission.mutate({
         questionId,
@@ -49,19 +49,7 @@ export const uploadImageAsyncThunk = createAsyncThunk<
     formData.append("alt", `Upload for question ${questionId}`);
     formData.append("userId", userId);
 
-    console.log("=== FRONTEND UPLOAD ===");
-    console.log("File object:", file);
-    console.log("File name:", file.name);
-    console.log("File size:", file.size);
-    console.log("File type:", file.type);
-    console.log("User ID:", userId);
-    console.log("FormData entries:");
-    for (let [key, value] of formData.entries()) {
-      console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
-    }
-    console.log("======================");
-
-    const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/media/upload", {
+    const response = await fetch(ROUTES.api.baseUrl + ROUTES.api.media.upload, {
       method: "POST",
       credentials: "include",
       body: formData,
@@ -69,17 +57,14 @@ export const uploadImageAsyncThunk = createAsyncThunk<
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-      console.error("Upload failed:", response.status, errorData);
-      throw new Error(errorData.error || "Failed to upload image");
+      throw new Error("Failed to upload image, try again later.");
     }
 
     const data = await response.json();
-    const fileUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}${data.serverFileUrl}`;
+    const fileUrl = `${ROUTES.api.baseUrl}${data.serverFileUrl}`;
     return { fileUrl, mediaId: data.mediaId, questionId };
   } catch (error) {
-    console.error("Upload error:", error);
-    return rejectWithValue(error instanceof Error ? error.message : "Failed to upload image");
+    return rejectWithValue("Failed to upload image, try again later.");
   }
 });
 

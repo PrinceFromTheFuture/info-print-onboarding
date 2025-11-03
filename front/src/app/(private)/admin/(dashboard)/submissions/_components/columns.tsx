@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/lib/routes";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -175,7 +176,7 @@ export const columns: ColumnDef<Submission>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <a
-                href={`/viewForm/${submission.templateId}/${submission.customerId}`}
+                href={ROUTES.forms.viewForm(submission.templateId, submission.customerId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="gap-2 flex cursor-default"

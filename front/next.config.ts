@@ -12,11 +12,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   trailingSlash: true,
-  experimental: {
-    serverActions: { bodySizeLimit: "20mb" },
 
-    serverComponentsExternalPackages: ["@trpc/server"], // If server tRPC
-  },
 };
 
 export default nextConfig;

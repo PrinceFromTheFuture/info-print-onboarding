@@ -6,24 +6,12 @@ import { toast } from "sonner";
 import { Upload, FileText, Loader2, X, Image as ImageIcon } from "lucide-react";
 import type { AccountSetupForm, AccountSetupFormData } from "../account-set-up";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/lib/routes";
 
-type DocumentFieldName =
-  | "logo"
-  | "contactAndCompanyList"
-  | "inventoryList"
-  | "machineInformation"
-  | "additionalProductPricingInformation";
+type DocumentFieldName = "logo" | "contactAndCompanyList" | "inventoryList" | "machineInformation" | "additionalProductPricingInformation";
 
 export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm; userId?: string }) {
-  const FileUploadField = ({
-    label,
-    description,
-    fieldName,
-  }: {
-    label: string;
-    description: string;
-    fieldName: DocumentFieldName;
-  }) => {
+  const FileUploadField = ({ label, description, fieldName }: { label: string; description: string; fieldName: DocumentFieldName }) => {
     // Initialize state from form values
     const formValue = form.getValues(fieldName);
     const [uploadedFileName, setUploadedFileName] = useState<string>(formValue?.fileName || "");
@@ -37,7 +25,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
       const formValue = form.getValues(fieldName);
       if (formValue?.mediaId) {
         setUploadedFileName(formValue.fileName || "");
-        setUploadedFileUrl(process.env.NEXT_PUBLIC_BACKEND_URL + formValue.fileUrl || "");
+        setUploadedFileUrl(ROUTES.api.baseUrl + (formValue.fileUrl || ""));
         setFileType(formValue.fileType || "");
         setHasUploadedFile(true);
       } else {
@@ -49,11 +37,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
     }, [fieldName, form]);
 
     const handleRemove = useCallback(() => {
-      form.setValue(
-        fieldName,
-        { mediaId: "", fileName: "", fileUrl: "", fileType: "" },
-        { shouldValidate: true }
-      );
+      form.setValue(fieldName, { mediaId: "", fileName: "", fileUrl: "", fileType: "" }, { shouldValidate: true });
       setUploadedFileName("");
       setUploadedFileUrl("");
       setHasUploadedFile(false);
@@ -67,7 +51,6 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
 
         const file = acceptedFiles[0];
 
-    
         setIsUploading(true);
         try {
           const formData = new FormData();
@@ -75,7 +58,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
           formData.append("userId", userId || "");
           formData.append("alt", `${label} - ${file.name}`);
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/media/upload`, {
+          const response = await fetch(`${ROUTES.api.baseUrl}${ROUTES.api.media.upload}`, {
             method: "POST",
             body: formData,
             credentials: "include",
@@ -104,9 +87,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
           toast.success(`${label} uploaded successfully!`);
         } catch (error) {
           console.error("Upload error:", error);
-          toast.error(
-            `Failed to upload ${label}: ${error instanceof Error ? error.message : "Unknown error"}`
-          );
+          toast.error(`Failed to upload ${label}: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {
           setIsUploading(false);
         }
@@ -168,8 +149,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
             className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-all ${
               isUploading
                 ? "cursor-wait border-primary/30 bg-primary/5"
-                : "cursor-pointer " +
-                  (isDragActive ? "border-primary bg-primary/10" : "border-input hover:border-primary/50")
+                : "cursor-pointer " + (isDragActive ? "border-primary bg-primary/10" : "border-input hover:border-primary/50")
             }`}
           >
             <input {...getInputProps()} />
@@ -197,9 +177,7 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
             </div>
           </div>
         )}
-        {form.formState.errors[fieldName] && (
-          <p className="text-sm text-red-500 mt-1">{String(form.formState.errors[fieldName]?.message)}</p>
-        )}
+        {form.formState.errors[fieldName] && <p className="text-sm text-red-500 mt-1">{String(form.formState.errors[fieldName]?.message)}</p>}
         <FieldDescription>{description}</FieldDescription>
       </Field>
     );
@@ -208,21 +186,9 @@ export function DocumentUploadsStage({ form, userId }: { form: AccountSetupForm;
   return (
     <FieldGroup>
       <FileUploadField label="Company Logo" description="Your company logo for branding" fieldName="logo" />
-      <FileUploadField
-        label="Contact & Company List"
-        description="Upload your existing contact database"
-        fieldName="contactAndCompanyList"
-      />
-      <FileUploadField
-        label="Inventory List"
-        description="Current inventory and stock information"
-        fieldName="inventoryList"
-      />
-      <FileUploadField
-        label="Machine Information"
-        description="Details about your printing equipment"
-        fieldName="machineInformation"
-      />
+      <FileUploadField label="Contact & Company List" description="Upload your existing contact database" fieldName="contactAndCompanyList" />
+      <FileUploadField label="Inventory List" description="Current inventory and stock information" fieldName="inventoryList" />
+      <FileUploadField label="Machine Information" description="Details about your printing equipment" fieldName="machineInformation" />
       <FileUploadField
         label="Additional Product Pricing Information"
         description="Pricing sheets and product catalogs"

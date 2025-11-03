@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/trpc";
+import { ROUTES } from "@/lib/routes";
 import { Download, FileIcon, AlertCircle, Loader2, FileImage, FileText, File, Calendar, HardDrive, ExternalLink, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +20,7 @@ export default function Uploads() {
 
   const handleDownload = async (url: string, fileName: string) => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_BACKEND_URL + url, {
+      const response = await fetch(ROUTES.api.baseUrl + url, {
         method: "GET",
         headers: {
           // add auth headers if needed
@@ -210,7 +211,7 @@ export default function Uploads() {
                             {isImage && m.url ? (
                               <div className="h-16 w-16 md:h-20 md:w-20 rounded-xl overflow-hidden bg-muted border-2 border-border shadow-sm">
                                 <Image
-                                  src={process.env.NEXT_PUBLIC_BACKEND_URL + m.url}
+                                  src={ROUTES.api.baseUrl + m.url}
                                   alt={m.filename || "File preview"}
                                   width={80}
                                   height={80}
@@ -267,7 +268,7 @@ export default function Uploads() {
                               variant="ghost"
                               size="sm"
                               className="cursor-pointer"
-                              onClick={() => window.open(process.env.NEXT_PUBLIC_BACKEND_URL + m.url, "_blank")}
+                              onClick={() => window.open(ROUTES.api.baseUrl + m.url, "_blank")}
                             >
                               <ExternalLink className="h-4 w-4" />
                             </Button>

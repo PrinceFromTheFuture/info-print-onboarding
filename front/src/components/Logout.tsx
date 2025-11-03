@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { Button } from "./ui/button";
 import { LogOut as IconLogOut } from "lucide-react";
+import { ROUTES } from "@/lib/routes";
 
 function Logout() {
   const { data: session } = useSession();
@@ -13,7 +14,7 @@ function Logout() {
   const queryClient = useQueryClient();
   const onLogout = async () => {
     await authClient.signOut({ fetchOptions: { redirect: "manual" } });
-    router.push("/login");
+    router.push(ROUTES.auth.login);
     await queryClient.invalidateQueries();
   };
   return (

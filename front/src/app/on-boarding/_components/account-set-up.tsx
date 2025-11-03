@@ -21,6 +21,7 @@ import { AdditionalDetailsStage } from "./stages/additional-details-stage";
 import { useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/lib/routes";
 
 // Zod Schemas for each stage
 const companyInformationSchema = z.object({
@@ -118,7 +119,7 @@ function AccountSetUp() {
             },
             { redirect: "manual" }
           );
-          router.push("/login");
+          router.push(ROUTES.auth.login);
         }
       },
       onError: (error: any) => {
