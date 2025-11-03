@@ -250,7 +250,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
                   <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 mt-1">{template?.description}</p>
                 </div>
 
-                {/* Progress Bar */}
+                {/* Progress Bar 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs sm:text-sm">
                     <span className="font-medium text-muted-foreground">
@@ -267,6 +267,7 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
                     />
                   </div>
                 </div>
+                        */}
               </div>
             </div>
           </div>
@@ -297,8 +298,14 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 sm:mt-8 pt-6 border-t mx-auto max-w-4xl w-full pb-12">
-            <Button variant="outline" onClick={handlePrevious} disabled={isFirstSection} className="gap-2 w-full sm:w-auto order-2 sm:order-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-6 sm:mt-8 pt-6 border-t mx-auto max-w-4xl w-full pb-12 px-8">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={isFirstSection}
+              className="gap-2 w-full sm:w-auto order-2 sm:order-1"
+            >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
@@ -308,12 +315,12 @@ export default function FormPage({ params }: { params: Promise<{ formId: string 
             </div>
 
             {isLastSection ? (
-              <Button onClick={handleSubmit} className="gap-2 w-full sm:w-auto order-3">
+              <Button size="lg" onClick={handleSubmit} className="gap-2 w-full sm:w-auto order-3">
                 Submit Form
                 <ChevronRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button onClick={handleNext} disabled={!currentSectionComplete} className="gap-2 w-full sm:w-auto order-3">
+              <Button size="lg" onClick={handleNext} disabled={!currentSectionComplete} className="gap-2 w-full sm:w-auto order-3">
                 Next
                 <ChevronRight className="h-4 w-4" />
               </Button>
