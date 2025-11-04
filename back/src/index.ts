@@ -14,15 +14,12 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
+console.log("testong");
+
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://100.125.142.120:3000",
-      "https://infoprint-onboarding.amirwais.store",
-    ], // Replace with your frontend's origin
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
@@ -147,9 +144,10 @@ app.use(
     createContext,
   })
 );
-
-app.listen(port, "0.0.0.0", () => {
-  const procedureList = Object.keys(appRouter._def.procedures);
-  console.log(procedureList);
-  console.log(`Example app listening on port ${port}`);
-});
+try {
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+} catch (error) {
+  console.error("Error starting server:", error);
+}
