@@ -24,7 +24,7 @@ const canUserCreateTicket = async (userId: string, payload: BasePayload) => {
     },
     pagination: false,
   });
-  const isUserHasMoreThanMaxTickets = userOpenTickets.docs.length < MAX_TICKETS_PER_USER;
+  const isUserHasMoreThanMaxTickets = ticketsInLastMonth.docs.length > MAX_TICKETS_PER_USER;
   const isUserHasOpenTicket = userOpenTickets.docs.length > 0;
 
   return !isUserHasMoreThanMaxTickets && !isUserHasOpenTicket;
@@ -47,7 +47,6 @@ const createTicket = privateProcedure.input(z.object({ title: z.string(), descri
       createdBy: ctx.user!.id,
       priority: "low",
       status: "open",
-      resolved: false,
     },
   });
   return ticket;

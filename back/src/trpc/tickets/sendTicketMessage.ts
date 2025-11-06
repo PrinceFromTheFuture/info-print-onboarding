@@ -6,7 +6,13 @@ import { getPayload } from "src/db/getPayload.js";
 import { TRPCError } from "@trpc/server";
 
 const sendTicketMessage = publicProcedure
-  .input(z.object({ ticketId: z.string(), content: z.string(), attachments: z.array(z.string()).max(5).optional() }))
+  .input(
+    z.object({
+      ticketId: z.string(),
+      content: z.string(),
+      attachments: z.array(z.string()).max(5).optional(),
+    })
+  )
   .mutation(async ({ input, ctx }) => {
     const user = ctx.user as AppUser;
 
@@ -24,33 +30,43 @@ const sendTicketMessage = publicProcedure
     if (((ticket.createdBy as User).id !== user.id && user.role !== "admin") || ticket.status === "closed") {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message: "You are not allowed to send messages to this ticket since it is closed or you are not the creator",
+        message:
+          "You are not allowed to send messages to this ticket since it is closed or you are not the creator",
       });
     }
 
-    // TODO when assing tciket or added  the foolwing is onvalid
+    // Determine recipient based on sender role
+    let recipientId: string;
 
-    const { docs: admins } = await payload.find({
-      collection: "appUsers",
-
-      depth: 3,
-    });
-    const anyAdminUser = admins[0];
+    if (user.role === "admin") {
+      // Admin sending to customer
+      recipientId = (ticket.createdBy as User).id;
+    } else {
+      // Customer sending to admin
+      const { docs: admins } = await payload.find({
+        collection: "appUsers",
+        where: {
+          email: {
+            equals: "admin@gmail.com",
+          },
+        },
+        depth: 3,
+      });
+      recipientId = admins[0].id;
+    }
 
     const message = await payload.create({
       collection: "messages",
+      depth: 1,
       data: {
         content: input.content,
         sentBy: user.id,
         seen: false,
         attachments: input.attachments,
-        sentTo: anyAdminUser.id,
+        sentTo: recipientId,
         ticket: ticket.id,
       },
     });
-
-    // Save to DB (optional but critical)
-    // await db.message.create({ data: msg });
 
     // 2. PUBLISH TO ROOM
     publishTicketMessage(ticket.id, message);

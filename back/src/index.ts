@@ -46,6 +46,7 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
       headers: fromNodeHeaders(req.headers),
     });
     const userId = authRes?.user?.id;
+    console.log("uploades file");
 
     // Check if file is present in the request
     if (!req.file) {
@@ -61,12 +62,7 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
 
     const { alt } = req.body;
 
-    console.log("File info:", {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-    });
-
+  
     // Generate unique filename
     const timestamp = Date.now();
     const fileExtension = path.extname(req.file.originalname || "file");
