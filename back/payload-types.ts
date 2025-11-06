@@ -77,8 +77,9 @@ export interface Config {
     groups: Group;
     visits: Visit;
     messages: Message;
-    conversations: Conversation;
     appUserConfigs: AppUserConfig;
+    tickets: Ticket;
+    'payload-kv': PayloadKv;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,8 +97,9 @@ export interface Config {
     groups: GroupsSelect<false> | GroupsSelect<true>;
     visits: VisitsSelect<false> | VisitsSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
-    conversations: ConversationsSelect<false> | ConversationsSelect<true>;
     appUserConfigs: AppUserConfigsSelect<false> | AppUserConfigsSelect<true>;
+    tickets: TicketsSelect<false> | TicketsSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -315,26 +317,44 @@ export interface Visit {
 export interface Message {
   id: string;
   content?: string | null;
-  sentBy?: (string | null) | AppUser;
+  sentBy: string | AppUser;
+  sentTo: string | AppUser;
+  ticket: string | Ticket;
   attachments?: (string | Media)[] | null;
-  read?: boolean | null;
+  seen: boolean;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "conversations".
+ * via the `definition` "tickets".
  */
-export interface Conversation {
+export interface Ticket {
   id: string;
-  title?: string | null;
-  createBy?: (string | null) | AppUser;
-  isArchived?: boolean | null;
+  title: string;
   description?: string | null;
-  status?: ('resolved' | 'open') | null;
-  messages?: (string | Message)[] | null;
+  status: 'open' | 'closed';
+  createdBy: string | AppUser;
+  priority: 'low' | 'medium' | 'high';
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: string;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -408,12 +428,12 @@ export interface PayloadLockedDocument {
         value: string | Message;
       } | null)
     | ({
-        relationTo: 'conversations';
-        value: string | Conversation;
-      } | null)
-    | ({
         relationTo: 'appUserConfigs';
         value: string | AppUserConfig;
+      } | null)
+    | ({
+        relationTo: 'tickets';
+        value: string | Ticket;
       } | null)
     | ({
         relationTo: 'users';
@@ -595,22 +615,10 @@ export interface VisitsSelect<T extends boolean = true> {
 export interface MessagesSelect<T extends boolean = true> {
   content?: T;
   sentBy?: T;
+  sentTo?: T;
+  ticket?: T;
   attachments?: T;
-  read?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "conversations_select".
- */
-export interface ConversationsSelect<T extends boolean = true> {
-  title?: T;
-  createBy?: T;
-  isArchived?: T;
-  description?: T;
-  status?: T;
-  messages?: T;
+  seen?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -648,6 +656,27 @@ export interface AppUserConfigsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tickets_select".
+ */
+export interface TicketsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  status?: T;
+  createdBy?: T;
+  priority?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

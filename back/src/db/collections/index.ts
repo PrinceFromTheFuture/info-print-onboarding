@@ -8,8 +8,8 @@ import Assignments from "./Assignments.js";
 import Groups from "./Groups.js";
 import Visits from "./Visits.js";
 import Messages from "./Messages.js";
-import Conversations from "./Conversations.js";
 import UserConfigs from "./UserConfigs.js";
+import Tickets from "./Tickets.js";
 
 export const collections = [
   AppUsers,
@@ -22,6 +22,6 @@ export const collections = [
   Groups,
   Visits,
   Messages,
-  Conversations,
   UserConfigs,
+  Tickets,
 ];

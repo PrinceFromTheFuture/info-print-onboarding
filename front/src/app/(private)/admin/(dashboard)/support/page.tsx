@@ -1,8 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { ConversationSidebar, ConversationHeader, MessageList, MessageInput, EmptyState, type Conversation } from "./_components";
+import React, { useEffect, useState } from "react";
+import {
+  ConversationSidebar,
+  ConversationHeader,
+  MessageList,
+  MessageInput,
+  EmptyState,
+  CustomerDetailsSidebar,
+  type Conversation,
+} from "./_components";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { MessageCirclePlus, Plus } from "lucide-react";
+import { addMessageToTicketAction, allTicketsSelector, getAllTicketsAsyncThunk, ticketSliceSelector } from "@/lib/redux/ticketsSlice/ticketsSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
+import ConversationChat from "./_components/conversation-chat";
+import { useSubscription } from "@trpc/tanstack-react-query";
+import { useTRPC } from "@/trpc/trpc";
 
 // Static sample data
 const sampleConversations: Conversation[] = [
@@ -12,6 +27,7 @@ const sampleConversations: Conversation[] = [
     customer: { name: "John Smith", email: "john@example.com", avatar: "/avatars/01.png" },
     status: "open",
     isArchived: false,
+    priority: "high",
     lastMessage:
       "I'm still having trouble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time ble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time I try to authenticate.",
     lastMessageTime: "2 minutes ago",
@@ -55,11 +71,313 @@ const sampleConversations: Conversation[] = [
     ],
   },
   {
-    id: "2",
+    id: "123",
+    title: "Login Issues with Mobile App",
+    customer: { name: "John Smith", email: "john@example.com", avatar: "/avatars/01.png" },
+    status: "open",
+    isArchived: false,
+    priority: "medium",
+    lastMessage:
+      "I'm still having trouble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time ble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time I try to authenticate.",
+    lastMessageTime: "2 minutes ago",
+    unreadCount: 2,
+    messages: [
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+    ],
+  },
+  {
+    id: "fsd1",
+    title: "Login Issues with Mobile App",
+    customer: { name: "John Smith", email: "john@example.com", avatar: "/avatars/01.png" },
+    status: "open",
+    isArchived: false,
+    priority: "low",
+    lastMessage:
+      "I'm still having trouble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time ble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time I try to authenticate.",
+    lastMessageTime: "2 minutes ago",
+    unreadCount: 2,
+    messages: [
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+    ],
+  },
+  {
+    id: "1gsdgghe",
+    title: "Login Issues with Mobile App",
+    customer: { name: "John Smith", email: "john@example.com", avatar: "/avatars/01.png" },
+    status: "open",
+    isArchived: false,
+    priority: "medium",
+    lastMessage:
+      "I'm still having trouble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time ble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time I try to authenticate.",
+    lastMessageTime: "2 minutes ago",
+    unreadCount: 2,
+    messages: [
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+    ],
+  },
+  {
+    id: "gsdfg1",
+    title: "Login Issues with Mobile App",
+    customer: { name: "John Smith", email: "john@example.com", avatar: "/avatars/01.png" },
+    status: "open",
+    isArchived: false,
+    priority: "high",
+    lastMessage:
+      "I'm still having trouble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time ble logging in. The app crashes every timeble logging in. The app crashes every timeble logging in. The app crashes every time I try to authenticate.",
+    lastMessageTime: "2 minutes ago",
+    unreadCount: 2,
+    messages: [
+      {
+        id: "1",
+        content: "Hi, I'm having trouble logging into the mobile app. It keeps crashing when I try to sign in.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:30 AM",
+        attachments: [],
+      },
+      {
+        id: "2",
+        content: "Hello John! I'm sorry to hear about the login issues. Let me help you troubleshoot this. Can you tell me what device you're using?",
+        sentBy: "Admin",
+        isAgent: true,
+        timestamp: "10:32 AM",
+        attachments: [{ id: "7", type: "file", url: "/media/troubleshooting-guide.pdf", name: "troubleshooting-guide.pdf" }],
+      },
+      {
+        id: "3",
+        content: "I'm using an iPhone 13 with iOS 16.2. The app version is 2.1.4. Here's a screenshot of the error:",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "10:35 AM",
+        attachments: [
+          { id: "8", type: "image", url: "/media/iphone-error-screenshot.png", name: "iphone-error-screenshot.png" },
+          { id: "9", type: "file", url: "/media/app-logs.txt", name: "app-logs.txt" },
+        ],
+      },
+      {
+        id: "4",
+        content: "I'm still having trouble logging in. The app crashes every time I try to authenticate.",
+        sentBy: "John Smith",
+        isAgent: false,
+        timestamp: "2 minutes ago",
+        attachments: [],
+      },
+    ],
+  },
+  {
+    id: "gsf2",
     title: "Payment Processing Error",
     customer: { name: "Emily Davis", email: "emily@example.com", avatar: "/avatars/02.png" },
     status: "open",
     isArchived: false,
+    priority: "high",
     lastMessage: "The payment went through but I didn't receive a confirmation email.",
     lastMessageTime: "15 minutes ago",
     unreadCount: 0,
@@ -91,6 +409,7 @@ const sampleConversations: Conversation[] = [
     customer: { name: "Alex Rodriguez", email: "alex@example.com", avatar: "/avatars/03.png" },
     status: "resolved",
     isArchived: false,
+    priority: "low",
     lastMessage: "Thank you! The dark mode looks great.",
     lastMessageTime: "1 hour ago",
     unreadCount: 0,
@@ -211,6 +530,7 @@ const sampleConversations: Conversation[] = [
     customer: { name: "Lisa Wang", email: "lisa@example.com", avatar: "/avatars/04.png" },
     status: "resolved",
     isArchived: true,
+    priority: "medium",
     lastMessage: "Thank you for your help with the account deactivation.",
     lastMessageTime: "2 days ago",
     unreadCount: 0,
@@ -250,6 +570,7 @@ const sampleConversations: Conversation[] = [
     customer: { name: "David Kim", email: "david@example.com", avatar: "/avatars/05.png" },
     status: "open",
     isArchived: false,
+    priority: "medium",
     lastMessage: "The exported CSV file is missing some columns. Here's a screenshot of the issue.",
     lastMessageTime: "30 minutes ago",
     unreadCount: 1,
@@ -281,12 +602,30 @@ const sampleConversations: Conversation[] = [
 ];
 
 export default function SupportPage() {
+  const trpc = useTRPC();
+  const dispatch = useAppDispatch();
+
+  const { data: liveMessage } = useSubscription(trpc.ticketsRouter.listenToAllTicketMessages.subscriptionOptions());
+
+  useEffect(() => {
+    if (liveMessage) {
+      dispatch(addMessageToTicketAction(liveMessage));
+
+      //TODO: add a sound effect when a new message is received only from other user not from the current user
+      const audio = new Audio("/new_message.wav");
+      audio.play();
+    }
+  }, [liveMessage]);
+
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(sampleConversations[0]);
   const [activeTab, setActiveTab] = useState<"open" | "archived">("open");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSendMessage = (message: string) => {
+  const ticketSlice = useAppSelector(ticketSliceSelector);
+  const handleSendMessage = (message: string, files?: File[]) => {
     console.log("Sending message:", message);
+    if (files && files.length > 0) {
+      console.log("With files:", files);
+    }
     // TODO: Implement message sending logic
   };
 
@@ -305,11 +644,9 @@ export default function SupportPage() {
       setSelectedConversation(updatedConversation);
 
       // Update the conversation in the sample data
-      const updatedConversations = sampleConversations.map((conv) => (conv.id === selectedConversation.id ? updatedConversation : conv));
-      // In a real app, you would update the backend here
-      console.log("Ticket status updated:", updatedConversation.status);
     }
   };
+  
 
   const handleArchiveTicket = () => {
     if (selectedConversation && selectedConversation.status === "open") {
@@ -325,39 +662,70 @@ export default function SupportPage() {
     }
   };
 
+  const handlePriorityChange = (priority: "low" | "medium" | "high") => {
+    if (selectedConversation) {
+      const updatedConversation = {
+        ...selectedConversation,
+        priority,
+      };
+      setSelectedConversation(updatedConversation);
+
+      // Update the conversation in the sample data
+      const updatedConversations = sampleConversations.map((conv) => (conv.id === selectedConversation.id ? updatedConversation : conv));
+      console.log("Priority updated:", priority);
+    }
+  };
+  useEffect(() => {
+    dispatch(getAllTicketsAsyncThunk());
+  }, []);
+
+  if (!selectedConversation) return <div>No conversation selected</div>;
+
   return (
-    <div className="h-screen bg-background">
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* Sidebar */}
-        <ResizablePanel defaultSize={15} minSize={18} maxSize={40} className="">
-          <ConversationSidebar
-            conversations={sampleConversations}
-            selectedConversation={selectedConversation}
-            onSelectConversation={setSelectedConversation}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-        </ResizablePanel>
+    <div className="     ">
+      <div className="flex flex-col gap-2 p-7">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Welcome back! Here's what's happening with your platform today.</p>
+        <Dialog>
+          <DialogTrigger asChild className=" w-min">
+            <Button size="sm">
+              <MessageCirclePlus className="h-4 w-4 mr-2" />
+              Lunch Support
+            </Button>
+          </DialogTrigger>
+          <DialogContent className=" top-0 left-0 right-0 bottom-0 max-w-full max-h-full m-0 p-0 min-w-full min-h-full translate-x-[-0%] translate-y-[-0%]">
+            <div className="flex flex-row h-[calc(100vh-5px)]">
+              {/* Left Sidebar - Conversations */}
+              <div className="shrink-0 w-[320px]">
+                <ConversationSidebar
+                  conversations={sampleConversations}
+                  selectedConversation={selectedConversation}
+                  onSelectConversation={setSelectedConversation}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                />
+              </div>
 
-        <ResizableHandle withHandle />
+              {/* Middle Panel - Conversation View */}
 
-        {/* Main Content */}
-        <ResizablePanel defaultSize={75} minSize={60}>
-          <div className="h-full flex flex-col max-h-[100px]">
-            {selectedConversation ? (
-              <>
-                <ConversationHeader conversation={selectedConversation} onCloseTicket={handleCloseTicket} onArchiveTicket={handleArchiveTicket} />
-                <MessageList messages={selectedConversation.messages} />
-                <MessageInput onSendMessage={handleSendMessage} onAttachFile={handleAttachFile} />
-              </>
-            ) : (
-              <EmptyState />
-            )}
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+              <ConversationChat
+                selectedConversation={selectedConversation}
+                handleCloseTicket={handleCloseTicket}
+                handleArchiveTicket={handleArchiveTicket}
+                handlePriorityChange={handlePriorityChange}
+                handleSendMessage={handleSendMessage}
+              />
+
+              {/* Right Sidebar - Customer Details */}
+              <div className="shrink-0 w-[320px]">
+                <CustomerDetailsSidebar  />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

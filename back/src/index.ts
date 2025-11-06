@@ -14,7 +14,6 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
-console.log("testong");
 
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(

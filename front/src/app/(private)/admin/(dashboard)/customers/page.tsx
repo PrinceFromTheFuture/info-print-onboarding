@@ -12,12 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Plus, ChevronDown, UserPlus, FileText, Users } from "lucide-react";
-import { CustomerDetailDialog } from "./_components/customer-detail-dialog";
 import { CustomerStats } from "./_components/customer-stats";
 import { CustomersDataTable } from "./_components/customers-data-table";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/trpc";
 import { CreateCustomerDialog } from "@/components/create-customer-dialog";
+import { CustomerDetailDialog } from "@/components/customer-detail-dialog";
 
 export default function CustomersPage() {
   const trpc = useTRPC();

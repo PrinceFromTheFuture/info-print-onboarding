@@ -26,6 +26,7 @@ export interface Conversation {
   customer: Customer;
   status: "open" | "resolved";
   isArchived: boolean;
+  priority: "low" | "medium" | "high";
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;

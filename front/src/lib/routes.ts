@@ -78,12 +78,11 @@ export const NAV_ITEMS = {
       url: ROUTES.admin.submissions,
       key: "submissions",
     },
-    // Support is not implemented yet
-    // {
-    //   title: "Support",
-    //   url: ROUTES.admin.support,
-    //   key: "support",
-    // },
+    {
+      title: "Support",
+      url: ROUTES.admin.support,
+      key: "support",
+    },
   ],
   customer: [
     {
