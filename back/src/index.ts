@@ -14,15 +14,11 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
+
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://100.125.142.120:3000",
-      "https://infoprint-onboarding.amirwais.store",
-    ], // Replace with your frontend's origin
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://100.125.142.120:3000", "https://infoprint-onboarding.amirwais.store"], // Replace with your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
@@ -50,6 +46,7 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
       headers: fromNodeHeaders(req.headers),
     });
     const userId = authRes?.user?.id;
+    console.log("uploades file");
 
     // Check if file is present in the request
     if (!req.file) {
@@ -65,12 +62,7 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
 
     const { alt } = req.body;
 
-    console.log("File info:", {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-    });
-
+  
     // Generate unique filename
     const timestamp = Date.now();
     const fileExtension = path.extname(req.file.originalname || "file");
@@ -147,9 +139,10 @@ app.use(
     createContext,
   })
 );
-
-app.listen(port, "0.0.0.0", () => {
-  const procedureList = Object.keys(appRouter._def.procedures);
-  console.log(procedureList);
-  console.log(`Example app listening on port ${port}`);
-});
+try {
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+  });
+} catch (error) {
+  console.error("Error starting server:", error);
+}

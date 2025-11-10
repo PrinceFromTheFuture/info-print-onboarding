@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { AppRouter } from "../../../../../back/dist/src/trpc/index";
 import { trpcClient } from "../../trpc-client";
 import type { inferProcedureOutput } from "@trpc/server";
 import { ROUTES } from "@/lib/routes";
+import { AppRouter } from "../../../../../back/dist/src/trpc";
 
 // The return type from getFilledTemplateById (with answer fields added to questions)
 type FilledForm = inferProcedureOutput<AppRouter["templatesRouter"]["getFilledTemplateById"]>;

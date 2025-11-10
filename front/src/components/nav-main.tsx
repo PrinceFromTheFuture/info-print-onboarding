@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { CreateCustomerDialog } from "./create-customer-dialog";
+import { usePathname } from "next/navigation";
 
 export function NavMain({
   items,
@@ -22,6 +23,8 @@ export function NavMain({
     onClick?: () => void;
   };
 }) {
+  const pathname = usePathname();
+  const isActive = (url: string) => pathname.includes(url);
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -51,7 +54,7 @@ export function NavMain({
           {items.map((item) => (
             <Link href={item.url} className=" cursor-pointer">
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton tooltip={item.title} className={isActive(item.url) ? "bg-primary/5 text-primary" : ""}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

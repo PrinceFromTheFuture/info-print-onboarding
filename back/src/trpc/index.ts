@@ -13,6 +13,17 @@ import getCustomersData from "./adminData/getCustomersData.js";
 import getVisitsData from "./getVisitsData.js";
 import adminDataRouter from "./adminData/index.js";
 import customerRouter from "./customer/idnex.js";
+import { z } from "zod";
+import { messageBus } from "src/pubsub.js";
+
+import { EventEmitter, on } from "events";
+import ticketsRouter from "./tickets/index.js";
+interface Message {
+  id: string;
+  roomId: string;
+  text: string;
+  createdAt: string;
+}
 export const appRouter = router({
   authRouter,
   submittionsRouter,
@@ -22,6 +33,8 @@ export const appRouter = router({
   getUserMedia,
   reportVisit,
   getVisitsData,
+  ticketsRouter,
+ 
 });
 
 // Export type router type signature,
