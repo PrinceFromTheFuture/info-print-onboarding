@@ -78,7 +78,6 @@ export interface Config {
     visits: Visit;
     messages: Message;
     appUserConfigs: AppUserConfig;
-    tickets: Ticket;
     'payload-kv': PayloadKv;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
@@ -98,7 +97,6 @@ export interface Config {
     visits: VisitsSelect<false> | VisitsSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
     appUserConfigs: AppUserConfigsSelect<false> | AppUserConfigsSelect<true>;
-    tickets: TicketsSelect<false> | TicketsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -654,19 +652,6 @@ export interface AppUserConfigsSelect<T extends boolean = true> {
         feature?: T;
         id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tickets_select".
- */
-export interface TicketsSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  status?: T;
-  createdBy?: T;
-  priority?: T;
   updatedAt?: T;
   createdAt?: T;
 }
