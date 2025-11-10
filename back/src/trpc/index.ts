@@ -15,12 +15,9 @@ import adminDataRouter from "./adminData/index.js";
 import customerRouter from "./customer/idnex.js";
 import { z } from "zod";
 import { messageBus } from "src/pubsub.js";
-import { observable } from "@trpc/server/observable";
-import { tracked } from "@trpc/server";
 
 import { EventEmitter, on } from "events";
 import ticketsRouter from "./tickets/index.js";
-import { onTicketMessage, publishTicketMessage } from "src/lib/eventEmitter.js";
 interface Message {
   id: string;
   roomId: string;

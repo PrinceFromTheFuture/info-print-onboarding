@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { User, Mail, Calendar, Ticket, ChevronRight, ExternalLink, StickyNote } from "lucide-react";
-import type { Conversation, Customer } from "./types";
+import { User, Mail, Ticket, Calendar, ExternalLink, StickyNote } from "lucide-react";
 import { CustomerDetailDialog } from "@/components/customer-detail-dialog";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { activeTicketSelector } from "@/lib/redux/ticketsSlice/ticketsSlice";
@@ -17,15 +16,23 @@ import { getInitials } from "@/lib/utils";
 
 export function CustomerDetailsSidebar() {
   const selectedTicket = useAppSelector(activeTicketSelector);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const [open, setOpen] = useState(false);
+  const handleOpenDialog = useCallback(() => {
+    setIsDialogOpen(true);
+  }, []);
+
+  const handleCloseDialog = useCallback(() => {
+    setIsDialogOpen(false);
+  }, []);
+
   if (!selectedTicket) {
     return (
-      <div className="h-full flex flex-col bg-sidebar rounded-xl w-full p-5">
+      <div className="h-full flex flex-col w-full p-5">
         <div className="flex items-center flex-col justify-center h-full text-muted-foreground">
           <div className="flex items-center mb-2 justify-center bg-primary/10 rounded-full p-4 h-14 w-14">
-            <StickyNote className="h-7 w-7  text-primary" />
-          </div>{" "}
+            <StickyNote className="h-7 w-7 text-primary" />
+          </div>
           <p className="text-xs">No Selected Ticket</p>
         </div>
       </div>
@@ -33,13 +40,8 @@ export function CustomerDetailsSidebar() {
   }
 
   const user = selectedTicket.createdBy as AppUser;
-
-  // Get all previous tickets for this customer
-  const previousTickets = [] as any[];
-
-  const handleExpandCustomer = () => {
-    setOpen(true);
-  };
+  // TODO: Fetch previous tickets for this customer
+  const previousTickets: any[] = [];
 
   return (
     <div className="h-full flex flex-col bg-sidebar rounded-xl w-full overflow-hidden">
@@ -52,9 +54,11 @@ export function CustomerDetailsSidebar() {
             </CardHeader>
             <CardContent className="p-0 space-y-3.5">
               {/* Customer Avatar and Name */}
-              <div className="  gap-2.5 w-full flex flex-col items-center justify-center mb-3.5 ">
+              <div className="gap-2.5 w-full flex flex-col items-center justify-center mb-3.5">
                 <Avatar className="h-16 w-16">
-                  <AvatarFallback className="text-sm bg-primary/10 text-primary">{getInitials(user.name)}</AvatarFallback>
+                  <AvatarFallback className="text-sm bg-primary/10 text-primary">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 text-center">
                   <p className="text-sm font-medium">{user.name}</p>
@@ -91,8 +95,13 @@ export function CustomerDetailsSidebar() {
                 </div>
               </div>
 
-              <CustomerDetailDialog customerId={user.id} open={open} onOpenChange={setOpen} availableTemplates={[]} />
-              <Button variant="outline" className="w-full mt-3.5 h-9 text-xs" onClick={handleExpandCustomer}>
+              <CustomerDetailDialog
+                customerId={user.id}
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                availableTemplates={[]}
+              />
+              <Button variant="outline" className="w-full mt-3.5 h-9 text-xs" onClick={handleOpenDialog}>
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Full Customer Profile
               </Button>
@@ -118,11 +127,16 @@ export function CustomerDetailsSidebar() {
               ) : (
                 <div className="space-y-2.5">
                   {previousTickets.map((ticket) => (
-                    <Card key={ticket.id} className="bg-transparent border transition-colors hover:bg-primary/5 cursor-pointer p-3">
+                    <Card
+                      key={ticket.id}
+                      className="bg-transparent border transition-colors hover:bg-primary/5 cursor-pointer p-3"
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium truncate">{ticket.title}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{ticket.lastMessage}</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                            {ticket.lastMessage}
+                          </p>
                           <div className="flex items-center gap-1.5 mt-1.5">
                             <Calendar className="h-3 w-3 text-muted-foreground" />
                             <span className="text-xs text-muted-foreground">{ticket.lastMessageTime}</span>
@@ -130,11 +144,17 @@ export function CustomerDetailsSidebar() {
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
                           {ticket.status === "resolved" ? (
-                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200 px-1.5 py-0">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-green-50 text-green-700 border-green-200 px-1.5 py-0"
+                            >
                               Resolved
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 px-1.5 py-0">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-blue-50 text-blue-700 border-blue-200 px-1.5 py-0"
+                            >
                               Open
                             </Badge>
                           )}

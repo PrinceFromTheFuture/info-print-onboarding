@@ -95,11 +95,11 @@ export const NAV_ITEMS = {
       url: ROUTES.customer.uploads,
       key: "uploads",
     },
-    // Help is not implemented yet
-    // {
-    //   title: "Help",
-    //   url: ROUTES.customer.help,
-    //   key: "help",
-    // },
+
+    {
+      title: "Help",
+      url: ROUTES.customer.help,
+      key: "help",
+    },
   ],
 } as const;

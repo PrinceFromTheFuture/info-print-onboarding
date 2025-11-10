@@ -1,85 +1,92 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Paperclip, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/trpc";
 import { useMutation } from "@tanstack/react-query";
-import { activeTicketSelector } from "@/lib/redux/ticketsSlice/ticketsSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
-
-interface MessageInputProps {
-  onSendMessage: (message: string, files?: File[]) => void;
-  onAttachFile?: () => void;
-}
+import { activeTicketSelector } from "@/lib/redux/ticketsSlice/ticketsSlice";
+import { ROUTES } from "@/lib/routes";
 
 interface MediaPreview {
   file: File;
   previewUrl: string;
   id: string;
+  type: string;
 }
 
-export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps) {
+const MAX_MEDIA = 5;
+
+export function MessageInput() {
   const [message, setMessage] = useState("");
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const mediaPreviewsRef = useRef<MediaPreview[]>([]);
   const trpc = useTRPC();
   const selectedTicket = useAppSelector(activeTicketSelector);
-  const { mutateAsync: sendMessage } = useMutation(trpc.ticketsRouter.sendTicketMessage.mutationOptions());
-  const MAX_MEDIA = 5;
+  const { mutateAsync: sendMessage, isPending } = useMutation({
+    ...trpc.ticketsRouter.sendTicketMessage.mutationOptions(),
+  });
 
-  // Keep ref in sync with state
-  useEffect(() => {
-    mediaPreviewsRef.current = mediaPreviews;
-  }, [mediaPreviews]);
-
-  // Cleanup blob URLs on unmount only
+  const uploadedFilesUrls = useRef<string[]>([]);
+  // Cleanup blob URLs on unmount
   useEffect(() => {
     return () => {
-      mediaPreviewsRef.current.forEach((preview) => {
+      mediaPreviews.forEach((preview) => {
         URL.revokeObjectURL(preview.previewUrl);
       });
     };
   }, []);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
 
-    // Filter for image files only
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+      const remainingSlots = MAX_MEDIA - mediaPreviews.length;
+      const filesToAdd = files.slice(0, remainingSlots);
 
-    // Calculate how many more we can add
-    const remainingSlots = MAX_MEDIA - mediaPreviews.length;
-    const filesToAdd = imageFiles.slice(0, remainingSlots);
-
-    if (filesToAdd.length === 0) {
-      if (imageFiles.length > remainingSlots) {
-        alert(`Maximum ${MAX_MEDIA} images allowed`);
+      if (filesToAdd.length === 0) {
+        if (files.length > remainingSlots) {
+          alert(`Maximum ${MAX_MEDIA} media files allowed`);
+        }
+        return;
       }
-      return;
-    }
 
-    // Create preview URLs for selected images
-    const newPreviews: MediaPreview[] = filesToAdd.map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      id: `${Date.now()}-${Math.random()}`,
-    }));
+      const newPreviews: MediaPreview[] = filesToAdd.map((file) => ({
+        file,
+        previewUrl: URL.createObjectURL(file),
+        id: `${Date.now()}-${Math.random()}`,
+        type: file.type,
+      }));
 
-    setMediaPreviews((prev) => [...prev, ...newPreviews]);
+      setMediaPreviews((prev) => [...prev, ...newPreviews]);
 
-    // Reset input to allow selecting the same file again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+      await Promise.all(
+        newPreviews.map(async (preview) => {
+          const formData = new FormData();
+          formData.append("file", preview.file);
+          const response = await fetch(ROUTES.api.baseUrl + ROUTES.api.media.upload, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          });
+          if (response.ok) {
+            const data = await response.json();
+            uploadedFilesUrls.current.push(data.mediaId);
+          }
+        })
+      );
 
-    onAttachFile?.();
-  };
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+    [mediaPreviews.length]
+  );
 
-  const handleRemoveMedia = (id: string) => {
+  const handleRemoveMedia = useCallback((id: string) => {
+    uploadedFilesUrls.current = uploadedFilesUrls.current.filter((url) => url !== id);
     setMediaPreviews((prev) => {
       const previewToRemove = prev.find((p) => p.id === id);
       if (previewToRemove) {
@@ -87,90 +94,140 @@ export function MessageInput({ onSendMessage, onAttachFile }: MessageInputProps)
       }
       return prev.filter((p) => p.id !== id);
     });
-  };
+  }, []);
 
-  const handleAttachClick = () => {
+  const handleAttachClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    sendMessage({ ticketId: selectedTicket?.id || "", content: message.trim() });
-    e.preventDefault();
-    const hasContent = message.trim() || mediaPreviews.length > 0;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (hasContent) {
-      const files = mediaPreviews.map((preview) => preview.file);
-      onSendMessage(message.trim(), files.length > 0 ? files : undefined);
-      setMessage("");
+      if (!selectedTicket || selectedTicket.status === "closed") return;
 
-      // Cleanup and clear media previews
+      const trimmedMessage = message.trim();
+      const hasContent = trimmedMessage || mediaPreviews.length > 0;
+
+      if (!hasContent || isPending) return;
+
+      try {
+        // Send message via tRPC mutation
+        await sendMessage({
+          ticketId: selectedTicket.id,
+          content: trimmedMessage,
+          attachments: uploadedFilesUrls.current,
+        });
+
+        setMessage("");
+        mediaPreviews.forEach((preview) => {
+          URL.revokeObjectURL(preview.previewUrl);
+        });
+
+        setMediaPreviews([]);
+        uploadedFilesUrls.current = [];
+      } catch (error) {
+        console.error("Failed to send message:", error);
+        // TODO: Show error toast notification
+      }
+    },
+    [message, mediaPreviews, selectedTicket, sendMessage, isPending]
+  );
+
+  useEffect(() => {
+    return () => {
       mediaPreviews.forEach((preview) => {
         URL.revokeObjectURL(preview.previewUrl);
       });
-      setMediaPreviews([]);
-    }
-  };
+    };
+  }, []);
 
+  const isClosed = selectedTicket?.status === "closed";
+  const canSend = Boolean(message.trim() || mediaPreviews.length > 0) && !isPending && !isClosed;
+
+  const acceptedFiles =
+    ".pdf, .csv, .txt, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .odp, .rtf, .md, .json, .zip, .rar, image/*, audio/*, video/*";
   return (
-    <div className="absolute bottom-0 left-0 right-0">
-      {/* Media Preview Grid */}
+    <div className="sticky bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-20">
+      {/* Media Previews */}
+      {mediaPreviews.length > 0 && (
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {mediaPreviews.map((preview) => (
+              <div
+                key={preview.id}
+                className="relative aspect-square w-24 h-24 rounded-xl overflow-hidden border-2 border-border bg-muted shrink-0 group"
+              >
+                {preview.type === "video" ? (
+                  <video src={preview.previewUrl} className="w-full h-full object-cover" muted playsInline />
+                ) : (
+                  <img src={preview.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveMedia(preview.id)}
+                  className="absolute top-1.5 right-1.5 bg-background/90 hover:bg-background rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Input Form */}
-      <div className={"flex gap-2 z-20 relative p-4 items-end"}>
-        <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFileSelect} />
+      <form onSubmit={handleSubmit} className="flex gap-2 p-4 items-start">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={acceptedFiles}
+          multiple
+          className="hidden"
+          onChange={handleFileSelect}
+          disabled={isClosed}
+        />
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="p-0 h-14 w-11 rounded-xl"
+          size="icon"
+          className="h-11 w-11 rounded-xl shrink-0 border-border/50 hover:bg-muted/50"
           onClick={handleAttachClick}
-          disabled={mediaPreviews.length >= MAX_MEDIA}
+          disabled={mediaPreviews.length >= MAX_MEDIA || isClosed}
+          title="Attach media"
         >
           <Paperclip className="h-4 w-4" />
         </Button>
-        <label
-          className={cn(
-            "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input min-h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-            "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
-            "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive group pt-2 bg-background"
-          )}
-        >
-          {mediaPreviews.length > 0 && (
-            <div className="mb-2 mt-2 pb-2 z-20 relative">
-              <div className="flex gap-2  items-end">
-                {mediaPreviews.map((preview) => (
-                  <div key={preview.id} className="relative aspect-square w-20 h-20 rounded-lg overflow-hidden border border-border bg-muted group">
-                    <img src={preview.previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveMedia(preview.id)}
-                      className="absolute top-1 right-1 bg-background/80 hover:bg-background rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
+        <div className="flex-1 relative">
           <textarea
-            placeholder="Type your message..."
+            placeholder={
+              isClosed ? "This ticket is closed. You cannot send messages." : "Type your message..."
+            }
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            rows={message.split("\n").length}
-            className="w-full outline-none  resize-none h-full my-2  "
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !isClosed) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            rows={Math.min(Math.max(message.split("\n").length, 1), 5)}
+            disabled={isClosed}
+            className="w-full min-h-[44px] max-h-[132px] px-4 py-3 rounded-xl border border-border/50 bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring resize-none transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted/50"
           />
-        </label>
+        </div>
+
         <Button
-          type="button"
-          disabled={!message.trim() && mediaPreviews.length === 0}
-          onClick={handleSubmit}
-          className="h-14 w-11 text-sm rounded-xl"
+          type="submit"
+          disabled={!canSend}
+          size="icon"
+          className="h-11 w-11 rounded-xl shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Send message"
         >
           <Send className="h-4 w-4" />
         </Button>
-      </div>
-      <div className="absolute bg-linear-to-b from-transparent z-0 to-background to-60% left-0 right-0 h-16 bottom-0" />
+      </form>
     </div>
   );
 }

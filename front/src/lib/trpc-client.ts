@@ -1,6 +1,6 @@
 import { createTRPCClient, httpBatchLink, httpSubscriptionLink, splitLink } from "@trpc/client";
-import type { AppRouter } from "../../../back/dist/src/trpc/index.js";
 import { ROUTES } from "@/lib/routes";
+import { AppRouter } from "../../../back/dist/src/trpc";
 
 // Create a singleton tRPC client that can be used outside of React components
 export const trpcClient = createTRPCClient<AppRouter>({

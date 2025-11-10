@@ -8,6 +8,7 @@ export const Media: CollectionConfig = {
   fields: [
     {
       name: 'alt',
+      admin:{}
       type: 'text',
       required: true,
     },
