@@ -22,4 +22,19 @@ COPY . .
 # Build TypeScript
 RUN npm run build
 
-CMD ["node", "dist/index.js"]
+FROM oven/bun:alpine AS runner
+
+WORKDIR /app
+ARG PAYLOAD_SECRET 
+ARG DATABASE_URI
+
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV DATABASE_URI=$DATABASE_URI
+
+
+COPY --from=builder /app/bundle/index.js /app/index.js
+RUN bun install payload@3.62.1 @payloadcms/db-mongodb@3.62.1
+
+EXPOSE 3005
+
+CMD ["bun", "index.js"]
