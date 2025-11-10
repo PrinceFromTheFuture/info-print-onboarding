@@ -3,7 +3,7 @@ import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { auth } from "../../auth.js";
-import { Notifier } from "src/lib/notifier.js";
+import { Notifier } from "../../lib/notifier.js";
 
 const generateUnsecurePassword = ({ userName }: { userName: string }) => {
   return `${userName.toLowerCase()}1234567`;
