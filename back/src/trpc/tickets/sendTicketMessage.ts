@@ -1,8 +1,9 @@
 import { publicProcedure } from "../trpc.js";
 import { z } from "zod";
-import { publishTicketMessage } from "src/lib/eventEmitter.js";
+import { publishTicketMessage } from "../../lib/eventEmitter.js";
 import type { AppUser, User } from "payload-types.js";
-import { getPayload } from "src/db/getPayload.js";
+import { getPayload } from "../../db/getPayload.js";
+
 import { TRPCError } from "@trpc/server";
 
 const sendTicketMessage = publicProcedure
@@ -30,8 +31,7 @@ const sendTicketMessage = publicProcedure
     if (((ticket.createdBy as User).id !== user.id && user.role !== "admin") || ticket.status === "closed") {
       throw new TRPCError({
         code: "FORBIDDEN",
-        message:
-          "You are not allowed to send messages to this ticket since it is closed or you are not the creator",
+        message: "You are not allowed to send messages to this ticket since it is closed or you are not the creator",
       });
     }
 

@@ -1,4 +1,5 @@
-import { getPayload } from "src/db/getPayload.js";
+import { getPayload } from "../../db/getPayload.js";
+
 import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
 import type { Ticket } from "payload-types.js";

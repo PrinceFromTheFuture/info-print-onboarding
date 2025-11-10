@@ -1,4 +1,4 @@
-import { onAllTicketMessages } from "src/lib/eventEmitter.js";
+import { onAllTicketMessages } from "../../lib/eventEmitter.js";
 import { privateProcedure } from "../trpc.js";
 
 const listenToAllTicketMessages = privateProcedure

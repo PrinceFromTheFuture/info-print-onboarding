@@ -1,9 +1,9 @@
-import { getPayload } from "src/db/getPayload.js";
 import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
 import type { BasePayload } from "payload";
 import dayjs from "dayjs";
 import { TRPCError } from "@trpc/server";
+import { getPayload } from "../../db/getPayload.js";
 
 const canUserCreateTicket = async (userId: string, payload: BasePayload) => {
   const MAX_TICKETS_PER_USER = 5;

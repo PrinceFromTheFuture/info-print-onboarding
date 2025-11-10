@@ -13,13 +13,10 @@ ARG DATABASE_URI
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV DATABASE_URI=$DATABASE_URI
 
-
-
-
 # Copy the rest of the source code
 COPY . .
 
 # Build TypeScript
-RUN npm run build
+RUN npm run buildtsc
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
