@@ -11,4 +11,6 @@ const Messages: CollectionConfig = {
     { name: "seen", type: "checkbox", defaultValue: false, required: true },
   ],
 };
+
 export default Messages;
+

@@ -19,7 +19,7 @@
     "generate": "npx payload generate:types",
     "start": "node dist/src/index.js",
     "build": "tsc && esbuild dist/src/index.js --bundle --platform=node --format=esm --outfile=bundle/index.js --external:payload",
-    "seed": "node  dist/src/seed.js",
+    "seed": "bun dist/src/seed.js",
     "seed:verify": "bun verify-seed.ts",
     "seed:cleanup": "bun cleanup-seed.ts",
     "seed:test": "bun test-seed-cycle.ts",
