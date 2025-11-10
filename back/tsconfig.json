@@ -24,7 +24,7 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["."],
+      "@/*": ["./src/*"],
       "@payload-config": ["src/db/payload.config.ts"]
     },
 
