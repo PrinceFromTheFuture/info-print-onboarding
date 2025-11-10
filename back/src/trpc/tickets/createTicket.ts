@@ -4,6 +4,7 @@ import type { BasePayload } from "payload";
 import dayjs from "dayjs";
 import { TRPCError } from "@trpc/server";
 import { getPayload } from "../../db/getPayload.js";
+import { Notifier } from "../../lib/notifier.js";
 
 const canUserCreateTicket = async (userId: string, payload: BasePayload) => {
   const MAX_TICKETS_PER_USER = 5;
@@ -34,7 +35,6 @@ const createTicket = privateProcedure.input(z.object({ title: z.string(), descri
   const { title, description } = input;
   const payload = await getPayload;
 
-  
   const isUserCanCreateTicket = await canUserCreateTicket(ctx.user!.id, payload);
   if (!isUserCanCreateTicket) {
     throw new TRPCError({ code: "FORBIDDEN", message: "You have reached the maximum number of open tickets" });
@@ -49,6 +49,16 @@ const createTicket = privateProcedure.input(z.object({ title: z.string(), descri
       status: "open",
     },
   });
+
+  await Notifier(
+    `🎫 *New Ticket Created*\n\n` +
+      `📋 *Subject:* ${title}\n` +
+      `📝 *Description:* ${description}\n\n` +
+      `👤 *Customer Details:*\n` +
+      `   • Name: ${ctx.user!.name}\n` +
+      `   • Email: ${ctx.user!.email}\n\n`
+  );
+
   return ticket;
 });
 export default createTicket;

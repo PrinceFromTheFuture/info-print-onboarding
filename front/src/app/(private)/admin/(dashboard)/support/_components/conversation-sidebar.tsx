@@ -302,7 +302,6 @@ export function ConversationSidebar({
               const lastMessageTime = getLastMessageTime(ticket);
               const isSelected = activeTicket?.id === ticket.id;
               const isResolved = ticket.status === "closed";
-              console.log(unreadCount);
 
               return (
                 <Card

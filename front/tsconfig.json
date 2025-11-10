@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../back/seed.ts", "../back/ai.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../back/seed.ts", "../back/ai.ts", "../back/src/lib/notifier.ts"],
   "exclude": ["node_modules"]
 }

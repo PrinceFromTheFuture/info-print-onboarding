@@ -14,7 +14,7 @@ export const getTemplatesStats = privateProcedure.query(async ({ ctx }) => {
     pagination: false,
   });
   const formatedAssignments = templates.docs.map((template) => {
-    console.log(template.sections);
+  
     return {
       id: template.id,
       name: template.name,

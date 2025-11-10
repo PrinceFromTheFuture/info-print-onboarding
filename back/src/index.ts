@@ -14,7 +14,6 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
-
 // IMPORTANT: Apply CORS and cookie parser first
 app.use(
   cors({
@@ -46,7 +45,6 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
       headers: fromNodeHeaders(req.headers),
     });
     const userId = authRes?.user?.id;
-    console.log("uploades file");
 
     // Check if file is present in the request
     if (!req.file) {
@@ -62,7 +60,6 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
 
     const { alt } = req.body;
 
-  
     // Generate unique filename
     const timestamp = Date.now();
     const fileExtension = path.extname(req.file.originalname || "file");
@@ -77,16 +74,7 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
       size: req.file.size,
     };
 
-    console.log("Creating media record with:", {
-      alt: alt || "",
-      uploadedBy: userId || undefined,
-      extention: fileExtension,
-      fileObject: {
-        name: fileObject.name,
-        mimetype: fileObject.mimetype,
-        size: fileObject.size,
-      },
-    });
+   
 
     // Create media record in Payload with the user's ID
     const mediaRecord = await payload.create({
@@ -99,7 +87,6 @@ app.post("/api/media/upload", upload.single("file"), async (req, res) => {
       file: fileObject,
     });
 
-    console.log("Media record created:", mediaRecord.id);
 
     // Get the actual filename that Payload saved
     const savedFilename = mediaRecord.filename || uniqueFileName;
@@ -141,7 +128,7 @@ app.use(
 );
 try {
   app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+    console.log(`${process.env.NODE_ENV} app listening on port ${port}`);
   });
 } catch (error) {
   console.error("Error starting server:", error);
