@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { privateProcedure } from "../trpc.js";
-import { getPayload } from "src/db/getPayload.js";
+import { getPayload } from "../../db/getPayload.js";
+
 const updateTicket = privateProcedure
   .input(
     z.object({

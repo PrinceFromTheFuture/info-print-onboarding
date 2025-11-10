@@ -1,7 +1,6 @@
-import { onTicketMessage } from "src/lib/eventEmitter.js";
+import { onTicketMessage } from "../../lib/eventEmitter.js";
 import { publicProcedure } from "../trpc.js";
 import { z } from "zod";
-import { tracked } from "@trpc/server";
 
 const listenToTicketMessages = publicProcedure
   .input(
