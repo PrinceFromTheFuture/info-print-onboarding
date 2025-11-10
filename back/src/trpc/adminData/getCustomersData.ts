@@ -33,7 +33,6 @@ export const getCustomersData = privateProcedure
       depth: 1,
       pagination: false,
     });
-    console.log(customers.docs.length);
     // Get assignments for each customer to calculate progress
     const customerIds = customers.docs.map((customer) => customer.id);
 

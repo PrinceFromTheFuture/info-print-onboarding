@@ -3,7 +3,7 @@ import { privateProcedure, publicProcedure } from "../trpc.js";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { auth } from "../../auth.js";
-import type { Media } from "payload-types.js";
+import { Notifier } from "src/lib/notifier.js";
 
 const generateUnsecurePassword = ({ userName }: { userName: string }) => {
   return `${userName.toLowerCase()}1234567`;
@@ -18,10 +18,7 @@ const onBoardingInputSchema = z
       .min(1, "Requested domain is required")
       .regex(/^[a-zA-Z0-9-]+$/, "Domain can only contain letters, numbers, and hyphens"),
     administratorFullName: z.string().min(1, "Administrator full name is required"),
-    administratorEmail: z
-      .string()
-      .email("Please enter a valid email")
-      .min(1, "Administrator email is required"),
+    administratorEmail: z.string().email("Please enter a valid email").min(1, "Administrator email is required"),
     administratorPhone: z.string().min(1, "Administrator phone is required"),
     printingShopSpecializations: z.array(z.string()),
     currentSalesTax: z
@@ -123,11 +120,7 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
           })) || [],
         currentSalesTax: parseFloat(input.currentSalesTax),
         quickBooksSyncing: input.quickBooksSyncing,
-        quickBooksSyncingOptions:
-          (input.quickBooksSyncingOptions as
-            | "quickbooksOnline"
-            | "quickbooksDesktop"
-            | "quickbooksEnterprise") || null,
+        quickBooksSyncingOptions: (input.quickBooksSyncingOptions as "quickbooksOnline" | "quickbooksDesktop" | "quickbooksEnterprise") || null,
         requestedDomain: input.requestedDomain,
         logo: input.logo,
         contactAndCompanyList: input.contactAndCompanyList,
@@ -149,6 +142,22 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
         appUserConfig: userConfig.id,
       }, // Type assertion needed due to Payload's complex type system
     });
+
+    await Notifier(
+      `🎉 *New Customer Onboarded*\n\n` +
+        `🏢 *Company:* ${input.companyName}\n` +
+        `🌐 *Website:* ${input.companyWebsiteUrl}\n` +
+        `🔗 *Requested Domain:* ${input.requestedDomain}\n\n` +
+        `👤 *Administrator Details:*\n` +
+        `   • Name: ${input.administratorFullName}\n` +
+        `   • Email: ${input.administratorEmail}\n` +
+        `   • Phone: ${input.administratorPhone}\n\n` +
+        `📋 *Specializations:* ${input.printingShopSpecializations.length > 0 ? input.printingShopSpecializations.join(", ") : "None"}\n` +
+        `💰 *Sales Tax:* ${input.currentSalesTax}%\n` +
+        `📊 *QuickBooks Syncing:* ${input.quickBooksSyncing ? `Yes (${input.quickBooksSyncingOptions})` : "No"}\n` +
+        `⚙️ *MIS Workflow:* ${input.currentMISWorkflow}\n` +
+        `${input.otherFeatures && input.otherFeatures.length > 0 ? `\n✨ *Other Features:* ${input.otherFeatures.join(", ")}` : ""}`
+    );
 
     return {
       success: true,

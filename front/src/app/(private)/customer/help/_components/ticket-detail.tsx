@@ -62,9 +62,6 @@ export function TicketDetail({ ticket, isMobile = false }: TicketDetailProps) {
       setMessages((prevMessages) => [...prevMessages, liveMessages as Message]);
     }
   }, [liveMessages]);
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
 
   const onSendMessage = async () => {
     await sendMessage({ ticketId: ticket.id, content: newMessage });
