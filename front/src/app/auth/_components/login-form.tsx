@@ -42,18 +42,13 @@ export function LoginForm({ className, setModeHandler, ...props }: LoginFormProp
     ...trpc.authRouter.login.mutationOptions(),
     onSuccess: (data: any) => {
       toast.success("Login successful! Welcome back.");
-
-      if (data?.user?.role === "admin") {
-        router.push(ROUTES.admin.dashboard);
-        return;
-      }
-
-      if (data?.user?.isApproved) {
-        router.push(ROUTES.customer.root);
-        return;
-      }
-
-      setModeHandler("pendingVerification");
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
+      }).then(() => {
+        window.location.reload();
+      });
     },
     onError: (error: any) => {
       console.error(error);
