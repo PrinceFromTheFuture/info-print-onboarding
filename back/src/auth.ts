@@ -4,22 +4,10 @@ import { createAuthMiddleware } from "better-auth/api";
 import { BasePayload } from "payload";
 import { getPayload } from "./db/getPayload.js";
 
-const signUpUser = async (payload: BasePayload, email: string, name?: string) => {
-  await payload.create({
-    collection: "appUsers",
-    data: {
-      isApproved: false,
-      email,
-      name: name || "New User",
-      role: "customer", // Default role for new users
-    },
-  });
-};
-
 const getUser = async (payload: BasePayload, email: string) => {
   const { docs: users } = await payload.find({
     collection: "appUsers",
-    where: { email: { equals: email } },
+    where: { authEmail: { equals: email } },
     pagination: false,
   });
   return users[0];

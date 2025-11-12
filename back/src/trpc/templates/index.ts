@@ -1,5 +1,6 @@
 import { router } from "../trpc.js";
 import assignTempalteToUser from "./assignTempalteToUser.js";
+import deAssignTempalteToUser from "./deAssignTempalteToUser.js";
 import { getFilledTemplateById } from "./getFilledTemplateById.js";
 import getTemplates from "./getTemapltes.js";
 import { getTemplateById } from "./getTemplateById.js";
@@ -10,5 +11,6 @@ export const templatesRouter = router({
   getFilledTemplateById,
   getTemplatesStats,
   assignTempalteToUser,
+  deAssignTempalteToUser,
   getTemplates,
 });

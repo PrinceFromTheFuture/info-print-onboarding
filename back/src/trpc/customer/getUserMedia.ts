@@ -10,6 +10,9 @@ export const getUserMedia = privateProcedure.query(async ({ ctx }) => {
       uploadedBy: {
         equals: ctx.user?.id,
       },
+      isDeleted: {
+        equals: false,
+      },
     },
     pagination: false,
   });
