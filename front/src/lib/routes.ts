@@ -86,7 +86,7 @@ export const NAV_ITEMS = {
   ],
   customer: [
     {
-      title: "Workflow",
+      title: "Forms",
       url: ROUTES.customer.workflow,
       key: "workflow",
     },

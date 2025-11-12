@@ -12,7 +12,7 @@ const generateUnsecurePassword = ({ userName }: { userName: string }) => {
 const onBoardingInputSchema = z
   .object({
     companyName: z.string().min(1, "Company name is required"),
-    companyWebsiteUrl: z.string().url("Please enter a valid URL").min(1, "Company website is required"),
+    companyWebsiteUrl: z.string().min(1, "Company website is required"),
     requestedDomain: z
       .string()
       .min(1, "Requested domain is required")
@@ -58,6 +58,7 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
     collection: "appUsers",
     data: {
       email: input.administratorEmail,
+      authEmail: input.administratorEmail,
       name: input.administratorFullName,
       role: "customer",
       isApproved: false,
@@ -157,7 +158,7 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
         `📊 *QuickBooks Syncing:* ${input.quickBooksSyncing ? `Yes (${input.quickBooksSyncingOptions})` : "No"}\n` +
         `⚙️ *MIS Workflow:* ${input.currentMISWorkflow}\n` +
         `${input.otherFeatures && input.otherFeatures.length > 0 ? `\n✨ *Other Features:* ${input.otherFeatures.join(", ")}` : ""}`
-    );
+    , "newCustomes");
 
     return {
       success: true,
@@ -171,7 +172,7 @@ const onBoarding = publicProcedure.input(onBoardingInputSchema).mutation(async (
     console.error("Error creating user config:", error);
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
-      message: "Failed to create user configuration. Please try again.",
+      message: "Failed to onboard customer. Please try again.",
     });
   }
 });

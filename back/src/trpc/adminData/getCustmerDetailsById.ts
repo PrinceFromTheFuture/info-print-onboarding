@@ -31,6 +31,7 @@ type Customer = {
   id: string;
   name: string;
   email: string;
+  authEmail: string;
   role: string;
   createdAt: string;
   assignedTemplates: Template[];
@@ -73,6 +74,9 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     where: {
       uploadedBy: {
         equals: input,
+      },
+      isDeleted: {
+        equals: false,
       },
     },
     pagination: false,
@@ -255,6 +259,7 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     id: customer.id,
     name: customer.name,
     email: customer.email,
+    authEmail: customer.authEmail,
     role: customer.role || "customer",
     createdAt: customer.createdAt,
     assignedTemplates,
@@ -264,6 +269,7 @@ const getCustomerDetailsById = privateProcedure.input(z.string()).query(async ({
     submissions,
     media,
   };
+
 
   return customerData;
 });

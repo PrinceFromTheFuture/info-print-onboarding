@@ -13,5 +13,6 @@ export const Media: CollectionConfig = {
       type: "text",
     },
     { type: "text", name: "extention" },
+    { type: "checkbox", name: "isDeleted", defaultValue: false },
   ],
 };

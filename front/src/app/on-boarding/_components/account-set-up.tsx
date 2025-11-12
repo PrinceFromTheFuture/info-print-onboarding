@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { authClient, useSession } from "@/lib/auth/auth-client";
+import { useSession } from "@/lib/auth/auth-client";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/trpc/trpc";
 import { ChevronLeft, ChevronRight, Building2, UserCircle, Settings, CreditCard, FileText, Sparkles } from "lucide-react";
@@ -26,7 +26,7 @@ import { ROUTES } from "@/lib/routes";
 // Zod Schemas for each stage
 const companyInformationSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  companyWebsiteUrl: z.string().url("Please enter a valid URL").min(1, "Company website is required"),
+  companyWebsiteUrl: z.string(),
   requestedDomain: z
     .string()
     .min(1, "Requested domain is required")
@@ -107,19 +107,26 @@ function AccountSetUp() {
   const router = useRouter();
 
   const trpc = useTRPC();
+  // @ts-ignore - Types will be regenerated when backend restarts
+  const loginMutation = useMutation(trpc.authRouter.login.mutationOptions());
+
   const onBoardingMutation = useMutation(
     trpc.customerRouter.onBoarding.mutationOptions({
       onSuccess: async (data) => {
         toast.success("Account setup completed successfully!");
         if (data.userLoginData) {
-          await authClient.signIn.email(
-            {
+          try {
+            // @ts-ignore - Types will be regenerated when backend restarts
+            await loginMutation.mutateAsync({
               email: data.userLoginData.email,
               password: data.userLoginData.password,
-            },
-            { redirect: "manual" }
-          );
-          router.push(ROUTES.auth.login);
+            });
+            router.push(ROUTES.auth.login);
+          } catch (error) {
+            console.error("Auto-login failed:", error);
+            // Still redirect to login page even if auto-login fails
+            router.push(ROUTES.auth.login);
+          }
         }
       },
       onError: (error: any) => {

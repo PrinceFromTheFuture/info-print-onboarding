@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface Customer {
   id: string;
@@ -59,6 +60,7 @@ interface CustomersDataTableProps {
   onSearchChange: (search: string) => void;
   onSortChange: (sortBy: string, sortOrder: "asc" | "desc") => void;
   onRowClick?: (customer: Customer) => void;
+  onEditCustomer: (customerId: string) => void;
   loading?: boolean;
 }
 
@@ -68,7 +70,7 @@ export function CustomersDataTable({
   onPageChange,
   onLimitChange,
   onSearchChange,
-  onSortChange,
+  onEditCustomer,
   onRowClick,
   loading = false,
 }: CustomersDataTableProps) {
@@ -87,6 +89,11 @@ export function CustomersDataTable({
     if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
     const date2 = new Date(dateString);
     return date2.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  const onCopyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
+    toast.success("Email copied to clipboard");
   };
 
   const columns: ColumnDef<Customer>[] = [
@@ -189,12 +196,10 @@ export function CustomersDataTable({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(customer.email)}>Copy email</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onCopyEmail(customer.email)}>Copy email</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View details</DropdownMenuItem>
-              <DropdownMenuItem>Edit customer</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">Delete customer</DropdownMenuItem>
+            
+              <DropdownMenuItem onClick={() => onEditCustomer(customer.id)}>Edit customer</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );

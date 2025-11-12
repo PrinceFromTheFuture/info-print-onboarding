@@ -23,7 +23,7 @@ import { useMutation } from "@tanstack/react-query";
 // Zod Schemas for each stage
 const companyInformationSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  companyWebsiteUrl: z.string().url("Please enter a valid URL").min(1, "Company website is required"),
+  companyWebsiteUrl: z.string().min(1, "Company website is required"),
   requestedDomain: z
     .string()
     .min(1, "Requested domain is required")

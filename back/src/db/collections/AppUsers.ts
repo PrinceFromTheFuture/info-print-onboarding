@@ -17,6 +17,11 @@ const AppUsers: CollectionConfig = {
       required: true,
     },
     {
+      name: "authEmail",
+      type: "text",
+      required: true,
+    },
+    {
       name: "role",
       type: "select",
       options: [

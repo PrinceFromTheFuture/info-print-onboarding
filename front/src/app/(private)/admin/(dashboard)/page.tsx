@@ -16,7 +16,6 @@ import {
 import { Users, FileText, CheckCircle2, TrendingUp, Activity, UserPlus, Clock, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { useTRPC } from "@/trpc/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { CreateCustomerDialog } from "@/components/create-customer-dialog";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
 
@@ -76,14 +75,7 @@ export default function Page() {
         </div>
 
         <div>
-          <CreateCustomerDialog
-            trigger={
-              <Button className="gap-2 cursor-pointer">
-                <Plus className="h-4 w-4" />
-                New Customer
-              </Button>
-            }
-          />
+        
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="hidden ">
               <Button className="gap-2">
@@ -95,14 +87,7 @@ export default function Page() {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Create New</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <CreateCustomerDialog
-                trigger={
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <UserPlus className="h-4 w-4" />
-                    <span>Customer</span>
-                  </DropdownMenuItem>
-                }
-              />
+              
               <DropdownMenuItem className="gap-2 cursor-pointer">
                 <FileText className="h-4 w-4" />
                 <span>Template</span>
