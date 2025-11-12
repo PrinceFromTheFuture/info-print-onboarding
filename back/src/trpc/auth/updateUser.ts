@@ -1,7 +1,6 @@
-import { getPayload } from "@/db/getPayload.js";
 import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
-import { auth } from "@/auth.js";
+import { getPayload } from "../../db/getPayload.js";
 const updateUser = privateProcedure
   .input(
     z.object({
