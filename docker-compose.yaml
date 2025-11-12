@@ -21,13 +21,11 @@ services:
       args:
         DATABASE_URI: mongodb://mongo:27017
         PAYLOAD_SECRET: fsdjfuishdg7u
-        NOTIFIER_WEB_HOOK: https://chat.googleapis.com/v1/spaces/AAQA7u4SLDk/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=ef_0ouhUbax34J6PuFJ7QZb3nXIrJVZ1bQR-NSO7esc
     ports:
       - "3005:3005"
     environment:
       DATABASE_URI: mongodb://mongo:27017
       PAYLOAD_SECRET: fsdjfuishdg7u
-      NOTIFIER_WEB_HOOK: https://chat.googleapis.com/v1/spaces/AAQA7u4SLDk/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=ef_0ouhUbax34J6PuFJ7QZb3nXIrJVZ1bQR-NSO7esc
     depends_on:
       - mongo
 

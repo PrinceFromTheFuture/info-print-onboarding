@@ -1,6 +1,6 @@
-import { getPayload } from "@/db/getPayload.js";
 import { privateProcedure } from "../trpc.js";
 import { z } from "zod";
+import { getPayload } from "../../db/getPayload.js";
 
 export const deleteMediaHelper = async (mediaId: string) => {
   const payload = await getPayload;

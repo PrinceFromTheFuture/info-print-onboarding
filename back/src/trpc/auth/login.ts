@@ -3,7 +3,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { auth } from "../../auth.js";
 import { getPayload } from "../../db/getPayload.js";
-import { fromNodeHeaders } from "better-auth/node";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
