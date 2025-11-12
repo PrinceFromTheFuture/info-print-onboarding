@@ -24,7 +24,6 @@ import {
   Image as ImageIcon,
   Calendar,
   Mail,
-  FileIcon,
   File,
   Loader2,
   AlertCircle,
@@ -90,6 +89,7 @@ type Submission = {
 
 type Customer = {
   id: string;
+  authEmail: string;
   name: string;
   email: string;
   role: string;
@@ -143,12 +143,6 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
     }
   };
 
-  // Function to invalidate all related queries
-  const invalidateCustomerData = async () => {
-    // Invalidate the specific customer query
-    await queryClient.invalidateQueries();
-  };
-
   const { mutate: assignTemplateToUser, isPending: isAssigning } = useMutation({
     ...trpc.templatesRouter.assignTempalteToUser.mutationOptions(),
     onSuccess: async () => {
@@ -161,6 +155,25 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
       });
     },
   });
+
+  const { mutate: deAssignTemplateToUser, isPending: isDeAssigning } = useMutation({
+    ...trpc.templatesRouter.deAssignTempalteToUser.mutationOptions(),
+    onSuccess: async () => {
+      toast.success("Template de-assigned successfully");
+      await invalidateCustomerData();
+    },
+    onError: (error) => {
+      toast.error("Failed to de-assign template", {
+        description: error.message,
+      });
+    },
+  });
+
+  // Function to invalidate all related queries
+  const invalidateCustomerData = async () => {
+    // Invalidate the specific customer query
+    await queryClient.invalidateQueries({ queryKey: trpc.adminDataRouter.getCustomerDetailsById.queryKey(customerId) });
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -191,6 +204,16 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
   const generateUnsecurePassword = ({ userName }: { userName: string }) => {
     return `${userName.toLowerCase()}1234567`;
   };
+
+  const emailLink = (customer: Customer) => `mailto:${customer.email}?subject=${encodeURIComponent("Your InfoFlo Print Account Has Been Verified")}&body=${encodeURIComponent(
+    `Hello ${
+      customer.name
+    },\n\nGreat news! Your InfoFlo Print account has been verified and is now active.\n\nYou can now log in to your account using the following credentials:\n\nEmail: ${
+      customer.email
+    }\nTemporary Password: ${generateUnsecurePassword({
+      userName: customer.authEmail.split("@")[0],
+    })}\n\nLogin here: https://infoprint-onboarding.amirwais.store/login\n\nFor security purposes, please change your password after your first login.\n\nIf you have any questions or need assistance, please don't hesitate to reach out.\n\nBest regards,\nInfoFlo Print Team`
+  )}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -331,24 +354,12 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">Temporary Password</label>
-                        <p className="text-sm font-medium font-mono">{generateUnsecurePassword({ userName: customer.email.split("@")[0] })}</p>
+                        <p className="text-sm font-medium font-mono">{generateUnsecurePassword({ userName: customer.authEmail.split("@")[0] })}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <Button size="sm" variant="link" className="gap-2" asChild>
-                        <a
-                          href={`mailto:${customer.email}?subject=${encodeURIComponent(
-                            "Your InfoFlo Print Account Has Been Verified"
-                          )}&body=${encodeURIComponent(
-                            `Hello ${
-                              customer.name
-                            },\n\nGreat news! Your InfoFlo Print account has been verified and is now active.\n\nYou can now log in to your account using the following credentials:\n\nEmail: ${
-                              customer.email
-                            }\nTemporary Password: ${generateUnsecurePassword({
-                              userName: customer.email.split("@")[0],
-                            })}\n\nLogin here: https://infoprint-onboarding.amirwais.store/login\n\nFor security purposes, please change your password after your first login.\n\nIf you have any questions or need assistance, please don't hesitate to reach out.\n\nBest regards,\nInfoFlo Print Team`
-                          )}`}
-                        >
+                        <a href={emailLink(customer)}>
                           <Mail className="h-3.5 w-3.5" />
                           Send Credentials to Customer
                         </a>
@@ -623,8 +634,18 @@ export function CustomerDetailDialog({ customerId, open, onOpenChange, available
                         <Badge key={template.id} variant="secondary" className="gap-1.5 py-1.5 px-3 font-normal">
                           <FileText className="h-3.5 w-3.5" />
                           {template.name}
-                          <button className="ml-1 hover:text-destructive">
-                            <X className="h-3 w-3" />
+                          <button
+                            className="ml-1 hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => {
+                              deAssignTemplateToUser({
+                                userId: customerId,
+                                templateId: template.id,
+                              });
+                            }}
+                            disabled={isDeAssigning}
+                            title="Remove template"
+                          >
+                            <X className="h-3 w-3 cursor-pointer" />
                           </button>
                         </Badge>
                       ))}

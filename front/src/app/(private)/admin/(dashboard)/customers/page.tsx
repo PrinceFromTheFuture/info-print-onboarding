@@ -16,8 +16,8 @@ import { CustomerStats } from "./_components/customer-stats";
 import { CustomersDataTable } from "./_components/customers-data-table";
 import { useQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/trpc";
-import { CreateCustomerDialog } from "@/components/create-customer-dialog";
 import { CustomerDetailDialog } from "@/components/customer-detail-dialog";
+import EditCustomer from "./_components/edit-customer";
 
 export default function CustomersPage() {
   const trpc = useTRPC();
@@ -27,7 +27,7 @@ export default function CustomersPage() {
   const [sortBy, setSortBy] = useState<"name" | "email" | "createdAt" | "onboardingProgress">("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-
+  const [editCustomerOpen, setEditCustomerOpen] = useState(false);
   const { data: availableTemplates } = useQuery(trpc.templatesRouter.getTemplates.queryOptions());
   const { data: customersDataResponse, isLoading: customersLoading } = useQuery(trpc.adminDataRouter.getCustomersData.queryOptions());
 
@@ -157,14 +157,6 @@ export default function CustomersPage() {
           <p className="text-muted-foreground">Manage customer onboarding and track progress across all templates</p>
         </div>
         <div>
-          <CreateCustomerDialog
-            trigger={
-              <Button className="gap-2 cursor-pointer">
-                <Plus className="h-4 w-4" />
-                New Customer
-              </Button>
-            }
-          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="hidden ">
               <Button className="gap-2">
@@ -176,14 +168,7 @@ export default function CustomersPage() {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Create New</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <CreateCustomerDialog
-                trigger={
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <UserPlus className="h-4 w-4" />
-                    <span>Customer</span>
-                  </DropdownMenuItem>
-                }
-              />
+
               <DropdownMenuItem className="gap-2 cursor-pointer">
                 <FileText className="h-4 w-4" />
                 <span>Template</span>
@@ -207,6 +192,7 @@ export default function CustomersPage() {
         </CardHeader>
         <CardContent>
           <CustomersDataTable
+            onEditCustomer={(customerId) => setEditCustomerOpen(true)}
             data={customersTableData.customers}
             pagination={customersTableData.pagination}
             onPageChange={(newPage) => setPage(newPage)}
@@ -229,10 +215,11 @@ export default function CustomersPage() {
       {/* Customer Detail Dialog */}
       <CustomerDetailDialog
         customerId={selectedCustomer?.id}
-        open={!!selectedCustomer}
+        open={!!selectedCustomer && !editCustomerOpen}
         onOpenChange={(open) => !open && setSelectedCustomer(null)}
         availableTemplates={availableTemplates}
       />
+      <EditCustomer customerId={selectedCustomer?.id} open={editCustomerOpen} onOpenChange={(open) => setEditCustomerOpen(open)} />
     </div>
   );
 }

@@ -145,6 +145,7 @@ export interface AppUser {
   isApproved: boolean;
   name: string;
   email: string;
+  authEmail: string;
   role?: ('admin' | 'customer') | null;
   assignedTemplates?: (string | Template)[] | null;
   updatedAt: string;
@@ -195,6 +196,7 @@ export interface Media {
   uploadedBy?: (string | null) | AppUser;
   alt?: string | null;
   extention?: string | null;
+  isDeleted?: boolean | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -471,6 +473,7 @@ export interface AppUsersSelect<T extends boolean = true> {
   isApproved?: T;
   name?: T;
   email?: T;
+  authEmail?: T;
   role?: T;
   assignedTemplates?: T;
   updatedAt?: T;
@@ -538,6 +541,7 @@ export interface MediaSelect<T extends boolean = true> {
   uploadedBy?: T;
   alt?: T;
   extention?: T;
+  isDeleted?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

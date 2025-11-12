@@ -2,14 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { HelpCircle, Plus, X, Ticket as TicketIcon, FileText, AlertCircle, ArrowRight } from "lucide-react";
@@ -58,7 +51,6 @@ export default function HelpPage() {
   };
 
   const selectedTicketData = tickets.find((t) => t.id === selectedTicket);
-  const hasOpenTicket = tickets.some((t) => t.status === "open");
   const openTicket = tickets.find((t) => t.status === "open");
 
   return (
@@ -75,7 +67,7 @@ export default function HelpPage() {
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto" size="sm" disabled={hasOpenTicket}>
+              <Button className="w-full sm:w-auto" size="sm">
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
                 New Ticket
               </Button>
@@ -83,36 +75,9 @@ export default function HelpPage() {
             <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
                 <DialogTitle className="text-lg">Create New Ticket</DialogTitle>
-                <DialogDescription className="text-sm">
-                  {hasOpenTicket
-                    ? "You already have an open ticket. Please close or resolve your current ticket before creating a new one."
-                    : "Describe your issue and we'll get back to you as soon as possible."}
-                </DialogDescription>
+                <DialogDescription className="text-sm"></DialogDescription>
               </DialogHeader>
-              {hasOpenTicket && openTicket && (
-                <div className="mt-3 p-3 bg-muted/50 rounded-lg border border-primary/20">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold mb-1 flex items-center gap-1.5">
-                        <TicketIcon className="h-3.5 w-3.5" />
-                        Current Open Ticket
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-2">{openTicket.title}</p>
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto text-xs font-medium"
-                        onClick={() => {
-                          setSelectedTicket(openTicket.id);
-                          setIsCreateDialogOpen(false);
-                        }}
-                      >
-                        View ticket <ArrowRight className="h-3 w-3 ml-1 inline" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+        
               <div className="space-y-3 pt-3">
                 <div>
                   <label className="text-xs font-medium mb-1.5 block flex items-center gap-1.5">
@@ -135,29 +100,14 @@ export default function HelpPage() {
                     placeholder="Provide detailed information about your issue..."
                     rows={4}
                     value={newTicket.description}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setNewTicket({ ...newTicket, description: e.target.value })
-                    }
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewTicket({ ...newTicket, description: e.target.value })}
                     className="text-sm"
                   />
                 </div>
-                <Button
-                  onClick={handleCreateTicket}
-                  className="w-full"
-                  size="sm"
-                  disabled={!newTicket.subject || !newTicket.description || hasOpenTicket}
-                >
+                <Button onClick={handleCreateTicket} className="w-full" size="sm" disabled={!newTicket.subject || !newTicket.description}>
                   <Plus className="h-3.5 w-3.5 mr-1.5" />
                   Create Ticket
                 </Button>
-                {hasOpenTicket && (
-                  <div className="flex items-start gap-2 p-2 bg-muted/50 rounded-md border border-destructive/20">
-                    <AlertCircle className="h-3.5 w-3.5 text-destructive mt-0.5 shrink-0" />
-                    <p className="text-xs text-muted-foreground">
-                      You can only have one open ticket at a time. Please close your current ticket first.
-                    </p>
-                  </div>
-                )}
               </div>
             </DialogContent>
           </Dialog>
@@ -169,22 +119,14 @@ export default function HelpPage() {
         {/* Sidebar - Fixed width on desktop */}
         <div className="hidden sm:flex sm:w-80 sm:flex-shrink-0 border-r bg-sidebar/50 overflow-hidden">
           <div className="w-full h-full">
-            <TicketList
-              tickets={tickets}
-              selectedTicket={selectedTicket}
-              onSelectTicket={setSelectedTicket}
-            />
+            <TicketList tickets={tickets} selectedTicket={selectedTicket} onSelectTicket={setSelectedTicket} />
           </div>
         </div>
 
         {/* Mobile: Full width ticket list */}
         {isMobile && !selectedTicketData && (
           <div className="flex-1 overflow-hidden lg:hidden">
-            <TicketList
-              tickets={tickets}
-              selectedTicket={selectedTicket}
-              onSelectTicket={setSelectedTicket}
-            />
+            <TicketList tickets={tickets} selectedTicket={selectedTicket} onSelectTicket={setSelectedTicket} />
           </div>
         )}
 
@@ -207,23 +149,14 @@ export default function HelpPage() {
                       <TicketIcon className="h-4 w-4 text-primary shrink-0" />
                       <h2 className="text-base font-semibold truncate">{selectedTicketData.title}</h2>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSelectedTicket(null)}
-                      className="shrink-0 h-8 w-8"
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedTicket(null)} className="shrink-0 h-8 w-8">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
 
                   {/* Mobile Ticket Detail Content */}
                   <div className="flex-1 overflow-hidden">
-                    <TicketDetail
-                      ticket={selectedTicketData}
-                      onClose={() => setSelectedTicket(null)}
-                      isMobile={true}
-                    />
+                    <TicketDetail ticket={selectedTicketData} onClose={() => setSelectedTicket(null)} isMobile={true} />
                   </div>
                 </div>
               </motion.div>
@@ -231,16 +164,9 @@ export default function HelpPage() {
           ) : (
             <div key="desktop-content" className="flex-1 flex flex-col overflow-hidden bg-background">
               {selectedTicketData ? (
-                <TicketDetail
-                  ticket={selectedTicketData}
-                  onClose={() => setSelectedTicket(null)}
-                  isMobile={false}
-                />
+                <TicketDetail ticket={selectedTicketData} onClose={() => setSelectedTicket(null)} isMobile={false} />
               ) : (
-                <EmptyState
-                  onCreateTicket={() => setIsCreateDialogOpen(true)}
-                  hasOpenTicket={hasOpenTicket}
-                />
+                <EmptyState onCreateTicket={() => setIsCreateDialogOpen(true)} />
               )}
             </div>
           )}

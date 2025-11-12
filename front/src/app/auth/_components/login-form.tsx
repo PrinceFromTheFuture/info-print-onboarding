@@ -8,11 +8,11 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { authClient } from "@/lib/auth/auth-client";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/routes";
+import { useTRPC } from "@/trpc/trpc";
+import { useMutation } from "@tanstack/react-query";
 
 const schema = z.object({
   email: z.string("Please enter a valid email address."),
@@ -26,8 +26,8 @@ interface LoginFormProps extends React.ComponentProps<"div"> {
 }
 
 export function LoginForm({ className, setModeHandler, ...props }: LoginFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const trpc = useTRPC();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -37,42 +37,39 @@ export function LoginForm({ className, setModeHandler, ...props }: LoginFormProp
     },
   });
 
+  const { mutate: login, isPending: isSubmitting } = useMutation({
+    // @ts-ignore - Types will be regenerated when backend restarts
+    ...trpc.authRouter.login.mutationOptions(),
+    onSuccess: (data: any) => {
+      toast.success("Login successful! Welcome back.");
+
+      if (data?.user?.role === "admin") {
+        router.push(ROUTES.admin.dashboard);
+        return;
+      }
+
+      if (data?.user?.isApproved) {
+        router.push(ROUTES.customer.root);
+        return;
+      }
+
+      setModeHandler("pendingVerification");
+    },
+    onError: (error: any) => {
+      console.error(error);
+      const errorMessage = error.message || "Invalid email or password. Please try again.";
+      toast.error("Login Failed", {
+        description: errorMessage,
+      });
+    },
+  });
+
   const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    try {
-      const res = await authClient.signIn.email(
-        {
-          email: data.email,
-          password: data.password,
-        },
-        { redirect: "manual" }
-      );
-      if (res.data) {
-        toast.success("Login successful! Welcome back.");
-
-        if (res.data.user.role === "admin") {
-          router.push(ROUTES.admin.dashboard);
-          return;
-        }
-
-        if (res.data.user.isApproved) {
-          router.push(ROUTES.customer.root);
-          return;
-        }
-
-        setModeHandler("pendingVerification");
-      }
-      if (res.error) {
-        console.error(res.error);
-        const errorMessage = res.error?.message || "Invalid email or password. Please try again.";
-        toast.error("Login Failed", {
-          description: errorMessage,
-        });
-      }
-    } catch (err: any) {
-    } finally {
-      setIsSubmitting(false);
-    }
+    // @ts-ignore - Types will be regenerated when backend restarts
+    login({
+      email: data.email,
+      password: data.password,
+    });
   };
 
   return (

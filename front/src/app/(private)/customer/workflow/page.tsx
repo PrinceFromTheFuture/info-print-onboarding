@@ -129,7 +129,7 @@ export default function WorkflowPage() {
     <div className="flex flex-1 flex-col gap-6 p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Workflows</h1>
+        <h1 className="text-3xl font-bold tracking-tight">My Forms</h1>
         <p className="text-muted-foreground mt-1">Complete your assigned templates</p>
       </div>
 

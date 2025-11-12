@@ -9,17 +9,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Archive, Clock, Search, ArrowUpDown, User, Signal, MessageSquare } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import {
-  activeTicketSelector,
-  allTicketsSelector,
-  onSelectTicketAction,
-} from "@/lib/redux/ticketsSlice/ticketsSlice";
+import { activeTicketSelector, allTicketsSelector, onSelectTicketAction } from "@/lib/redux/ticketsSlice/ticketsSlice";
 import { AppUser } from "../../../../../../../../back/payload-types";
 import type { inferProcedureOutput } from "@trpc/server";
-import { useTRPC } from "@/trpc/trpc";
-import { useMutation } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth/auth-client";
 import { AppRouter } from "../../../../../../../../back/dist/src/trpc";
+import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 type TicketWithMessages = inferProcedureOutput<AppRouter["ticketsRouter"]["getAllTickets"]>[number];
 type SortOption = "default" | "name" | "priority" | "lastSent";
@@ -93,30 +89,16 @@ const getPriorityLabel = (priority: TicketPriority): string => {
   return priority.charAt(0).toUpperCase() + priority.slice(1);
 };
 
-export function ConversationSidebar({
-  activeTab,
-  onTabChange,
-  searchQuery,
-  onSearchChange,
-}: ConversationSidebarProps) {
-  const dispatch = useAppDispatch();
+export function ConversationSidebar({ activeTab, onTabChange, searchQuery, onSearchChange }: ConversationSidebarProps) {
   const allTickets = useAppSelector(allTicketsSelector);
   const activeTicket = useAppSelector(activeTicketSelector);
   const { data: session } = useSession();
-  const trpc = useTRPC();
-  const { mutate: notifySeenMessages } = useMutation(trpc.ticketsRouter.notifySeenMessages.mutationOptions());
 
   const [sortBy, setSortBy] = useState<SortOption>("default");
 
   // Filter tickets by status
-  const openTickets = useMemo(
-    () => allTickets.filter((ticket: TicketWithMessages) => ticket.status === "open"),
-    [allTickets]
-  );
-  const archivedTickets = useMemo(
-    () => allTickets.filter((ticket: TicketWithMessages) => ticket.status === "closed"),
-    [allTickets]
-  );
+  const openTickets = useMemo(() => allTickets.filter((ticket: TicketWithMessages) => ticket.status === "open"), [allTickets]);
+  const archivedTickets = useMemo(() => allTickets.filter((ticket: TicketWithMessages) => ticket.status === "closed"), [allTickets]);
 
   // Get unread count for a ticket
   const getUnreadCount = useCallback(
@@ -131,14 +113,6 @@ export function ConversationSidebar({
     [session?.user?.id]
   );
 
-  // Handle ticket selection
-  const handleSelectTicket = useCallback(
-    (ticketId: string) => {
-      dispatch(onSelectTicketAction({ ticketId, userId: session?.user?.id }));
-      notifySeenMessages({ ticketId } as any);
-    },
-    [dispatch, notifySeenMessages, session?.user?.id]
-  );
   // Filter and sort tickets
   const filteredTickets = useMemo(() => {
     const ticketsToFilter = activeTab === "open" ? openTickets : archivedTickets;
@@ -285,15 +259,13 @@ export function ConversationSidebar({
       </div>
 
       {/* Conversation List */}
-      <ScrollArea className="flex-1 h-0">
-        <div className="p-4 space-y-2 flex flex-col">
+      <ScrollArea className="flex-1 h-0 p-4">
+        <div className=" space-y-2 flex flex-col">
           {filteredTickets.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-4">
               <MessageSquare className="h-10 w-10 text-muted-foreground/50 mb-3" />
               <p className="text-sm font-medium text-muted-foreground">No tickets found</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">
-                {searchQuery ? "Try adjusting your search" : "No tickets in this category"}
-              </p>
+              <p className="text-xs text-muted-foreground/70 mt-1">{searchQuery ? "Try adjusting your search" : "No tickets in this category"}</p>
             </div>
           ) : (
             filteredTickets.map((ticket: TicketWithMessages) => {
@@ -304,79 +276,69 @@ export function ConversationSidebar({
               const isResolved = ticket.status === "closed";
 
               return (
-                <Card
-                  key={ticket.id}
-                  className={`cursor-pointer transition-all duration-200 m-0 p-0 rounded-lg border overflow-hidden ${
-                    isSelected
-                      ? "bg-primary/10 border-primary shadow-sm shadow-primary/5"
-                      : "bg-card/50 border-border/50 hover:bg-card hover:border-border hover:shadow-sm"
-                  }`}
-                  onClick={() => handleSelectTicket(ticket.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-start gap-2 flex-1 min-w-0">
-                        <Avatar className="h-8 w-8 shrink-0 mt-0.5">
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
-                            {customer.name
-                              .split(" ")
-                              .map((n: string) => n[0])
-                              .join("")
-                              .toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold truncate">{ticket.title}</span>
-                            {unreadCount > 0 && (
-                              <Badge
-                                variant="destructive"
-                                className="text-[10px] px-1.5 py-0.5 h-5 font-semibold shrink-0"
-                              >
-                                {unreadCount}
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <span className="text-xs text-muted-foreground truncate">{customer.name}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <span className="text-[11px] text-muted-foreground/70 truncate">
-                              {customer.email}
-                            </span>
+                <Link href={`${ROUTES.admin.support}/${ticket.id}`} className="">
+                  <Card
+                    key={ticket.id}
+                    className={`cursor-pointer transition-all duration-200 m-0 p-0 rounded-lg border overflow-hidden ${
+                      isSelected
+                        ? "bg-primary/10 border-primary shadow-sm shadow-primary/5"
+                        : "bg-card/50 border-border/50 hover:bg-card hover:border-border hover:shadow-sm"
+                    }`}
+                  >
+                    <CardContent className=" px-0">
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start gap-2 flex-1 min-w-0">
+                            <Avatar className="h-8 w-8 shrink-0 mt-0.5">
+                              <AvatarFallback className="text-xs bg-primary/10 text-primary font-medium">
+                                {customer.name
+                                  .split(" ")
+                                  .map((n: string) => n[0])
+                                  .join("")
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold truncate">{ticket.title}</span>
+                                {unreadCount > 0 && (
+                                  <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5 h-5 font-semibold shrink-0">
+                                    {unreadCount}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 mb-2">
+                                <span className="text-xs text-muted-foreground truncate">{customer.name}</span>
+                                <span className="text-muted-foreground/50">•</span>
+                              </div>
+                              <span className="text-[11px] text-muted-foreground/70 truncate">{customer.email}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                          <Clock className="h-3 w-3" />
-                          {lastMessageTime}
-                        </span>
-                        <Badge
-                          variant="secondary"
-                          className={`text-[10px] font-medium px-2 py-0.5 h-5 ${getPriorityColor(
-                            ticket.priority
-                          )}`}
-                        >
-                          {getPriorityLabel(ticket.priority)}
-                        </Badge>
-                      </div>
-                      {isResolved && (
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-2 py-0.5 h-5 bg-green-500/10 text-green-700 border-green-500/20"
-                          >
-                            <Archive className="h-2.5 w-2.5 mr-1" />
-                            Resolved
-                          </Badge>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                              <Clock className="h-3 w-3" />
+                              {lastMessageTime}
+                            </span>
+                            <Badge variant="secondary" className={`text-[10px] font-medium px-2 py-0.5 h-5 ${getPriorityColor(ticket.priority)}`}>
+                              {getPriorityLabel(ticket.priority)}
+                            </Badge>
+                          </div>
+                          {isResolved && (
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <Badge variant="outline" className="text-[10px] px-2 py-0.5 h-5 bg-green-500/10 text-green-700 border-green-500/20">
+                                <Archive className="h-2.5 w-2.5 mr-1" />
+                                Resolved
+                              </Badge>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })
           )}
